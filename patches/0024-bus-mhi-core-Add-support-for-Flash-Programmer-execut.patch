@@ -1,0 +1,129 @@
+From 1831e9015cea09c3a6c0ccb5fd27609e0e07b1b2 Mon Sep 17 00:00:00 2001
+From: Carl Yin <carl.yin@quectel.com>
+Date: Mon, 29 Mar 2021 18:28:21 -0700
+Subject: [PATCH 24/58] bus: mhi: core: Add support for Flash Programmer
+ execution environment
+
+MHI WWAN modems support downloading firmware to NAND or eMMC
+using Firehose protocol with process as follows:
+1. Modem boots up, enters AMSS execution environment and the
+device later enters EDL (Emergency Download) mode through any
+mechanism host can use such as a diag command.
+2. Modem enters SYS_ERROR, MHI host handles SYS_ERROR transition.
+3. EDL image for device to enter 'Flash Programmer' execution
+environment is then flashed via BHI interface from host.
+4. Modem enters MHI READY -> M0 and sends the Flash Programmer
+execution environment change to host.
+5. Following that, EDL/FIREHOSE channels (34, 35) are made
+available from the host.
+6. User space tool for downloading firmware image to modem over
+the EDL channels using Firehose protocol. Link to USB flashing
+tool: https://git.linaro.org/landing-teams/working/qualcomm/qdl.git/
+
+Make the necessary changes to allow for this sequence to occur and
+allow using the Flash Programmer execution environment.
+
+Signed-off-by: Carl Yin <carl.yin@quectel.com>
+Co-developed-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/1617067704-28850-5-git-send-email-bbhatt@codeaurora.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/core/init.c     | 2 ++
+ drivers/bus/mhi/core/internal.h | 1 +
+ drivers/bus/mhi/core/main.c     | 3 +++
+ drivers/bus/mhi/core/pm.c       | 6 ++++++
+ include/linux/mhi.h             | 4 +++-
+ 5 files changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/core/init.c b/drivers/bus/mhi/core/init.c
+index 706484ffe169..ee67712f66c0 100644
+--- a/drivers/bus/mhi/core/init.c
++++ b/drivers/bus/mhi/core/init.c
+@@ -29,6 +29,7 @@ const char * const mhi_ee_str[MHI_EE_MAX] = {
+ 	[MHI_EE_WFW] = "WFW",
+ 	[MHI_EE_PTHRU] = "PASS THRU",
+ 	[MHI_EE_EDL] = "EDL",
++	[MHI_EE_FP] = "FLASH PROGRAMMER",
+ 	[MHI_EE_DISABLE_TRANSITION] = "DISABLE",
+ 	[MHI_EE_NOT_SUPPORTED] = "NOT SUPPORTED",
+ };
+@@ -38,6 +39,7 @@ const char * const dev_state_tran_str[DEV_ST_TRANSITION_MAX] = {
+ 	[DEV_ST_TRANSITION_READY] = "READY",
+ 	[DEV_ST_TRANSITION_SBL] = "SBL",
+ 	[DEV_ST_TRANSITION_MISSION_MODE] = "MISSION_MODE",
++	[DEV_ST_TRANSITION_FP] = "FLASH_PROGRAMMER",
+ 	[DEV_ST_TRANSITION_SYS_ERR] = "SYS_ERR",
+ 	[DEV_ST_TRANSITION_DISABLE] = "DISABLE",
+ };
+diff --git a/drivers/bus/mhi/core/internal.h b/drivers/bus/mhi/core/internal.h
+index 6f37439e5247..b1b5f2b82393 100644
+--- a/drivers/bus/mhi/core/internal.h
++++ b/drivers/bus/mhi/core/internal.h
+@@ -386,6 +386,7 @@ enum dev_st_transition {
+ 	DEV_ST_TRANSITION_READY,
+ 	DEV_ST_TRANSITION_SBL,
+ 	DEV_ST_TRANSITION_MISSION_MODE,
++	DEV_ST_TRANSITION_FP,
+ 	DEV_ST_TRANSITION_SYS_ERR,
+ 	DEV_ST_TRANSITION_DISABLE,
+ 	DEV_ST_TRANSITION_MAX,
+diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
+index d377d07f269e..8b68657c76c3 100644
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -831,6 +831,9 @@ int mhi_process_ctrl_ev_ring(struct mhi_controller *mhi_cntrl,
+ 			case MHI_EE_AMSS:
+ 				st = DEV_ST_TRANSITION_MISSION_MODE;
+ 				break;
++			case MHI_EE_FP:
++				st = DEV_ST_TRANSITION_FP;
++				break;
+ 			case MHI_EE_RDDM:
+ 				mhi_cntrl->status_cb(mhi_cntrl, MHI_CB_EE_RDDM);
+ 				write_lock_irq(&mhi_cntrl->pm_lock);
+diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+index b65222eda5e6..7ac9dfe54895 100644
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -782,6 +782,12 @@ void mhi_pm_st_worker(struct work_struct *work)
+ 		case DEV_ST_TRANSITION_MISSION_MODE:
+ 			mhi_pm_mission_mode_transition(mhi_cntrl);
+ 			break;
++		case DEV_ST_TRANSITION_FP:
++			write_lock_irq(&mhi_cntrl->pm_lock);
++			mhi_cntrl->ee = MHI_EE_FP;
++			write_unlock_irq(&mhi_cntrl->pm_lock);
++			mhi_create_devices(mhi_cntrl);
++			break;
+ 		case DEV_ST_TRANSITION_READY:
+ 			mhi_ready_state_transition(mhi_cntrl);
+ 			break;
+diff --git a/include/linux/mhi.h b/include/linux/mhi.h
+index 8f5bf409f663..b16afd36b444 100644
+--- a/include/linux/mhi.h
++++ b/include/linux/mhi.h
+@@ -117,6 +117,7 @@ struct mhi_link_info {
+  * @MHI_EE_WFW: WLAN firmware mode
+  * @MHI_EE_PTHRU: Passthrough
+  * @MHI_EE_EDL: Embedded downloader
++ * @MHI_EE_FP: Flash Programmer Environment
+  */
+ enum mhi_ee_type {
+ 	MHI_EE_PBL,
+@@ -126,7 +127,8 @@ enum mhi_ee_type {
+ 	MHI_EE_WFW,
+ 	MHI_EE_PTHRU,
+ 	MHI_EE_EDL,
+-	MHI_EE_MAX_SUPPORTED = MHI_EE_EDL,
++	MHI_EE_FP,
++	MHI_EE_MAX_SUPPORTED = MHI_EE_FP,
+ 	MHI_EE_DISABLE_TRANSITION, /* local EE, not related to mhi spec */
+ 	MHI_EE_NOT_SUPPORTED,
+ 	MHI_EE_MAX,
+-- 
+2.25.1
+

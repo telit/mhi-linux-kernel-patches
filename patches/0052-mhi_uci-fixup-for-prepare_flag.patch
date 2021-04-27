@@ -1,0 +1,27 @@
+From bf43b010d481a6d4acfce486f2e8969fdb6b0529 Mon Sep 17 00:00:00 2001
+From: Loic Poulain <loic.poulain@linaro.org>
+Date: Tue, 1 Dec 2020 17:18:41 +0100
+Subject: [PATCH 52/58] mhi_uci: fixup for prepare_flag
+
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/uci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/uci.c b/drivers/bus/mhi/uci.c
+index b85cbd33ff43..7550cc664cd6 100644
+--- a/drivers/bus/mhi/uci.c
++++ b/drivers/bus/mhi/uci.c
+@@ -122,7 +122,7 @@ static int mhi_uci_open(struct inode *inode, struct file *filp)
+ 
+ 	/* Start MHI channel(s) and fill RX queue */
+ 	mutex_lock(&udev->mhi_dev_lock);
+-	ret = mhi_prepare_for_transfer(udev->mhi_dev);
++	ret = mhi_prepare_for_transfer(udev->mhi_dev, 0);
+ 	if (!ret)
+ 		ret = mhi_uci_queue_inbound(udev);
+ 	mutex_unlock(&udev->mhi_dev_lock);
+-- 
+2.25.1
+

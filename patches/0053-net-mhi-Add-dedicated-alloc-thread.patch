@@ -1,0 +1,208 @@
+From 0ecdd2e1806aac0bf77d6f59945f9b203432df35 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 15 Apr 2021 15:18:14 +0200
+Subject: [PATCH 53/58] net: mhi: Add dedicated alloc thread
+
+The buffer allocation for RX path is currently done by a work executed
+in the system workqueue. The work to do is quite simple and consists
+mostly in allocating and queueing as much as possible buffers to the MHI
+RX channel.
+
+This patch replaces the system work with a simple kthread that loops on
+buffer allocation and sleeps when queue is full.
+
+After practical testing, it appears that thid change improves:
+- Peek throughput (slightly, by few mbps)
+- Throughput stability when concurrent loads are running (stress)
+
+Original patch by Loic Poulain.
+Rebase to v5.13 and minor fix on refill level define name Daniele Palmas.
+
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/net/mhi/mhi.h |  6 ++-
+ drivers/net/mhi/net.c | 95 ++++++++++++++++++++++++-------------------
+ 2 files changed, 57 insertions(+), 44 deletions(-)
+
+diff --git a/drivers/net/mhi/mhi.h b/drivers/net/mhi/mhi.h
+index 12e7407d712a..becec03ed04a 100644
+--- a/drivers/net/mhi/mhi.h
++++ b/drivers/net/mhi/mhi.h
+@@ -25,10 +25,12 @@ struct mhi_net_dev {
+ 	struct sk_buff *skbagg_tail;
+ 	const struct mhi_net_proto *proto;
+ 	void *proto_data;
+-	struct delayed_work rx_refill;
+-	struct mhi_net_stats stats;
++	struct task_struct *refill_task;
+ 	u32 rx_queue_sz;
+ 	int msg_enable;
++	u32 refill_level;
++	struct mhi_net_stats stats;
++	wait_queue_head_t refill_wq;
+ };
+ 
+ struct mhi_net_proto {
+diff --git a/drivers/net/mhi/net.c b/drivers/net/mhi/net.c
+index a838ad2e5353..7e3d99f796ed 100644
+--- a/drivers/net/mhi/net.c
++++ b/drivers/net/mhi/net.c
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <linux/if_arp.h>
++#include <linux/kthread.h>
+ #include <linux/mhi.h>
+ #include <linux/mod_devicetable.h>
+ #include <linux/module.h>
+@@ -18,6 +19,47 @@
+ #define MHI_NET_MAX_MTU		0xffff
+ #define MHI_NET_DEFAULT_MTU	0x4000
+ 
++#define RX_REFILL_LVL	50 /* Refill the RX queue if lower than 50% */
++
++static int mhi_net_refill_thread(void *data)
++{
++	struct mhi_net_dev *mhi_netdev = data;
++	struct net_device *ndev = mhi_netdev->ndev;
++	struct mhi_device *mdev = mhi_netdev->mdev;
++	int size = READ_ONCE(ndev->mtu);
++	struct sk_buff *skb;
++	int err;
++
++	while (1) {
++		err = wait_event_interruptible(mhi_netdev->refill_wq,
++					       !mhi_queue_is_full(mdev, DMA_FROM_DEVICE)
++					       || kthread_should_stop());
++		if (err || kthread_should_stop())
++			break;
++
++		skb = netdev_alloc_skb(ndev, size);
++		if (unlikely(!skb)) {
++			/* No memory, retry later */
++			net_warn_ratelimited("%s: Unable to allocate RX buf\n",
++					     ndev->name);
++			schedule_timeout_interruptible(msecs_to_jiffies(250));
++			continue;
++		}
++
++		err = mhi_queue_skb(mdev, DMA_FROM_DEVICE, skb, size, MHI_EOT);
++		if (unlikely(err)) {
++			net_err_ratelimited("%s: Failed to queue RX buf (%d)\n",
++					    ndev->name, err);
++			kfree_skb(skb);
++		}
++
++		/* Do not hog the CPU */
++		cond_resched();
++	}
++
++	return 0;
++}
++
+ struct mhi_device_info {
+ 	const char *netname;
+ 	const struct mhi_net_proto *proto;
+@@ -26,9 +68,15 @@ struct mhi_device_info {
+ static int mhi_ndo_open(struct net_device *ndev)
+ {
+ 	struct mhi_net_dev *mhi_netdev = netdev_priv(ndev);
++	unsigned int qsz = mhi_netdev->rx_queue_sz;
+ 
+ 	/* Feed the rx buffer pool */
+-	schedule_delayed_work(&mhi_netdev->rx_refill, 0);
++	mhi_netdev->refill_level = qsz - qsz * RX_REFILL_LVL / 100;
++
++	mhi_netdev->refill_task = kthread_run(mhi_net_refill_thread, mhi_netdev,
++					      "mhi-net-rx");
++	if (IS_ERR(mhi_netdev->refill_task))
++		return PTR_ERR(mhi_netdev->refill_task);
+ 
+ 	/* Carrier is established via out-of-band channel (e.g. qmi) */
+ 	netif_carrier_on(ndev);
+@@ -42,9 +90,9 @@ static int mhi_ndo_stop(struct net_device *ndev)
+ {
+ 	struct mhi_net_dev *mhi_netdev = netdev_priv(ndev);
+ 
++	kthread_stop(mhi_netdev->refill_task);
+ 	netif_stop_queue(ndev);
+ 	netif_carrier_off(ndev);
+-	cancel_delayed_work_sync(&mhi_netdev->rx_refill);
+ 
+ 	return 0;
+ }
+@@ -160,9 +208,6 @@ static void mhi_net_dl_callback(struct mhi_device *mhi_dev,
+ 	struct mhi_net_dev *mhi_netdev = dev_get_drvdata(&mhi_dev->dev);
+ 	const struct mhi_net_proto *proto = mhi_netdev->proto;
+ 	struct sk_buff *skb = mhi_res->buf_addr;
+-	int free_desc_count;
+-
+-	free_desc_count = mhi_get_free_desc_count(mhi_dev, DMA_FROM_DEVICE);
+ 
+ 	if (unlikely(mhi_res->transaction_status)) {
+ 		switch (mhi_res->transaction_status) {
+@@ -222,8 +267,8 @@ static void mhi_net_dl_callback(struct mhi_device *mhi_dev,
+ 	}
+ 
+ 	/* Refill if RX buffers queue becomes low */
+-	if (free_desc_count >= mhi_netdev->rx_queue_sz / 2)
+-		schedule_delayed_work(&mhi_netdev->rx_refill, 0);
++	if (mhi_get_free_desc_count(mhi_dev, DMA_FROM_DEVICE) >= mhi_netdev->refill_level)
++		wake_up_interruptible(&mhi_netdev->refill_wq);
+ }
+ 
+ static void mhi_net_ul_callback(struct mhi_device *mhi_dev,
+@@ -259,40 +304,6 @@ static void mhi_net_ul_callback(struct mhi_device *mhi_dev,
+ 		netif_wake_queue(ndev);
+ }
+ 
+-static void mhi_net_rx_refill_work(struct work_struct *work)
+-{
+-	struct mhi_net_dev *mhi_netdev = container_of(work, struct mhi_net_dev,
+-						      rx_refill.work);
+-	struct net_device *ndev = mhi_netdev->ndev;
+-	struct mhi_device *mdev = mhi_netdev->mdev;
+-	int size = READ_ONCE(ndev->mtu);
+-	struct sk_buff *skb;
+-	int err;
+-
+-	while (!mhi_queue_is_full(mdev, DMA_FROM_DEVICE)) {
+-		skb = netdev_alloc_skb(ndev, size);
+-		if (unlikely(!skb))
+-			break;
+-
+-		err = mhi_queue_skb(mdev, DMA_FROM_DEVICE, skb, size, MHI_EOT);
+-		if (unlikely(err)) {
+-			net_err_ratelimited("%s: Failed to queue RX buf (%d)\n",
+-					    ndev->name, err);
+-			kfree_skb(skb);
+-			break;
+-		}
+-
+-		/* Do not hog the CPU if rx buffers are consumed faster than
+-		 * queued (unlikely).
+-		 */
+-		cond_resched();
+-	}
+-
+-	/* If we're still starved of rx buffers, reschedule later */
+-	if (mhi_get_free_desc_count(mdev, DMA_FROM_DEVICE) == mhi_netdev->rx_queue_sz)
+-		schedule_delayed_work(&mhi_netdev->rx_refill, HZ / 2);
+-}
+-
+ static struct device_type wwan_type = {
+ 	.name = "wwan",
+ };
+@@ -320,7 +331,7 @@ static int mhi_net_probe(struct mhi_device *mhi_dev,
+ 	SET_NETDEV_DEV(ndev, &mhi_dev->dev);
+ 	SET_NETDEV_DEVTYPE(ndev, &wwan_type);
+ 
+-	INIT_DELAYED_WORK(&mhi_netdev->rx_refill, mhi_net_rx_refill_work);
++	init_waitqueue_head(&mhi_netdev->refill_wq);
+ 	u64_stats_init(&mhi_netdev->stats.rx_syncp);
+ 	u64_stats_init(&mhi_netdev->stats.tx_syncp);
+ 
+-- 
+2.25.1
+

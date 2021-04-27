@@ -1,0 +1,49 @@
+From dc3e1f906f188864cbf11a86f0dff04bc073c8ca Mon Sep 17 00:00:00 2001
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Date: Thu, 8 Apr 2021 19:15:29 +0530
+Subject: [PATCH 47/58] bus: mhi: pci_generic: Constify mhi_controller_config
+ struct definitions
+
+"mhi_controller_config" struct is not modified inside "mhi_pci_dev_info"
+struct. So constify the instances.
+
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/pci_generic.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+index 8f715519ba08..7c810f02a2ef 100644
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -227,7 +227,7 @@ static struct mhi_event_config modem_qcom_v1_mhi_events[] = {
+ 	MHI_EVENT_CONFIG_HW_DATA(3, 2048, 101)
+ };
+ 
+-static struct mhi_controller_config modem_qcom_v1_mhiv_config = {
++static const struct mhi_controller_config modem_qcom_v1_mhiv_config = {
+ 	.max_channels = 128,
+ 	.timeout_ms = 8000,
+ 	.num_channels = ARRAY_SIZE(modem_qcom_v1_mhi_channels),
+@@ -287,7 +287,7 @@ static struct mhi_event_config mhi_quectel_em1xx_events[] = {
+ 	MHI_EVENT_CONFIG_HW_DATA(3, 1024, 101)
+ };
+ 
+-static struct mhi_controller_config modem_quectel_em1xx_config = {
++static const struct mhi_controller_config modem_quectel_em1xx_config = {
+ 	.max_channels = 128,
+ 	.timeout_ms = 20000,
+ 	.num_channels = ARRAY_SIZE(mhi_quectel_em1xx_channels),
+@@ -324,7 +324,7 @@ static struct mhi_event_config mhi_foxconn_sdx55_events[] = {
+ 	MHI_EVENT_CONFIG_HW_DATA(3, 1024, 101)
+ };
+ 
+-static struct mhi_controller_config modem_foxconn_sdx55_config = {
++static const struct mhi_controller_config modem_foxconn_sdx55_config = {
+ 	.max_channels = 128,
+ 	.timeout_ms = 20000,
+ 	.num_channels = ARRAY_SIZE(mhi_foxconn_sdx55_channels),
+-- 
+2.25.1
+

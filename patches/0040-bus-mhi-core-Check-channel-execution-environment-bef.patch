@@ -1,0 +1,55 @@
+From 40ae5f380f88edbd952d50970e210623e7357ea7 Mon Sep 17 00:00:00 2001
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Date: Thu, 1 Apr 2021 14:16:16 -0700
+Subject: [PATCH 40/58] bus: mhi: core: Check channel execution environment
+ before issuing reset
+
+A client can attempt to unprepare certain channels for transfer even
+after the execution environment they are supposed to run in has changed.
+In the event that happens, the device need not be notified of the reset
+and the host can proceed with clean up for the channel context and
+memory allocated for it on the host as the device will no longer be able
+to respond to such a request.
+
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/1617311778-1254-8-git-send-email-bbhatt@codeaurora.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/core/main.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
+index b4b87a9e17a4..0be1e7747cd7 100644
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -1337,6 +1337,12 @@ static void __mhi_unprepare_channel(struct mhi_controller *mhi_cntrl,
+ 
+ 	mutex_lock(&mhi_chan->mutex);
+ 
++	if (!(BIT(mhi_cntrl->ee) & mhi_chan->ee_mask)) {
++		dev_dbg(dev, "Current EE: %s Required EE Mask: 0x%x\n",
++			TO_MHI_EXEC_STR(mhi_cntrl->ee), mhi_chan->ee_mask);
++		goto exit_unprepare_channel;
++	}
++
+ 	/* no more processing events for this channel */
+ 	ret = mhi_update_channel_state(mhi_cntrl, mhi_chan,
+ 				       MHI_CH_STATE_TYPE_RESET);
+@@ -1344,6 +1350,11 @@ static void __mhi_unprepare_channel(struct mhi_controller *mhi_cntrl,
+ 		dev_err(dev, "%d: Failed to reset channel, still resetting\n",
+ 			mhi_chan->chan);
+ 
++exit_unprepare_channel:
++	write_lock_irq(&mhi_chan->lock);
++	mhi_chan->ch_state = MHI_CH_STATE_DISABLED;
++	write_unlock_irq(&mhi_chan->lock);
++
+ 	if (!mhi_chan->offload_ch) {
+ 		mhi_reset_chan(mhi_cntrl, mhi_chan);
+ 		mhi_deinit_chan_ctxt(mhi_cntrl, mhi_chan);
+-- 
+2.25.1
+

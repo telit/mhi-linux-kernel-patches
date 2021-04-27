@@ -1,0 +1,51 @@
+From b07a2ec1f982d02fcd44193c91b9a09e2452f122 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Wed, 21 Apr 2021 12:50:06 +0200
+Subject: [PATCH 56/58] bus: mhi: add debug options to Makefile
+
+Uncomment the lines in Makefiles for debugging
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/Makefile      | 6 ++++++
+ drivers/bus/mhi/core/Makefile | 6 ++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/drivers/bus/mhi/Makefile b/drivers/bus/mhi/Makefile
+index 69f21116e40c..70c60e962b87 100644
+--- a/drivers/bus/mhi/Makefile
++++ b/drivers/bus/mhi/Makefile
+@@ -1,9 +1,15 @@
+ # core layer
+ obj-y += core/
+ 
++# Uncomment the following for debug prints
++#CFLAGS_pci_generic.o := -DDEBUG
++##
+ obj-$(CONFIG_MHI_BUS_PCI_GENERIC) += mhi_pci_generic.o
+ mhi_pci_generic-y += pci_generic.o
+ 
+ # MHI client
+ mhi_uci-y := uci.o
++# Uncomment the following for debug prints
++#CFLAGS_uci.o := -DDEBUG
++##
+ obj-$(CONFIG_MHI_UCI) += mhi_uci.o
+diff --git a/drivers/bus/mhi/core/Makefile b/drivers/bus/mhi/core/Makefile
+index c3feb4130aa3..cce92a04ed3c 100644
+--- a/drivers/bus/mhi/core/Makefile
++++ b/drivers/bus/mhi/core/Makefile
+@@ -1,4 +1,10 @@
+ obj-$(CONFIG_MHI_BUS) += mhi.o
+ 
+ mhi-y := init.o main.o pm.o boot.o
++## Uncomment the following for debug prints
++#CFLAGS_main.o := -I$(src) -DDEBUG
++#CFLAGS_init.o := -DDEBUG
++#CFLAGS_pm.o := -DDEBUG
++#CFLAGS_boot.o := -DDEBUG
++##
+ mhi-$(CONFIG_MHI_BUS_DEBUG) += debugfs.o
+-- 
+2.25.1
+

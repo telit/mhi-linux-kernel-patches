@@ -1,0 +1,65 @@
+From 141b6770bd369d7d4388c4ac7fd8c17223aeecf3 Mon Sep 17 00:00:00 2001
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Date: Thu, 1 Apr 2021 14:16:17 -0700
+Subject: [PATCH 41/58] bus: mhi: core: Remove __ prefix for MHI channel
+ unprepare function
+
+The __mhi_unprepare_channel() API does not require the __ prefix.
+Get rid of it and make the internal function consistent with the
+other function names.
+
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
+Link: https://lore.kernel.org/r/1617311778-1254-9-git-send-email-bbhatt@codeaurora.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/core/main.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
+index 0be1e7747cd7..55aa7db11e4f 100644
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -1329,8 +1329,8 @@ static int mhi_update_channel_state(struct mhi_controller *mhi_cntrl,
+ 	return ret;
+ }
+ 
+-static void __mhi_unprepare_channel(struct mhi_controller *mhi_cntrl,
+-				    struct mhi_chan *mhi_chan)
++static void mhi_unprepare_channel(struct mhi_controller *mhi_cntrl,
++				  struct mhi_chan *mhi_chan)
+ {
+ 	int ret;
+ 	struct device *dev = &mhi_chan->mhi_dev->dev;
+@@ -1440,7 +1440,7 @@ int mhi_prepare_channel(struct mhi_controller *mhi_cntrl,
+ 
+ error_pre_alloc:
+ 	mutex_unlock(&mhi_chan->mutex);
+-	__mhi_unprepare_channel(mhi_cntrl, mhi_chan);
++	mhi_unprepare_channel(mhi_cntrl, mhi_chan);
+ 
+ 	return ret;
+ }
+@@ -1560,7 +1560,7 @@ int mhi_prepare_for_transfer(struct mhi_device *mhi_dev)
+ 		if (!mhi_chan)
+ 			continue;
+ 
+-		__mhi_unprepare_channel(mhi_cntrl, mhi_chan);
++		mhi_unprepare_channel(mhi_cntrl, mhi_chan);
+ 	}
+ 
+ 	return ret;
+@@ -1578,7 +1578,7 @@ void mhi_unprepare_from_transfer(struct mhi_device *mhi_dev)
+ 		if (!mhi_chan)
+ 			continue;
+ 
+-		__mhi_unprepare_channel(mhi_cntrl, mhi_chan);
++		mhi_unprepare_channel(mhi_cntrl, mhi_chan);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(mhi_unprepare_from_transfer);
+-- 
+2.25.1
+

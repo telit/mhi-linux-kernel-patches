@@ -1,0 +1,79 @@
+From a6f8fdbf45ffbdbf15b4c6c48a884c0eae444a5a Mon Sep 17 00:00:00 2001
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Date: Wed, 31 Mar 2021 11:34:24 -0700
+Subject: [PATCH 28/58] bus: mhi: core: Introduce internal register poll helper
+ function
+
+Introduce helper function to allow MHI core driver to poll for
+a value in a register field. This helps reach a common path to
+read and poll register values along with a retry time interval.
+
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/1617215665-19593-2-git-send-email-bbhatt@codeaurora.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/core/internal.h |  3 +++
+ drivers/bus/mhi/core/main.c     | 23 +++++++++++++++++++++++
+ 2 files changed, 26 insertions(+)
+
+diff --git a/drivers/bus/mhi/core/internal.h b/drivers/bus/mhi/core/internal.h
+index 7aa5cfd874e4..e690f154212f 100644
+--- a/drivers/bus/mhi/core/internal.h
++++ b/drivers/bus/mhi/core/internal.h
+@@ -646,6 +646,9 @@ int __must_check mhi_read_reg(struct mhi_controller *mhi_cntrl,
+ int __must_check mhi_read_reg_field(struct mhi_controller *mhi_cntrl,
+ 				    void __iomem *base, u32 offset, u32 mask,
+ 				    u32 shift, u32 *out);
++int __must_check mhi_poll_reg_field(struct mhi_controller *mhi_cntrl,
++				    void __iomem *base, u32 offset, u32 mask,
++				    u32 shift, u32 val, u32 delayus);
+ void mhi_write_reg(struct mhi_controller *mhi_cntrl, void __iomem *base,
+ 		   u32 offset, u32 val);
+ void mhi_write_reg_field(struct mhi_controller *mhi_cntrl, void __iomem *base,
+diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
+index 8b68657c76c3..58b8111ce66c 100644
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -4,6 +4,7 @@
+  *
+  */
+ 
++#include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/dma-direction.h>
+ #include <linux/dma-mapping.h>
+@@ -37,6 +38,28 @@ int __must_check mhi_read_reg_field(struct mhi_controller *mhi_cntrl,
+ 	return 0;
+ }
+ 
++int __must_check mhi_poll_reg_field(struct mhi_controller *mhi_cntrl,
++				    void __iomem *base, u32 offset,
++				    u32 mask, u32 shift, u32 val, u32 delayus)
++{
++	int ret;
++	u32 out, retry = (mhi_cntrl->timeout_ms * 1000) / delayus;
++
++	while (retry--) {
++		ret = mhi_read_reg_field(mhi_cntrl, base, offset, mask, shift,
++					 &out);
++		if (ret)
++			return ret;
++
++		if (out == val)
++			return 0;
++
++		fsleep(delayus);
++	}
++
++	return -ETIMEDOUT;
++}
++
+ void mhi_write_reg(struct mhi_controller *mhi_cntrl, void __iomem *base,
+ 		   u32 offset, u32 val)
+ {
+-- 
+2.25.1
+

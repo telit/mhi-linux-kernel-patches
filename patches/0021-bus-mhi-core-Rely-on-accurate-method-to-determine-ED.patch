@@ -1,0 +1,39 @@
+From abcd5721768e2e51325b8178bbc233723a59836d Mon Sep 17 00:00:00 2001
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Date: Mon, 29 Mar 2021 18:28:18 -0700
+Subject: [PATCH 21/58] bus: mhi: core: Rely on accurate method to determine
+ EDL mode
+
+Relying on the current execution environment to determine if EDL
+image was downloaded should not be done as the execution
+environment can change at this point in error cases and we may
+misread it. Instead, MHI can rely on the local 'fw_name' variable
+as a safer alternative.
+
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Link: https://lore.kernel.org/r/1617067704-28850-2-git-send-email-bbhatt@codeaurora.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/core/boot.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/core/boot.c b/drivers/bus/mhi/core/boot.c
+index 08c28740dc4e..84c21178144a 100644
+--- a/drivers/bus/mhi/core/boot.c
++++ b/drivers/bus/mhi/core/boot.c
+@@ -460,7 +460,8 @@ void mhi_fw_load_handler(struct mhi_controller *mhi_cntrl)
+ 		goto error_fw_load;
+ 	}
+ 
+-	if (mhi_cntrl->ee == MHI_EE_EDL) {
++	/* Exit if EDL image was loaded */
++	if (fw_name == mhi_cntrl->edl_image) {
+ 		release_firmware(firmware);
+ 		return;
+ 	}
+-- 
+2.25.1
+

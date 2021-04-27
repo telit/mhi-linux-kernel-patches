@@ -1,0 +1,61 @@
+From b7a98c1f8378c7cb5475df6b98ff14f59185881b Mon Sep 17 00:00:00 2001
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Date: Mon, 29 Mar 2021 18:28:23 -0700
+Subject: [PATCH 26/58] bus: mhi: core: Wait for MHI READY state in most
+ scenarios
+
+When moving from SYS_ERROR transition to a different execution
+environment, MHI host relies on the BHI register read to spawn
+the next image download or wait for READY -> M0 states. The
+device can at times move the execution environment to mission
+mode when a pass through is expected, which can result in a
+stall. Initiate a wait for MHI READY and write M0 such that the
+device can proceed with state change event updates for any new
+execution environment being entered. This allows us to remove
+conditionals in handling firmware load for PBL modes and keeps
+the execution environment out of the picture as it can change at
+any time.
+
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/1617067704-28850-7-git-send-email-bbhatt@codeaurora.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/core/boot.c | 4 ++--
+ drivers/bus/mhi/core/pm.c   | 3 +--
+ 2 files changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/bus/mhi/core/boot.c b/drivers/bus/mhi/core/boot.c
+index 0f0ae8816e29..8100cf51cd09 100644
+--- a/drivers/bus/mhi/core/boot.c
++++ b/drivers/bus/mhi/core/boot.c
+@@ -416,8 +416,8 @@ void mhi_fw_load_handler(struct mhi_controller *mhi_cntrl)
+ 		}
+ 	}
+ 
+-	/* If device is in pass through, do reset to ready state transition */
+-	if (mhi_cntrl->ee == MHI_EE_PTHRU)
++	/* wait for ready on pass through or any other execution environment */
++	if (mhi_cntrl->ee != MHI_EE_EDL && mhi_cntrl->ee != MHI_EE_PBL)
+ 		goto fw_load_ready_state;
+ 
+ 	fw_name = (mhi_cntrl->ee == MHI_EE_EDL) ?
+diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+index 7ac9dfe54895..b6920a5369a0 100644
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -763,8 +763,7 @@ void mhi_pm_st_worker(struct work_struct *work)
+ 			if (MHI_REG_ACCESS_VALID(mhi_cntrl->pm_state))
+ 				mhi_cntrl->ee = mhi_get_exec_env(mhi_cntrl);
+ 			write_unlock_irq(&mhi_cntrl->pm_lock);
+-			if (MHI_IN_PBL(mhi_cntrl->ee))
+-				mhi_fw_load_handler(mhi_cntrl);
++			mhi_fw_load_handler(mhi_cntrl);
+ 			break;
+ 		case DEV_ST_TRANSITION_SBL:
+ 			write_lock_irq(&mhi_cntrl->pm_lock);
+-- 
+2.25.1
+

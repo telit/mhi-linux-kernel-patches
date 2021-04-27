@@ -1,0 +1,36 @@
+From 564e682d3be90552f12327a6a2b1a620ce6ada09 Mon Sep 17 00:00:00 2001
+From: Loic Poulain <loic.poulain@linaro.org>
+Date: Mon, 15 Feb 2021 16:42:33 +0100
+Subject: [PATCH 09/58] bus: mhi: core: Rename debugfs directory name
+
+Use MHI controller device name instead of the 'bus' device name as
+debugfs dir name (e.g. /sys/kernel/debug/mhi0). That aligns with
+sysfs device name.
+
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Tested-by: Jeffrey Hugo <jhugo@codeaurora.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Jeffrey Hugo <jhugo@codeaurora.org>
+Link: https://lore.kernel.org/r/1613403753-1457-1-git-send-email-loic.poulain@linaro.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/core/debugfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/core/debugfs.c b/drivers/bus/mhi/core/debugfs.c
+index 7d43138ce66d..858d7516410b 100644
+--- a/drivers/bus/mhi/core/debugfs.c
++++ b/drivers/bus/mhi/core/debugfs.c
+@@ -377,7 +377,7 @@ static struct dentry *mhi_debugfs_root;
+ void mhi_create_debugfs(struct mhi_controller *mhi_cntrl)
+ {
+ 	mhi_cntrl->debugfs_dentry =
+-			debugfs_create_dir(dev_name(mhi_cntrl->cntrl_dev),
++			debugfs_create_dir(dev_name(&mhi_cntrl->mhi_dev->dev),
+ 					   mhi_debugfs_root);
+ 
+ 	debugfs_create_file("states", 0444, mhi_cntrl->debugfs_dentry,
+-- 
+2.25.1
+
