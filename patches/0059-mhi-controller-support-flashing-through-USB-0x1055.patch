@@ -1,0 +1,140 @@
+From fc1c767302d59d39af234e424fe65a247e1434b1 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Mon, 21 Jun 2021 11:21:09 +0200
+Subject: [PATCH 59/59] mhi: controller: support flashing through USB 0x1055
+
+Add a new controller file to be used when flashing through USB (composition 0x1055)
+in order to make the mhi stack aware of the process and not to reset the function.
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/core/init.c   | 27 +++++++++++++++++++++++++++
+ drivers/bus/mhi/pci_generic.c | 10 ++++++++--
+ drivers/bus/mhi/uci.c         |  2 +-
+ include/linux/mhi.h           | 17 +++++++++++++++--
+ 4 files changed, 51 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/bus/mhi/core/init.c b/drivers/bus/mhi/core/init.c
+index c81b377fca8f..9b5f1bcf4f7c 100644
+--- a/drivers/bus/mhi/core/init.c
++++ b/drivers/bus/mhi/core/init.c
+@@ -87,6 +87,32 @@ const char *to_mhi_pm_state_str(enum mhi_pm_state state)
+ 	return mhi_pm_state_str[index];
+ }
+ 
++static ssize_t fw_update_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct mhi_device *mhi_dev = to_mhi_device(dev);
++	struct mhi_controller *mhi_cntrl = mhi_dev->mhi_cntrl;
++
++	return sprintf(buf, "%u\n", mhi_cntrl->xfp);
++}
++
++static ssize_t fw_update_store(struct device *dev,  struct device_attribute *attr, const char *buf, size_t len)
++{
++	struct mhi_device *mhi_dev = to_mhi_device(dev);
++	struct mhi_controller *mhi_cntrl = mhi_dev->mhi_cntrl;
++	bool enable;
++
++	if (strtobool(buf, &enable))
++		return -EINVAL;
++
++	if (enable)
++		mhi_cntrl->xfp = XFP_STATE_FLASHING;
++	else
++		mhi_cntrl->xfp = XFP_STATE_NEED_RESET;
++
++	return len;
++}
++static DEVICE_ATTR_RW(fw_update);
++
+ static ssize_t serial_number_show(struct device *dev,
+ 				  struct device_attribute *attr,
+ 				  char *buf)
+@@ -119,6 +145,7 @@ static DEVICE_ATTR_RO(oem_pk_hash);
+ static struct attribute *mhi_dev_attrs[] = {
+ 	&dev_attr_serial_number.attr,
+ 	&dev_attr_oem_pk_hash.attr,
++	&dev_attr_fw_update.attr,
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(mhi_dev);
+diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+index 66a7f989b7c0..847eb62888b5 100644
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -678,8 +678,14 @@ static void health_check(struct timer_list *t)
+ 			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
+ 		return;
+ 
+-	if (mhi_cntrl->xfp_reset == 1) {
+-		mhi_cntrl->xfp_reset = 0;
++	if (mhi_cntrl->xfp == XFP_STATE_FLASHING) {
++		/* Flashing through USB, wait until users notifies that it has finished */
++		mod_timer(&mhi_pdev->health_check_timer, jiffies + HEALTH_CHECK_PERIOD);
++		return;
++	}
++
++	if (mhi_cntrl->xfp == XFP_STATE_NEED_RESET) {
++		mhi_cntrl->xfp = XFP_STATE_IDLE;
+ 		dev_dbg(mhi_cntrl->cntrl_dev, "Device needs to be resetted EE = %d\n", mhi_cntrl->ee);
+ 		queue_work(system_long_wq, &mhi_pdev->recovery_work);
+ 		return;
+diff --git a/drivers/bus/mhi/uci.c b/drivers/bus/mhi/uci.c
+index 8b4a5f22c2b6..75d438539e90 100644
+--- a/drivers/bus/mhi/uci.c
++++ b/drivers/bus/mhi/uci.c
+@@ -150,7 +150,7 @@ static int mhi_uci_release(struct inode *inode, struct file *file)
+ 
+ 	/* Check to detect if the modem has finished flashing and is resetting */
+ 	if (!strcmp("DIAG", udev->mhi_dev->name) && udev->mhi_dev->mhi_cntrl->ee == MHI_EE_SBL)
+-		udev->mhi_dev->mhi_cntrl->xfp_reset = 1;
++		udev->mhi_dev->mhi_cntrl->xfp = XFP_STATE_NEED_RESET;
+ 
+ 	file->private_data = NULL;
+ 
+diff --git a/include/linux/mhi.h b/include/linux/mhi.h
+index 5bf2eace36e5..e9025b48bfb6 100644
+--- a/include/linux/mhi.h
++++ b/include/linux/mhi.h
+@@ -294,6 +294,18 @@ struct mhi_controller_config {
+ 	bool m2_no_db;
+ };
+ 
++/**
++ * enum xfp_state - xfp flashing state
++ * @XFP_STATE_IDLE: not flashing
++ * @XFP_STATE_FLASHING: flashing
++ * @XFP_STATE_NEED_RESET: mhi stack needs to be resetted
++ */
++enum xfp_state {
++	XFP_STATE_IDLE = 0x0,
++	XFP_STATE_FLASHING = 0x1,
++	XFP_STATE_NEED_RESET = 0x2,
++};
++
+ /**
+  * struct mhi_controller - Master MHI controller structure
+  * @cntrl_dev: Pointer to the struct device of physical bus acting as the MHI
+@@ -364,6 +376,7 @@ struct mhi_controller_config {
+  * @fbc_download: MHI host needs to do complete image transfer (optional)
+  * @wake_set: Device wakeup set flag
+  * @irq_flags: irq flags passed to request_irq (optional)
++ * @xfp: xfp state used for flashing
+  *
+  * Fields marked as (required) need to be populated by the controller driver
+  * before calling mhi_register_controller(). For the fields marked as (optional)
+@@ -456,8 +469,8 @@ struct mhi_controller {
+ 	bool fbc_download;
+ 	bool wake_set;
+ 	unsigned long irq_flags;
+-	/* Flag to detect reset after xfp flashing  */
+-	bool xfp_reset;
++	/* Flag to manage flashing status  */
++	enum xfp_state xfp;
+ 	/* Flag to detect forced SBL */
+ 	bool forced_SBL;
+ };
+-- 
+2.25.1
+
