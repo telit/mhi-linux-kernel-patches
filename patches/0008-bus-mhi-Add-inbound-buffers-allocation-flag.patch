@@ -1,7 +1,7 @@
-From af5a41f18701b0ed389b1b814b7b20e4c611e412 Mon Sep 17 00:00:00 2001
+From 91727d9509fc7dd3d8747a0e103ba904fdf3132f Mon Sep 17 00:00:00 2001
 From: Loic Poulain <loic.poulain@linaro.org>
 Date: Wed, 7 Apr 2021 18:50:35 +0200
-Subject: [PATCH 51/58] bus: mhi: Add inbound buffers allocation flag
+Subject: [PATCH 8/8] bus: mhi: Add inbound buffers allocation flag
 
 Currently, the MHI controller driver defines which channels should
 have their inbound buffers allocated and queued. But ideally, this is
@@ -16,12 +16,13 @@ Keep auto_queue flag for now, but should be removed at some point.
 Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
- drivers/bus/mhi/core/internal.h |  2 +-
- drivers/bus/mhi/core/main.c     | 11 ++++++++---
- drivers/net/mhi/net.c           |  2 +-
- include/linux/mhi.h             | 12 +++++++++++-
- net/qrtr/mhi.c                  |  2 +-
- 5 files changed, 22 insertions(+), 7 deletions(-)
+ drivers/bus/mhi/core/internal.h  |  2 +-
+ drivers/bus/mhi/core/main.c      | 11 ++++++++---
+ drivers/net/mhi/net.c            |  2 +-
+ drivers/net/wwan/mhi_wwan_ctrl.c |  2 +-
+ include/linux/mhi.h              | 12 +++++++++++-
+ net/qrtr/mhi.c                   |  2 +-
+ 6 files changed, 23 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/bus/mhi/core/internal.h b/drivers/bus/mhi/core/internal.h
 index 5b9ea66b92dc..672052fe3b44 100644
@@ -80,10 +81,10 @@ index 22acde118bc3..c8b6dcce897c 100644
  			goto error_open_chan;
  	}
 diff --git a/drivers/net/mhi/net.c b/drivers/net/mhi/net.c
-index f59960876083..a838ad2e5353 100644
+index b806f2f8f859..016021944b61 100644
 --- a/drivers/net/mhi/net.c
 +++ b/drivers/net/mhi/net.c
-@@ -325,7 +325,7 @@ static int mhi_net_probe(struct mhi_device *mhi_dev,
+@@ -327,7 +327,7 @@ static int mhi_net_probe(struct mhi_device *mhi_dev,
  	u64_stats_init(&mhi_netdev->stats.tx_syncp);
  
  	/* Start MHI channels */
@@ -92,8 +93,21 @@ index f59960876083..a838ad2e5353 100644
  	if (err)
  		goto out_err;
  
+diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
+index 76a64a49a5b9..4af208cea9bc 100644
+--- a/drivers/net/wwan/mhi_wwan_ctrl.c
++++ b/drivers/net/wwan/mhi_wwan_ctrl.c
+@@ -110,7 +110,7 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)
+ 	int ret;
+ 
+ 	/* Start mhi device's channel(s) */
+-	ret = mhi_prepare_for_transfer(mhiwwan->mhi_dev);
++	ret = mhi_prepare_for_transfer(mhiwwan->mhi_dev, 0);
+ 	if (ret)
+ 		return ret;
+ 
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index 944aa3aa3035..86cea5256e3c 100644
+index 67cdfd58ca12..e9025b48bfb6 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -59,6 +59,14 @@ enum mhi_flags {
@@ -111,7 +125,7 @@ index 944aa3aa3035..86cea5256e3c 100644
  /**
   * enum mhi_device_type - Device types
   * @MHI_DEVICE_XFER: Handles data transfer
-@@ -719,8 +727,10 @@ void mhi_device_put(struct mhi_device *mhi_dev);
+@@ -736,8 +744,10 @@ void mhi_device_put(struct mhi_device *mhi_dev);
   *                            host and device execution environments match and
   *                            channels are in a DISABLED state.
   * @mhi_dev: Device associated with the channels
@@ -124,10 +138,10 @@ index 944aa3aa3035..86cea5256e3c 100644
  /**
   * mhi_unprepare_from_transfer - Reset UL and DL channels for data transfer.
 diff --git a/net/qrtr/mhi.c b/net/qrtr/mhi.c
-index 2bf2b1943e61..47afded9f588 100644
+index fa611678af05..29b4fa3b72ab 100644
 --- a/net/qrtr/mhi.c
 +++ b/net/qrtr/mhi.c
-@@ -77,7 +77,7 @@ static int qcom_mhi_qrtr_probe(struct mhi_device *mhi_dev,
+@@ -79,7 +79,7 @@ static int qcom_mhi_qrtr_probe(struct mhi_device *mhi_dev,
  	int rc;
  
  	/* start channels */
