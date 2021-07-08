@@ -1,0 +1,61 @@
+From c79a822625b7a366231b44d2d0f47a833dd1e18d Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Mon, 10 May 2021 12:38:59 +0200
+Subject: [PATCH 2/8] wwan: add SAHARA device
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/net/wwan/mhi_wwan_ctrl.c | 1 +
+ drivers/net/wwan/wwan_core.c     | 3 ++-
+ include/linux/wwan.h             | 2 ++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
+index f98a8708ec86..0c86b62b3be8 100644
+--- a/drivers/net/wwan/mhi_wwan_ctrl.c
++++ b/drivers/net/wwan/mhi_wwan_ctrl.c
+@@ -263,6 +263,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
+ 	{ .chan = "QMI", .driver_data = WWAN_PORT_QMI },
+ 	{ .chan = "DIAG", .driver_data = WWAN_PORT_QCDM },
+ 	{ .chan = "FIREHOSE", .driver_data = WWAN_PORT_FIREHOSE },
++	{ .chan = "SAHARA", .driver_data = WWAN_PORT_SAHARA },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
+diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
+index cff04e532c1e..1a855df479f9 100644
+--- a/drivers/net/wwan/wwan_core.c
++++ b/drivers/net/wwan/wwan_core.c
+@@ -207,7 +207,8 @@ static const char * const wwan_port_type_str[] = {
+ 	"MBIM",
+ 	"QMI",
+ 	"QCDM",
+-	"FIREHOSE"
++	"FIREHOSE",
++	"SAHARA"
+ };
+ 
+ struct wwan_port *wwan_create_port(struct device *parent,
+diff --git a/include/linux/wwan.h b/include/linux/wwan.h
+index aa05a253dcf9..3a2a7fcc0149 100644
+--- a/include/linux/wwan.h
++++ b/include/linux/wwan.h
+@@ -16,6 +16,7 @@
+  * @WWAN_PORT_QCDM: Qcom Modem diagnostic interface
+  * @WWAN_PORT_FIREHOSE: XML based command protocol
+  * @WWAN_PORT_MAX: Number of supported port types
++ * @WWAN_PORT_SAHARA: Qualcomm coredump device
+  */
+ enum wwan_port_type {
+ 	WWAN_PORT_AT,
+@@ -23,6 +24,7 @@ enum wwan_port_type {
+ 	WWAN_PORT_QMI,
+ 	WWAN_PORT_QCDM,
+ 	WWAN_PORT_FIREHOSE,
++	WWAN_PORT_SAHARA,
+ 	WWAN_PORT_MAX,
+ };
+ 
+-- 
+2.25.1
+

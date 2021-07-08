@@ -1,23 +1,23 @@
-From a759bea889e44a01fbe4a1af1f1e2d3b4c9e31c7 Mon Sep 17 00:00:00 2001
+From e9ce5ef8bb177e32acc32dafbc7fc0c657d21340 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Fri, 16 Apr 2021 16:31:35 +0200
-Subject: [PATCH 54/58] bus: mhi: add Telit FN980 support
+Date: Mon, 10 May 2021 10:02:52 +0200
+Subject: [PATCH 1/8] bus: mhi: add Telit FN980 support
 
 Add support for Telit FN980 SDX55 based modem.
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
- drivers/bus/mhi/pci_generic.c | 82 ++++++++++++++++++++++++++++++++++-
- drivers/bus/mhi/uci.c         |  6 +++
- 2 files changed, 87 insertions(+), 1 deletion(-)
+ drivers/bus/mhi/pci_generic.c    | 82 +++++++++++++++++++++++++++++++-
+ drivers/net/wwan/mhi_wwan_ctrl.c |  1 +
+ 2 files changed, 82 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 7c810f02a2ef..4365e4f25ba2 100644
+index b3357a8a2fdb..8b35d34755fa 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -72,6 +72,36 @@ struct mhi_pci_dev_info {
- 		.doorbell_mode_switch = false,		\
- 	}
+@@ -42,6 +42,36 @@ struct mhi_pci_dev_info {
+ 	unsigned int dma_data_width;
+ };
  
 +#define MHI_CHANNEL_CONFIG_AMSS_SBL_UL(ch_num, ch_name, el_count, ev_ring) \
 +	{						\
@@ -49,9 +49,9 @@ index 7c810f02a2ef..4365e4f25ba2 100644
 +		.doorbell_mode_switch = false,		\
 +	}
 +
- #define MHI_EVENT_CONFIG_CTRL(ev_ring, el_count) \
- 	{					\
- 		.num_elements = el_count,	\
+ #define MHI_CHANNEL_CONFIG_UL(ch_num, ch_name, el_count, ev_ring) \
+ 	{						\
+ 		.num = ch_num,				\
 @@ -342,9 +372,59 @@ static const struct mhi_pci_dev_info mhi_foxconn_sdx55_info = {
  	.dma_data_width = 32
  };
@@ -113,23 +113,18 @@ index 7c810f02a2ef..4365e4f25ba2 100644
  	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0304),
  		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx24_info },
  	{ PCI_DEVICE(0x1eac, 0x1001), /* EM120R-GL (sdx24) */
-diff --git a/drivers/bus/mhi/uci.c b/drivers/bus/mhi/uci.c
-index 7550cc664cd6..4b173ca4cb54 100644
---- a/drivers/bus/mhi/uci.c
-+++ b/drivers/bus/mhi/uci.c
-@@ -482,6 +482,12 @@ static void mhi_uci_remove(struct mhi_device *mhi_dev)
- /* .driver_data stores max mtu */
- static const struct mhi_device_id mhi_uci_match_table[] = {
- 	{ .chan = "QMI", .driver_data = 0x1000},
-+	{ .chan = "DIAG", .driver_data = 0x1000},
-+	{ .chan = "SAHARA", .driver_data = 0x1000},
-+	{ .chan = "DUN", .driver_data = 0x1000 },
-+	{ .chan = "DUN2", .driver_data = 0x1000 },
-+	{ .chan = "NMEA", .driver_data = 0x1000 },
-+	{ .chan = "ADB", .driver_data = 0x1000 },
- 	{},
- };
- MODULE_DEVICE_TABLE(mhi, mhi_uci_match_table);
+diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
+index 1bc6b69aa530..f98a8708ec86 100644
+--- a/drivers/net/wwan/mhi_wwan_ctrl.c
++++ b/drivers/net/wwan/mhi_wwan_ctrl.c
+@@ -258,6 +258,7 @@ static void mhi_wwan_ctrl_remove(struct mhi_device *mhi_dev)
+ 
+ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
+ 	{ .chan = "DUN", .driver_data = WWAN_PORT_AT },
++	{ .chan = "DUN2", .driver_data = WWAN_PORT_AT },
+ 	{ .chan = "MBIM", .driver_data = WWAN_PORT_MBIM },
+ 	{ .chan = "QMI", .driver_data = WWAN_PORT_QMI },
+ 	{ .chan = "DIAG", .driver_data = WWAN_PORT_QCDM },
 -- 
 2.25.1
 

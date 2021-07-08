@@ -1,0 +1,119 @@
+From 049af33bd0ae5df12728a114414d72562bb861e6 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Wed, 26 May 2021 13:34:14 +0200
+Subject: [PATCH 4/8] bus: mhi: force mhi host stack reset to detect modem
+ flashing end
+
+Once flashing in SBL through the XFP protocol ends, FN980 resets
+and is not detected anymore by the host.
+
+Force a reset of the mhi stack in order to detect it again.
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/pci_generic.c    | 9 ++++++++-
+ drivers/net/wwan/mhi_wwan_ctrl.c | 6 ++++++
+ drivers/net/wwan/wwan_core.c     | 6 ++++++
+ include/linux/mhi.h              | 2 ++
+ include/linux/wwan.h             | 6 ++++++
+ 5 files changed, 28 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+index 8b35d34755fa..d78303fdf7a7 100644
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -22,7 +22,7 @@
+ 
+ #define MHI_POST_RESET_DELAY_MS 500
+ 
+-#define HEALTH_CHECK_PERIOD (HZ * 2)
++#define HEALTH_CHECK_PERIOD (HZ / 2)
+ 
+ /**
+  * struct mhi_pci_dev_info - MHI PCI device specific information
+@@ -678,6 +678,13 @@ static void health_check(struct timer_list *t)
+ 			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
+ 		return;
+ 
++	if (mhi_cntrl->xfp_reset == 1) {
++		mhi_cntrl->xfp_reset = 0;
++		dev_dbg(mhi_cntrl->cntrl_dev, "Device needs to be resetted EE = %d\n", mhi_cntrl->ee);
++		queue_work(system_long_wq, &mhi_pdev->recovery_work);
++		return;
++	}
++
+ 	if (!mhi_pci_is_alive(mhi_cntrl)) {
+ 		dev_err(mhi_cntrl->cntrl_dev, "Device died\n");
+ 		queue_work(system_long_wq, &mhi_pdev->recovery_work);
+diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
+index 0c86b62b3be8..2e46ee2b2f05 100644
+--- a/drivers/net/wwan/mhi_wwan_ctrl.c
++++ b/drivers/net/wwan/mhi_wwan_ctrl.c
+@@ -129,6 +129,8 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)
+ static void mhi_wwan_ctrl_stop(struct wwan_port *port)
+ {
+ 	struct mhi_wwan_dev *mhiwwan = wwan_port_get_drvdata(port);
++	struct mhi_device *mhi_dev = mhiwwan->mhi_dev;
++	struct mhi_controller *cntrl = mhi_dev->mhi_cntrl;
+ 
+ 	spin_lock(&mhiwwan->rx_lock);
+ 	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
+@@ -137,6 +139,10 @@ static void mhi_wwan_ctrl_stop(struct wwan_port *port)
+ 	cancel_work_sync(&mhiwwan->rx_refill);
+ 
+ 	mhi_unprepare_from_transfer(mhiwwan->mhi_dev);
++
++	/* Check to detect if the modem has finished flashing and is resetting */
++	if (wwan_port_get_type(port) == WWAN_PORT_QCDM && cntrl->ee == MHI_EE_SBL)
++		cntrl->xfp_reset = 1;
+ }
+ 
+ static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
+diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
+index 1a855df479f9..494e8b4b6229 100644
+--- a/drivers/net/wwan/wwan_core.c
++++ b/drivers/net/wwan/wwan_core.c
+@@ -320,6 +320,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
+ }
+ EXPORT_SYMBOL_GPL(wwan_port_get_drvdata);
+ 
++enum wwan_port_type wwan_port_get_type(struct wwan_port *port)
++{
++	return port->type;
++}
++EXPORT_SYMBOL_GPL(wwan_port_get_type);
++
+ static int wwan_port_op_start(struct wwan_port *port)
+ {
+ 	int ret = 0;
+diff --git a/include/linux/mhi.h b/include/linux/mhi.h
+index 944aa3aa3035..749cff669513 100644
+--- a/include/linux/mhi.h
++++ b/include/linux/mhi.h
+@@ -448,6 +448,8 @@ struct mhi_controller {
+ 	bool fbc_download;
+ 	bool wake_set;
+ 	unsigned long irq_flags;
++	/* Flag to detect reset after xfp flashing  */
++	bool xfp_reset;
+ };
+ 
+ /**
+diff --git a/include/linux/wwan.h b/include/linux/wwan.h
+index 3a2a7fcc0149..9992132047ff 100644
+--- a/include/linux/wwan.h
++++ b/include/linux/wwan.h
+@@ -110,4 +110,10 @@ void wwan_port_txon(struct wwan_port *port);
+  */
+ void *wwan_port_get_drvdata(struct wwan_port *port);
+ 
++/**
++ * wwan_port_get_type - Retrieve the WWAN port type
++ * @port: Related WWAN port
++ */
++enum wwan_port_type wwan_port_get_type(struct wwan_port *port);
++
+ #endif /* __WWAN_H */
+-- 
+2.25.1
+
