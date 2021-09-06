@@ -1,4 +1,4 @@
-From 25f2ca85cbbcdbd0f97581b6ab43827678a2d427 Mon Sep 17 00:00:00 2001
+From 5d3f75534c445b5f19b2d6640958b7b83cc1e427 Mon Sep 17 00:00:00 2001
 From: Loic Poulain <loic.poulain@linaro.org>
 Date: Fri, 21 May 2021 09:37:00 +0200
 Subject: [PATCH 3/8] bus: mhi: Resume success on SYS_ERR
@@ -10,10 +10,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index e2e59a341fef..6fc69c9a4d72 100644
+index bbf6cd04861e..b8073c4a852b 100644
 --- a/drivers/bus/mhi/core/pm.c
 +++ b/drivers/bus/mhi/core/pm.c
-@@ -906,8 +906,21 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
+@@ -898,8 +898,21 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
  	if (MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state))
  		return -EIO;
  
@@ -37,5 +37,5 @@ index e2e59a341fef..6fc69c9a4d72 100644
  	/* Notify clients about exiting LPM */
  	list_for_each_entry_safe(itr, tmp, &mhi_cntrl->lpm_chans, node) {
 -- 
-2.25.1
+2.17.1
 
