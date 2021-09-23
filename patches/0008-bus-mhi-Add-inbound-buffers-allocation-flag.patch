@@ -1,4 +1,4 @@
-From 91727d9509fc7dd3d8747a0e103ba904fdf3132f Mon Sep 17 00:00:00 2001
+From a8e6660f5944052a6d358d1318df87794e67b068 Mon Sep 17 00:00:00 2001
 From: Loic Poulain <loic.poulain@linaro.org>
 Date: Wed, 7 Apr 2021 18:50:35 +0200
 Subject: [PATCH 8/8] bus: mhi: Add inbound buffers allocation flag
@@ -38,10 +38,10 @@ index 5b9ea66b92dc..672052fe3b44 100644
  		       struct mhi_chan *mhi_chan);
  void mhi_deinit_chan_ctxt(struct mhi_controller *mhi_cntrl,
 diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
-index 22acde118bc3..c8b6dcce897c 100644
+index fc9196f11cb7..282cd5b991d6 100644
 --- a/drivers/bus/mhi/core/main.c
 +++ b/drivers/bus/mhi/core/main.c
-@@ -1423,7 +1423,8 @@ static void mhi_unprepare_channel(struct mhi_controller *mhi_cntrl,
+@@ -1430,7 +1430,8 @@ static void mhi_unprepare_channel(struct mhi_controller *mhi_cntrl,
  }
  
  int mhi_prepare_channel(struct mhi_controller *mhi_cntrl,
@@ -51,7 +51,7 @@ index 22acde118bc3..c8b6dcce897c 100644
  {
  	int ret = 0;
  	struct device *dev = &mhi_chan->mhi_dev->dev;
-@@ -1448,6 +1449,9 @@ int mhi_prepare_channel(struct mhi_controller *mhi_cntrl,
+@@ -1455,6 +1456,9 @@ int mhi_prepare_channel(struct mhi_controller *mhi_cntrl,
  	if (ret)
  		goto error_pm_state;
  
@@ -61,7 +61,7 @@ index 22acde118bc3..c8b6dcce897c 100644
  	/* Pre-allocate buffer for xfer ring */
  	if (mhi_chan->pre_alloc) {
  		int nr_el = get_nr_avail_ring_elements(mhi_cntrl,
-@@ -1603,7 +1607,8 @@ void mhi_reset_chan(struct mhi_controller *mhi_cntrl, struct mhi_chan *mhi_chan)
+@@ -1610,7 +1614,8 @@ void mhi_reset_chan(struct mhi_controller *mhi_cntrl, struct mhi_chan *mhi_chan)
  }
  
  /* Move channel to start state */
@@ -71,7 +71,7 @@ index 22acde118bc3..c8b6dcce897c 100644
  {
  	int ret, dir;
  	struct mhi_controller *mhi_cntrl = mhi_dev->mhi_cntrl;
-@@ -1614,7 +1619,7 @@ int mhi_prepare_for_transfer(struct mhi_device *mhi_dev)
+@@ -1621,7 +1626,7 @@ int mhi_prepare_for_transfer(struct mhi_device *mhi_dev)
  		if (!mhi_chan)
  			continue;
  
@@ -81,10 +81,10 @@ index 22acde118bc3..c8b6dcce897c 100644
  			goto error_open_chan;
  	}
 diff --git a/drivers/net/mhi/net.c b/drivers/net/mhi/net.c
-index b806f2f8f859..016021944b61 100644
+index e60e38c1f09d..11be6bcdd551 100644
 --- a/drivers/net/mhi/net.c
 +++ b/drivers/net/mhi/net.c
-@@ -327,7 +327,7 @@ static int mhi_net_probe(struct mhi_device *mhi_dev,
+@@ -335,7 +335,7 @@ static int mhi_net_newlink(void *ctxt, struct net_device *ndev, u32 if_id,
  	u64_stats_init(&mhi_netdev->stats.tx_syncp);
  
  	/* Start MHI channels */
@@ -94,7 +94,7 @@ index b806f2f8f859..016021944b61 100644
  		goto out_err;
  
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 76a64a49a5b9..4af208cea9bc 100644
+index 1c7f6d6f77e7..7e918d147d7c 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -110,7 +110,7 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)
@@ -151,5 +151,5 @@ index fa611678af05..29b4fa3b72ab 100644
  		return rc;
  
 -- 
-2.25.1
+2.17.1
 

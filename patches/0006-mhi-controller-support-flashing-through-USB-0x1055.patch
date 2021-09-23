@@ -1,4 +1,4 @@
-From 332e133a85ea0adc37364e676014f5be7635f8e0 Mon Sep 17 00:00:00 2001
+From a27bbdde1e9ccbeee2f81a2233fcd211e61c6e4a Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Mon, 28 Jun 2021 10:25:05 +0200
 Subject: [PATCH 6/8] mhi: controller: support flashing through USB 0x1055
@@ -60,10 +60,10 @@ index c81b377fca8f..9b5f1bcf4f7c 100644
  };
  ATTRIBUTE_GROUPS(mhi_dev);
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index d78303fdf7a7..a315a7718065 100644
+index 080c7031d877..81a3970c40ba 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -678,8 +678,14 @@ static void health_check(struct timer_list *t)
+@@ -702,8 +702,14 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -81,7 +81,7 @@ index d78303fdf7a7..a315a7718065 100644
  		queue_work(system_long_wq, &mhi_pdev->recovery_work);
  		return;
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 2e46ee2b2f05..76a64a49a5b9 100644
+index 0f3b09be6e7f..1c7f6d6f77e7 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -142,7 +142,7 @@ static void mhi_wwan_ctrl_stop(struct wwan_port *port)
@@ -136,5 +136,5 @@ index 614f1bfecacf..67cdfd58ca12 100644
  	bool forced_SBL;
  };
 -- 
-2.25.1
+2.17.1
 

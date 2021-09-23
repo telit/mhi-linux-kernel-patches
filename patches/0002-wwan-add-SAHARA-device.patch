@@ -1,17 +1,19 @@
-From c79a822625b7a366231b44d2d0f47a833dd1e18d Mon Sep 17 00:00:00 2001
+From 89556a63f2076cf4e0945fafad0553beee469c83 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Mon, 10 May 2021 12:38:59 +0200
+Date: Mon, 6 Sep 2021 14:08:44 +0200
 Subject: [PATCH 2/8] wwan: add SAHARA device
+
+Add SAHARA device to wwan subsystem.
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
  drivers/net/wwan/mhi_wwan_ctrl.c | 1 +
- drivers/net/wwan/wwan_core.c     | 3 ++-
- include/linux/wwan.h             | 2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wwan/wwan_core.c     | 4 ++++
+ include/linux/wwan.h             | 1 +
+ 3 files changed, 6 insertions(+)
 
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index f98a8708ec86..0c86b62b3be8 100644
+index f7ca52353f40..8cb1dcedd63e 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -263,6 +263,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
@@ -23,39 +25,32 @@ index f98a8708ec86..0c86b62b3be8 100644
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index cff04e532c1e..1a855df479f9 100644
+index 35ece98134c0..be8d09f38cd8 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -207,7 +207,8 @@ static const char * const wwan_port_type_str[] = {
- 	"MBIM",
- 	"QMI",
- 	"QCDM",
--	"FIREHOSE"
-+	"FIREHOSE",
-+	"SAHARA"
+@@ -252,6 +252,10 @@ static const struct {
+ 		.name = "FIREHOSE",
+ 		.devsuf = "firehose",
+ 	},
++	[WWAN_PORT_SAHARA] = {
++                .name = "SAHARA",
++                .devsuf = "sahara",
++        },
  };
  
- struct wwan_port *wwan_create_port(struct device *parent,
+ static ssize_t type_show(struct device *dev, struct device_attribute *attr,
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index aa05a253dcf9..3a2a7fcc0149 100644
+index 9fac819f92e3..42a7eb170d43 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
-@@ -16,6 +16,7 @@
-  * @WWAN_PORT_QCDM: Qcom Modem diagnostic interface
-  * @WWAN_PORT_FIREHOSE: XML based command protocol
-  * @WWAN_PORT_MAX: Number of supported port types
-+ * @WWAN_PORT_SAHARA: Qualcomm coredump device
-  */
- enum wwan_port_type {
- 	WWAN_PORT_AT,
-@@ -23,6 +24,7 @@ enum wwan_port_type {
+@@ -29,6 +29,7 @@ enum wwan_port_type {
  	WWAN_PORT_QMI,
  	WWAN_PORT_QCDM,
  	WWAN_PORT_FIREHOSE,
 +	WWAN_PORT_SAHARA,
- 	WWAN_PORT_MAX,
- };
+ 
+ 	/* Add new port types above this line */
  
 -- 
-2.25.1
+2.17.1
 

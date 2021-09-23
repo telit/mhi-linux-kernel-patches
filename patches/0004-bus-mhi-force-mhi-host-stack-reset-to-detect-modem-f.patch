@@ -1,6 +1,6 @@
-From 049af33bd0ae5df12728a114414d72562bb861e6 Mon Sep 17 00:00:00 2001
+From 149a443b79c52abbb778be88795ca18395df46e7 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Wed, 26 May 2021 13:34:14 +0200
+Date: Mon, 6 Sep 2021 14:16:00 +0200
 Subject: [PATCH 4/8] bus: mhi: force mhi host stack reset to detect modem
  flashing end
 
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 8b35d34755fa..d78303fdf7a7 100644
+index 7fe7832c3afc..080c7031d877 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -22,7 +22,7 @@
@@ -31,7 +31,7 @@ index 8b35d34755fa..d78303fdf7a7 100644
  
  /**
   * struct mhi_pci_dev_info - MHI PCI device specific information
-@@ -678,6 +678,13 @@ static void health_check(struct timer_list *t)
+@@ -702,6 +702,13 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -46,7 +46,7 @@ index 8b35d34755fa..d78303fdf7a7 100644
  		dev_err(mhi_cntrl->cntrl_dev, "Device died\n");
  		queue_work(system_long_wq, &mhi_pdev->recovery_work);
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 0c86b62b3be8..2e46ee2b2f05 100644
+index 8cb1dcedd63e..0f3b09be6e7f 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -129,6 +129,8 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)
@@ -56,7 +56,7 @@ index 0c86b62b3be8..2e46ee2b2f05 100644
 +	struct mhi_device *mhi_dev = mhiwwan->mhi_dev;
 +	struct mhi_controller *cntrl = mhi_dev->mhi_cntrl;
  
- 	spin_lock(&mhiwwan->rx_lock);
+ 	spin_lock_bh(&mhiwwan->rx_lock);
  	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
 @@ -137,6 +139,10 @@ static void mhi_wwan_ctrl_stop(struct wwan_port *port)
  	cancel_work_sync(&mhiwwan->rx_refill);
@@ -70,10 +70,10 @@ index 0c86b62b3be8..2e46ee2b2f05 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 1a855df479f9..494e8b4b6229 100644
+index be8d09f38cd8..117c0f80049d 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -320,6 +320,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
+@@ -473,6 +473,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
  }
  EXPORT_SYMBOL_GPL(wwan_port_get_drvdata);
  
@@ -100,10 +100,10 @@ index 944aa3aa3035..749cff669513 100644
  
  /**
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index 3a2a7fcc0149..9992132047ff 100644
+index 42a7eb170d43..26a137d561f3 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
-@@ -110,4 +110,10 @@ void wwan_port_txon(struct wwan_port *port);
+@@ -128,6 +128,12 @@ void wwan_port_txon(struct wwan_port *port);
   */
  void *wwan_port_get_drvdata(struct wwan_port *port);
  
@@ -113,7 +113,9 @@ index 3a2a7fcc0149..9992132047ff 100644
 + */
 +enum wwan_port_type wwan_port_get_type(struct wwan_port *port);
 +
- #endif /* __WWAN_H */
+ /**
+  * struct wwan_netdev_priv - WWAN core network device private data
+  * @link_id: WWAN device data link id
 -- 
-2.25.1
+2.17.1
 
