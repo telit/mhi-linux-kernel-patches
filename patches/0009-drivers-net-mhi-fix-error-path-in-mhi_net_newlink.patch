@@ -1,0 +1,27 @@
+From c3fd913e6e139a96a4f46a55bb82a30bc9bfd172 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 23 Sep 2021 15:51:44 +0200
+Subject: [PATCH 09/10] drivers: net: mhi: fix error path in mhi_net_newlink
+
+Fix double free when start channels fail
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/net/mhi/net.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/net/mhi/net.c b/drivers/net/mhi/net.c
+index 11be6bcdd551..c3f0db08cde2 100644
+--- a/drivers/net/mhi/net.c
++++ b/drivers/net/mhi/net.c
+@@ -360,7 +360,6 @@ static int mhi_net_newlink(void *ctxt, struct net_device *ndev, u32 if_id,
+ out_err_proto:
+ 	unregister_netdevice(ndev);
+ out_err:
+-	free_netdev(ndev);
+ 	return err;
+ }
+ 
+-- 
+2.30.2
+
