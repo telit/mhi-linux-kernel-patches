@@ -1,0 +1,902 @@
+From 0d31f99ecbc8d54408cf47b0655fd3b93b9d89fd Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 2 Sep 2021 16:14:05 +0200
+Subject: [PATCH 2/6] drivers: net: add mhi driver
+
+Back-ported to v4.19.205 from v5-12-telit
+
+Required changes for u64 stats
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/net/Kconfig            |   7 +
+ drivers/net/Makefile           |   1 +
+ drivers/net/mhi/Makefile       |   3 +
+ drivers/net/mhi/mhi.h          |  42 ++++
+ drivers/net/mhi/mhi_net.mod    |   2 +
+ drivers/net/mhi/net.c          | 419 +++++++++++++++++++++++++++++++++
+ drivers/net/mhi/proto_mbim.c   | 293 +++++++++++++++++++++++
+ include/linux/u64_stats_sync.h |  43 ++++
+ 8 files changed, 810 insertions(+)
+ create mode 100644 drivers/net/mhi/Makefile
+ create mode 100644 drivers/net/mhi/mhi.h
+ create mode 100644 drivers/net/mhi/mhi_net.mod
+ create mode 100644 drivers/net/mhi/net.c
+ create mode 100644 drivers/net/mhi/proto_mbim.c
+
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 0652caad57ec..4c19f0a69b06 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -365,6 +365,13 @@ config VSOCKMON
+      mostly intended for developers or support to debug vsock issues. If
+      unsure, say N.
+ 
++config MHI_NET
++	tristate "MHI network driver"
++	depends on MHI_BUS
++	---help---
++	  This is the network driver for MHI bus.  It can be used with
++	  QCOM based WWAN modems (like SDX55).  Say Y or M.
++
+ endif # NET_CORE
+ 
+ config SUNGEM_PHY
+diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+index 0d3ba056cda3..348a14889ebf 100644
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -32,6 +32,7 @@ obj-$(CONFIG_GTP) += gtp.o
+ obj-$(CONFIG_NLMON) += nlmon.o
+ obj-$(CONFIG_NET_VRF) += vrf.o
+ obj-$(CONFIG_VSOCKMON) += vsockmon.o
++obj-$(CONFIG_MHI_NET) += mhi/
+ 
+ #
+ # Networking Drivers
+diff --git a/drivers/net/mhi/Makefile b/drivers/net/mhi/Makefile
+new file mode 100644
+index 000000000000..f71b9f8f3c4f
+--- /dev/null
++++ b/drivers/net/mhi/Makefile
+@@ -0,0 +1,3 @@
++obj-$(CONFIG_MHI_NET) += mhi_net.o
++
++mhi_net-y := net.o proto_mbim.o
+diff --git a/drivers/net/mhi/mhi.h b/drivers/net/mhi/mhi.h
+new file mode 100644
+index 000000000000..becec03ed04a
+--- /dev/null
++++ b/drivers/net/mhi/mhi.h
+@@ -0,0 +1,42 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/* MHI Network driver - Network over MHI bus
++ *
++ * Copyright (C) 2021 Linaro Ltd <loic.poulain@linaro.org>
++ */
++
++struct mhi_net_stats {
++	u64_stats_t rx_packets;
++	u64_stats_t rx_bytes;
++	u64_stats_t rx_errors;
++	u64_stats_t rx_dropped;
++	u64_stats_t rx_length_errors;
++	u64_stats_t tx_packets;
++	u64_stats_t tx_bytes;
++	u64_stats_t tx_errors;
++	u64_stats_t tx_dropped;
++	struct u64_stats_sync tx_syncp;
++	struct u64_stats_sync rx_syncp;
++};
++
++struct mhi_net_dev {
++	struct mhi_device *mdev;
++	struct net_device *ndev;
++	struct sk_buff *skbagg_head;
++	struct sk_buff *skbagg_tail;
++	const struct mhi_net_proto *proto;
++	void *proto_data;
++	struct task_struct *refill_task;
++	u32 rx_queue_sz;
++	int msg_enable;
++	u32 refill_level;
++	struct mhi_net_stats stats;
++	wait_queue_head_t refill_wq;
++};
++
++struct mhi_net_proto {
++	int (*init)(struct mhi_net_dev *mhi_netdev);
++	struct sk_buff * (*tx_fixup)(struct mhi_net_dev *mhi_netdev, struct sk_buff *skb);
++	void (*rx)(struct mhi_net_dev *mhi_netdev, struct sk_buff *skb);
++};
++
++extern const struct mhi_net_proto proto_mbim;
+diff --git a/drivers/net/mhi/mhi_net.mod b/drivers/net/mhi/mhi_net.mod
+new file mode 100644
+index 000000000000..bf104cc25c76
+--- /dev/null
++++ b/drivers/net/mhi/mhi_net.mod
+@@ -0,0 +1,2 @@
++drivers/net/mhi/net.o drivers/net/mhi/proto_mbim.o
++
+diff --git a/drivers/net/mhi/net.c b/drivers/net/mhi/net.c
+new file mode 100644
+index 000000000000..7e3d99f796ed
+--- /dev/null
++++ b/drivers/net/mhi/net.c
+@@ -0,0 +1,419 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/* MHI Network driver - Network over MHI bus
++ *
++ * Copyright (C) 2020 Linaro Ltd <loic.poulain@linaro.org>
++ */
++
++#include <linux/if_arp.h>
++#include <linux/kthread.h>
++#include <linux/mhi.h>
++#include <linux/mod_devicetable.h>
++#include <linux/module.h>
++#include <linux/netdevice.h>
++#include <linux/skbuff.h>
++#include <linux/u64_stats_sync.h>
++
++#include "mhi.h"
++
++#define MHI_NET_MIN_MTU		ETH_MIN_MTU
++#define MHI_NET_MAX_MTU		0xffff
++#define MHI_NET_DEFAULT_MTU	0x4000
++
++#define RX_REFILL_LVL	50 /* Refill the RX queue if lower than 50% */
++
++static int mhi_net_refill_thread(void *data)
++{
++	struct mhi_net_dev *mhi_netdev = data;
++	struct net_device *ndev = mhi_netdev->ndev;
++	struct mhi_device *mdev = mhi_netdev->mdev;
++	int size = READ_ONCE(ndev->mtu);
++	struct sk_buff *skb;
++	int err;
++
++	while (1) {
++		err = wait_event_interruptible(mhi_netdev->refill_wq,
++					       !mhi_queue_is_full(mdev, DMA_FROM_DEVICE)
++					       || kthread_should_stop());
++		if (err || kthread_should_stop())
++			break;
++
++		skb = netdev_alloc_skb(ndev, size);
++		if (unlikely(!skb)) {
++			/* No memory, retry later */
++			net_warn_ratelimited("%s: Unable to allocate RX buf\n",
++					     ndev->name);
++			schedule_timeout_interruptible(msecs_to_jiffies(250));
++			continue;
++		}
++
++		err = mhi_queue_skb(mdev, DMA_FROM_DEVICE, skb, size, MHI_EOT);
++		if (unlikely(err)) {
++			net_err_ratelimited("%s: Failed to queue RX buf (%d)\n",
++					    ndev->name, err);
++			kfree_skb(skb);
++		}
++
++		/* Do not hog the CPU */
++		cond_resched();
++	}
++
++	return 0;
++}
++
++struct mhi_device_info {
++	const char *netname;
++	const struct mhi_net_proto *proto;
++};
++
++static int mhi_ndo_open(struct net_device *ndev)
++{
++	struct mhi_net_dev *mhi_netdev = netdev_priv(ndev);
++	unsigned int qsz = mhi_netdev->rx_queue_sz;
++
++	/* Feed the rx buffer pool */
++	mhi_netdev->refill_level = qsz - qsz * RX_REFILL_LVL / 100;
++
++	mhi_netdev->refill_task = kthread_run(mhi_net_refill_thread, mhi_netdev,
++					      "mhi-net-rx");
++	if (IS_ERR(mhi_netdev->refill_task))
++		return PTR_ERR(mhi_netdev->refill_task);
++
++	/* Carrier is established via out-of-band channel (e.g. qmi) */
++	netif_carrier_on(ndev);
++
++	netif_start_queue(ndev);
++
++	return 0;
++}
++
++static int mhi_ndo_stop(struct net_device *ndev)
++{
++	struct mhi_net_dev *mhi_netdev = netdev_priv(ndev);
++
++	kthread_stop(mhi_netdev->refill_task);
++	netif_stop_queue(ndev);
++	netif_carrier_off(ndev);
++
++	return 0;
++}
++
++static int mhi_ndo_xmit(struct sk_buff *skb, struct net_device *ndev)
++{
++	struct mhi_net_dev *mhi_netdev = netdev_priv(ndev);
++	const struct mhi_net_proto *proto = mhi_netdev->proto;
++	struct mhi_device *mdev = mhi_netdev->mdev;
++	int err;
++
++	if (proto && proto->tx_fixup) {
++		skb = proto->tx_fixup(mhi_netdev, skb);
++		if (unlikely(!skb))
++			goto exit_drop;
++	}
++
++	err = mhi_queue_skb(mdev, DMA_TO_DEVICE, skb, skb->len, MHI_EOT);
++	if (unlikely(err)) {
++		net_err_ratelimited("%s: Failed to queue TX buf (%d)\n",
++				    ndev->name, err);
++		dev_kfree_skb_any(skb);
++		goto exit_drop;
++	}
++
++	if (mhi_queue_is_full(mdev, DMA_TO_DEVICE))
++		netif_stop_queue(ndev);
++
++	return NETDEV_TX_OK;
++
++exit_drop:
++	u64_stats_update_begin(&mhi_netdev->stats.tx_syncp);
++	u64_stats_inc(&mhi_netdev->stats.tx_dropped);
++	u64_stats_update_end(&mhi_netdev->stats.tx_syncp);
++
++	return NETDEV_TX_OK;
++}
++
++static void mhi_ndo_get_stats64(struct net_device *ndev,
++				struct rtnl_link_stats64 *stats)
++{
++	struct mhi_net_dev *mhi_netdev = netdev_priv(ndev);
++	unsigned int start;
++
++	do {
++		start = u64_stats_fetch_begin_irq(&mhi_netdev->stats.rx_syncp);
++		stats->rx_packets = u64_stats_read(&mhi_netdev->stats.rx_packets);
++		stats->rx_bytes = u64_stats_read(&mhi_netdev->stats.rx_bytes);
++		stats->rx_errors = u64_stats_read(&mhi_netdev->stats.rx_errors);
++		stats->rx_dropped = u64_stats_read(&mhi_netdev->stats.rx_dropped);
++		stats->rx_length_errors = u64_stats_read(&mhi_netdev->stats.rx_length_errors);
++	} while (u64_stats_fetch_retry_irq(&mhi_netdev->stats.rx_syncp, start));
++
++	do {
++		start = u64_stats_fetch_begin_irq(&mhi_netdev->stats.tx_syncp);
++		stats->tx_packets = u64_stats_read(&mhi_netdev->stats.tx_packets);
++		stats->tx_bytes = u64_stats_read(&mhi_netdev->stats.tx_bytes);
++		stats->tx_errors = u64_stats_read(&mhi_netdev->stats.tx_errors);
++		stats->tx_dropped = u64_stats_read(&mhi_netdev->stats.tx_dropped);
++	} while (u64_stats_fetch_retry_irq(&mhi_netdev->stats.tx_syncp, start));
++}
++
++static const struct net_device_ops mhi_netdev_ops = {
++	.ndo_open               = mhi_ndo_open,
++	.ndo_stop               = mhi_ndo_stop,
++	.ndo_start_xmit         = mhi_ndo_xmit,
++	.ndo_get_stats64	= mhi_ndo_get_stats64,
++};
++
++static void mhi_net_setup(struct net_device *ndev)
++{
++	ndev->header_ops = NULL;  /* No header */
++	ndev->type = ARPHRD_RAWIP;
++	ndev->hard_header_len = 0;
++	ndev->addr_len = 0;
++	ndev->flags = IFF_POINTOPOINT | IFF_NOARP;
++	ndev->netdev_ops = &mhi_netdev_ops;
++	ndev->mtu = MHI_NET_DEFAULT_MTU;
++	ndev->min_mtu = MHI_NET_MIN_MTU;
++	ndev->max_mtu = MHI_NET_MAX_MTU;
++	ndev->tx_queue_len = 1000;
++}
++
++static struct sk_buff *mhi_net_skb_agg(struct mhi_net_dev *mhi_netdev,
++				       struct sk_buff *skb)
++{
++	struct sk_buff *head = mhi_netdev->skbagg_head;
++	struct sk_buff *tail = mhi_netdev->skbagg_tail;
++
++	/* This is non-paged skb chaining using frag_list */
++	if (!head) {
++		mhi_netdev->skbagg_head = skb;
++		return skb;
++	}
++
++	if (!skb_shinfo(head)->frag_list)
++		skb_shinfo(head)->frag_list = skb;
++	else
++		tail->next = skb;
++
++	head->len += skb->len;
++	head->data_len += skb->len;
++	head->truesize += skb->truesize;
++
++	mhi_netdev->skbagg_tail = skb;
++
++	return mhi_netdev->skbagg_head;
++}
++
++static void mhi_net_dl_callback(struct mhi_device *mhi_dev,
++				struct mhi_result *mhi_res)
++{
++	struct mhi_net_dev *mhi_netdev = dev_get_drvdata(&mhi_dev->dev);
++	const struct mhi_net_proto *proto = mhi_netdev->proto;
++	struct sk_buff *skb = mhi_res->buf_addr;
++
++	if (unlikely(mhi_res->transaction_status)) {
++		switch (mhi_res->transaction_status) {
++		case -EOVERFLOW:
++			/* Packet can not fit in one MHI buffer and has been
++			 * split over multiple MHI transfers, do re-aggregation.
++			 * That usually means the device side MTU is larger than
++			 * the host side MTU/MRU. Since this is not optimal,
++			 * print a warning (once).
++			 */
++			netdev_warn_once(mhi_netdev->ndev,
++					 "Fragmented packets received, fix MTU?\n");
++			skb_put(skb, mhi_res->bytes_xferd);
++			mhi_net_skb_agg(mhi_netdev, skb);
++			break;
++		case -ENOTCONN:
++			/* MHI layer stopping/resetting the DL channel */
++			dev_kfree_skb_any(skb);
++			return;
++		default:
++			/* Unknown error, simply drop */
++			dev_kfree_skb_any(skb);
++			u64_stats_update_begin(&mhi_netdev->stats.rx_syncp);
++			u64_stats_inc(&mhi_netdev->stats.rx_errors);
++			u64_stats_update_end(&mhi_netdev->stats.rx_syncp);
++		}
++	} else {
++		skb_put(skb, mhi_res->bytes_xferd);
++
++		if (mhi_netdev->skbagg_head) {
++			/* Aggregate the final fragment */
++			skb = mhi_net_skb_agg(mhi_netdev, skb);
++			mhi_netdev->skbagg_head = NULL;
++		}
++
++		u64_stats_update_begin(&mhi_netdev->stats.rx_syncp);
++		u64_stats_inc(&mhi_netdev->stats.rx_packets);
++		u64_stats_add(&mhi_netdev->stats.rx_bytes, skb->len);
++		u64_stats_update_end(&mhi_netdev->stats.rx_syncp);
++
++		switch (skb->data[0] & 0xf0) {
++		case 0x40:
++			skb->protocol = htons(ETH_P_IP);
++			break;
++		case 0x60:
++			skb->protocol = htons(ETH_P_IPV6);
++			break;
++		default:
++			skb->protocol = htons(ETH_P_MAP);
++			break;
++		}
++
++		if (proto && proto->rx)
++			proto->rx(mhi_netdev, skb);
++		else
++			netif_rx(skb);
++	}
++
++	/* Refill if RX buffers queue becomes low */
++	if (mhi_get_free_desc_count(mhi_dev, DMA_FROM_DEVICE) >= mhi_netdev->refill_level)
++		wake_up_interruptible(&mhi_netdev->refill_wq);
++}
++
++static void mhi_net_ul_callback(struct mhi_device *mhi_dev,
++				struct mhi_result *mhi_res)
++{
++	struct mhi_net_dev *mhi_netdev = dev_get_drvdata(&mhi_dev->dev);
++	struct net_device *ndev = mhi_netdev->ndev;
++	struct mhi_device *mdev = mhi_netdev->mdev;
++	struct sk_buff *skb = mhi_res->buf_addr;
++
++	/* Hardware has consumed the buffer, so free the skb (which is not
++	 * freed by the MHI stack) and perform accounting.
++	 */
++	dev_consume_skb_any(skb);
++
++	u64_stats_update_begin(&mhi_netdev->stats.tx_syncp);
++	if (unlikely(mhi_res->transaction_status)) {
++
++		/* MHI layer stopping/resetting the UL channel */
++		if (mhi_res->transaction_status == -ENOTCONN) {
++			u64_stats_update_end(&mhi_netdev->stats.tx_syncp);
++			return;
++		}
++
++		u64_stats_inc(&mhi_netdev->stats.tx_errors);
++	} else {
++		u64_stats_inc(&mhi_netdev->stats.tx_packets);
++		u64_stats_add(&mhi_netdev->stats.tx_bytes, mhi_res->bytes_xferd);
++	}
++	u64_stats_update_end(&mhi_netdev->stats.tx_syncp);
++
++	if (netif_queue_stopped(ndev) && !mhi_queue_is_full(mdev, DMA_TO_DEVICE))
++		netif_wake_queue(ndev);
++}
++
++static struct device_type wwan_type = {
++	.name = "wwan",
++};
++
++static int mhi_net_probe(struct mhi_device *mhi_dev,
++			 const struct mhi_device_id *id)
++{
++	const struct mhi_device_info *info = (struct mhi_device_info *)id->driver_data;
++	struct device *dev = &mhi_dev->dev;
++	struct mhi_net_dev *mhi_netdev;
++	struct net_device *ndev;
++	int err;
++
++	ndev = alloc_netdev(sizeof(*mhi_netdev), info->netname,
++			    NET_NAME_PREDICTABLE, mhi_net_setup);
++	if (!ndev)
++		return -ENOMEM;
++
++	mhi_netdev = netdev_priv(ndev);
++	dev_set_drvdata(dev, mhi_netdev);
++	mhi_netdev->ndev = ndev;
++	mhi_netdev->mdev = mhi_dev;
++	mhi_netdev->skbagg_head = NULL;
++	mhi_netdev->proto = info->proto;
++	SET_NETDEV_DEV(ndev, &mhi_dev->dev);
++	SET_NETDEV_DEVTYPE(ndev, &wwan_type);
++
++	init_waitqueue_head(&mhi_netdev->refill_wq);
++	u64_stats_init(&mhi_netdev->stats.rx_syncp);
++	u64_stats_init(&mhi_netdev->stats.tx_syncp);
++
++	/* Start MHI channels */
++	err = mhi_prepare_for_transfer(mhi_dev, 0);
++	if (err)
++		goto out_err;
++
++	/* Number of transfer descriptors determines size of the queue */
++	mhi_netdev->rx_queue_sz = mhi_get_free_desc_count(mhi_dev, DMA_FROM_DEVICE);
++
++	err = register_netdev(ndev);
++	if (err)
++		goto out_err;
++
++	if (mhi_netdev->proto) {
++		err = mhi_netdev->proto->init(mhi_netdev);
++		if (err)
++			goto out_err_proto;
++	}
++
++	return 0;
++
++out_err_proto:
++	unregister_netdev(ndev);
++out_err:
++	free_netdev(ndev);
++	return err;
++}
++
++static void mhi_net_remove(struct mhi_device *mhi_dev)
++{
++	struct mhi_net_dev *mhi_netdev = dev_get_drvdata(&mhi_dev->dev);
++
++	unregister_netdev(mhi_netdev->ndev);
++
++	mhi_unprepare_from_transfer(mhi_netdev->mdev);
++
++	if (mhi_netdev->skbagg_head)
++		kfree_skb(mhi_netdev->skbagg_head);
++
++	free_netdev(mhi_netdev->ndev);
++}
++
++static const struct mhi_device_info mhi_hwip0 = {
++	.netname = "mhi_hwip%d",
++};
++
++static const struct mhi_device_info mhi_swip0 = {
++	.netname = "mhi_swip%d",
++};
++
++static const struct mhi_device_info mhi_hwip0_mbim = {
++	.netname = "mhi_mbim%d",
++	.proto = &proto_mbim,
++};
++
++static const struct mhi_device_id mhi_net_id_table[] = {
++	/* Hardware accelerated data PATH (to modem IPA), protocol agnostic */
++	{ .chan = "IP_HW0", .driver_data = (kernel_ulong_t)&mhi_hwip0 },
++	/* Software data PATH (to modem CPU) */
++	{ .chan = "IP_SW0", .driver_data = (kernel_ulong_t)&mhi_swip0 },
++	/* Hardware accelerated data PATH (to modem IPA), MBIM protocol */
++	{ .chan = "IP_HW0_MBIM", .driver_data = (kernel_ulong_t)&mhi_hwip0_mbim },
++	{}
++};
++MODULE_DEVICE_TABLE(mhi, mhi_net_id_table);
++
++static struct mhi_driver mhi_net_driver = {
++	.probe = mhi_net_probe,
++	.remove = mhi_net_remove,
++	.dl_xfer_cb = mhi_net_dl_callback,
++	.ul_xfer_cb = mhi_net_ul_callback,
++	.id_table = mhi_net_id_table,
++	.driver = {
++		.name = "mhi_net",
++		.owner = THIS_MODULE,
++	},
++};
++
++module_mhi_driver(mhi_net_driver);
++
++MODULE_AUTHOR("Loic Poulain <loic.poulain@linaro.org>");
++MODULE_DESCRIPTION("Network over MHI");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/net/mhi/proto_mbim.c b/drivers/net/mhi/proto_mbim.c
+new file mode 100644
+index 000000000000..75b5484c40d5
+--- /dev/null
++++ b/drivers/net/mhi/proto_mbim.c
+@@ -0,0 +1,293 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/* MHI Network driver - Network over MHI bus
++ *
++ * Copyright (C) 2021 Linaro Ltd <loic.poulain@linaro.org>
++ *
++ * This driver copy some code from cdc_ncm, which is:
++ * Copyright (C) ST-Ericsson 2010-2012
++ * and cdc_mbim, which is:
++ * Copyright (c) 2012  Smith Micro Software, Inc.
++ * Copyright (c) 2012  Bjørn Mork <bjorn@mork.no>
++ *
++ */
++
++#include <linux/ethtool.h>
++#include <linux/if_vlan.h>
++#include <linux/ip.h>
++#include <linux/mii.h>
++#include <linux/netdevice.h>
++#include <linux/skbuff.h>
++#include <linux/usb.h>
++#include <linux/usb/cdc.h>
++#include <linux/usb/usbnet.h>
++#include <linux/usb/cdc_ncm.h>
++
++#include "mhi.h"
++
++#define MBIM_NDP16_SIGN_MASK 0x00ffffff
++
++struct mbim_context {
++	u16 rx_seq;
++	u16 tx_seq;
++};
++
++static void __mbim_length_errors_inc(struct mhi_net_dev *dev)
++{
++	u64_stats_update_begin(&dev->stats.rx_syncp);
++	u64_stats_inc(&dev->stats.rx_length_errors);
++	u64_stats_update_end(&dev->stats.rx_syncp);
++}
++
++static void __mbim_errors_inc(struct mhi_net_dev *dev)
++{
++	u64_stats_update_begin(&dev->stats.rx_syncp);
++	u64_stats_inc(&dev->stats.rx_errors);
++	u64_stats_update_end(&dev->stats.rx_syncp);
++}
++
++static int mbim_rx_verify_nth16(struct sk_buff *skb)
++{
++	struct mhi_net_dev *dev = netdev_priv(skb->dev);
++	struct mbim_context *ctx = dev->proto_data;
++	struct usb_cdc_ncm_nth16 *nth16;
++	int len;
++
++	if (skb->len < sizeof(struct usb_cdc_ncm_nth16) +
++			sizeof(struct usb_cdc_ncm_ndp16)) {
++		netif_dbg(dev, rx_err, dev->ndev, "frame too short\n");
++		__mbim_length_errors_inc(dev);
++		return -EINVAL;
++	}
++
++	nth16 = (struct usb_cdc_ncm_nth16 *)skb->data;
++
++	if (nth16->dwSignature != cpu_to_le32(USB_CDC_NCM_NTH16_SIGN)) {
++		netif_dbg(dev, rx_err, dev->ndev,
++			  "invalid NTH16 signature <%#010x>\n",
++			  le32_to_cpu(nth16->dwSignature));
++		__mbim_errors_inc(dev);
++		return -EINVAL;
++	}
++
++	/* No limit on the block length, except the size of the data pkt */
++	len = le16_to_cpu(nth16->wBlockLength);
++	if (len > skb->len) {
++		netif_dbg(dev, rx_err, dev->ndev,
++			  "NTB does not fit into the skb %u/%u\n", len,
++			  skb->len);
++		__mbim_length_errors_inc(dev);
++		return -EINVAL;
++	}
++
++	if (ctx->rx_seq + 1 != le16_to_cpu(nth16->wSequence) &&
++	    (ctx->rx_seq || le16_to_cpu(nth16->wSequence)) &&
++	    !(ctx->rx_seq == 0xffff && !le16_to_cpu(nth16->wSequence))) {
++		netif_dbg(dev, rx_err, dev->ndev,
++			  "sequence number glitch prev=%d curr=%d\n",
++			  ctx->rx_seq, le16_to_cpu(nth16->wSequence));
++	}
++	ctx->rx_seq = le16_to_cpu(nth16->wSequence);
++
++	return le16_to_cpu(nth16->wNdpIndex);
++}
++
++static int mbim_rx_verify_ndp16(struct sk_buff *skb, int ndpoffset)
++{
++	struct mhi_net_dev *dev = netdev_priv(skb->dev);
++	struct usb_cdc_ncm_ndp16 *ndp16;
++	int ret;
++
++	if (ndpoffset + sizeof(struct usb_cdc_ncm_ndp16) > skb->len) {
++		netif_dbg(dev, rx_err, dev->ndev, "invalid NDP offset  <%u>\n",
++			  ndpoffset);
++		return -EINVAL;
++	}
++
++	ndp16 = (struct usb_cdc_ncm_ndp16 *)(skb->data + ndpoffset);
++
++	if (le16_to_cpu(ndp16->wLength) < USB_CDC_NCM_NDP16_LENGTH_MIN) {
++		netif_dbg(dev, rx_err, dev->ndev, "invalid DPT16 length <%u>\n",
++			  le16_to_cpu(ndp16->wLength));
++		return -EINVAL;
++	}
++
++	ret = ((le16_to_cpu(ndp16->wLength) - sizeof(struct usb_cdc_ncm_ndp16))
++			/ sizeof(struct usb_cdc_ncm_dpe16));
++	ret--; /* Last entry is always a NULL terminator */
++
++	if (sizeof(struct usb_cdc_ncm_ndp16) +
++	     ret * sizeof(struct usb_cdc_ncm_dpe16) > skb->len) {
++		netif_dbg(dev, rx_err, dev->ndev,
++			  "Invalid nframes = %d\n", ret);
++		return -EINVAL;
++	}
++
++	return ret;
++}
++
++static void mbim_rx(struct mhi_net_dev *mhi_netdev, struct sk_buff *skb)
++{
++	struct net_device *ndev = mhi_netdev->ndev;
++	int ndpoffset;
++
++	if (skb_linearize(skb))
++		goto error;
++
++	/* Check NTB header and retrieve first NDP offset */
++	ndpoffset = mbim_rx_verify_nth16(skb);
++	if (ndpoffset < 0) {
++		net_err_ratelimited("%s: Incorrect NTB header\n", ndev->name);
++		goto error;
++	}
++
++	/* Process each NDP */
++	while (1) {
++		struct usb_cdc_ncm_ndp16 *ndp16;
++		struct usb_cdc_ncm_dpe16 *dpe16;
++		int nframes, n;
++
++		/* Check NDP header and retrieve number of datagrams */
++		nframes = mbim_rx_verify_ndp16(skb, ndpoffset);
++		if (nframes < 0) {
++			net_err_ratelimited("%s: Incorrect NDP16\n", ndev->name);
++			__mbim_length_errors_inc(mhi_netdev);
++			goto error;
++		}
++
++		 /* Only IP data type supported, no DSS in MHI context */
++		ndp16 = (struct usb_cdc_ncm_ndp16 *)(skb->data + ndpoffset);
++		if ((ndp16->dwSignature & cpu_to_le32(MBIM_NDP16_SIGN_MASK))
++				!= cpu_to_le32(USB_CDC_MBIM_NDP16_IPS_SIGN)) {
++			net_err_ratelimited("%s: Unsupported NDP type\n", ndev->name);
++			__mbim_errors_inc(mhi_netdev);
++			goto next_ndp;
++		}
++
++		/* Only primary IP session 0 (0x00) supported for now */
++		if (ndp16->dwSignature & ~cpu_to_le32(MBIM_NDP16_SIGN_MASK)) {
++			net_err_ratelimited("%s: bad packet session\n", ndev->name);
++			__mbim_errors_inc(mhi_netdev);
++			goto next_ndp;
++		}
++
++		/* de-aggregate and deliver IP packets */
++		dpe16 = ndp16->dpe16;
++		for (n = 0; n < nframes; n++, dpe16++) {
++			u16 dgram_offset = le16_to_cpu(dpe16->wDatagramIndex);
++			u16 dgram_len = le16_to_cpu(dpe16->wDatagramLength);
++			struct sk_buff *skbn;
++
++			if (!dgram_offset || !dgram_len)
++				break; /* null terminator */
++
++			skbn = netdev_alloc_skb(ndev, dgram_len);
++			if (!skbn)
++				continue;
++
++			skb_put(skbn, dgram_len);
++			memcpy(skbn->data, skb->data + dgram_offset, dgram_len);
++
++			switch (skbn->data[0] & 0xf0) {
++			case 0x40:
++				skbn->protocol = htons(ETH_P_IP);
++				break;
++			case 0x60:
++				skbn->protocol = htons(ETH_P_IPV6);
++				break;
++			default:
++				net_err_ratelimited("%s: unknown protocol\n",
++						    ndev->name);
++				__mbim_errors_inc(mhi_netdev);
++				dev_kfree_skb_any(skbn);
++				continue;
++			}
++
++			netif_rx(skbn);
++		}
++next_ndp:
++		/* Other NDP to process? */
++		ndpoffset = (int)le16_to_cpu(ndp16->wNextNdpIndex);
++		if (!ndpoffset)
++			break;
++	}
++
++	/* free skb */
++	dev_consume_skb_any(skb);
++	return;
++error:
++	dev_kfree_skb_any(skb);
++}
++
++struct mbim_tx_hdr {
++	struct usb_cdc_ncm_nth16 nth16;
++	struct usb_cdc_ncm_ndp16 ndp16;
++	struct usb_cdc_ncm_dpe16 dpe16[2];
++} __packed;
++
++static struct sk_buff *mbim_tx_fixup(struct mhi_net_dev *mhi_netdev,
++				     struct sk_buff *skb)
++{
++	struct mbim_context *ctx = mhi_netdev->proto_data;
++	unsigned int dgram_size = skb->len;
++	struct usb_cdc_ncm_nth16 *nth16;
++	struct usb_cdc_ncm_ndp16 *ndp16;
++	struct mbim_tx_hdr *mbim_hdr;
++
++	/* For now, this is a partial implementation of CDC MBIM, only one NDP
++	 * is sent, containing the IP packet (no aggregation).
++	 */
++
++	/* Ensure we have enough headroom for crafting MBIM header */
++	if (skb_cow_head(skb, sizeof(struct mbim_tx_hdr))) {
++		dev_kfree_skb_any(skb);
++		return NULL;
++	}
++
++	mbim_hdr = skb_push(skb, sizeof(struct mbim_tx_hdr));
++
++	/* Fill NTB header */
++	nth16 = &mbim_hdr->nth16;
++	nth16->dwSignature = cpu_to_le32(USB_CDC_NCM_NTH16_SIGN);
++	nth16->wHeaderLength = cpu_to_le16(sizeof(struct usb_cdc_ncm_nth16));
++	nth16->wSequence = cpu_to_le16(ctx->tx_seq++);
++	nth16->wBlockLength = cpu_to_le16(skb->len);
++	nth16->wNdpIndex = cpu_to_le16(sizeof(struct usb_cdc_ncm_nth16));
++
++	/* Fill the unique NDP */
++	ndp16 = &mbim_hdr->ndp16;
++	ndp16->dwSignature = cpu_to_le32(USB_CDC_MBIM_NDP16_IPS_SIGN);
++	ndp16->wLength = cpu_to_le16(sizeof(struct usb_cdc_ncm_ndp16)
++					+ sizeof(struct usb_cdc_ncm_dpe16) * 2);
++	ndp16->wNextNdpIndex = 0;
++
++	/* Datagram follows the mbim header */
++	ndp16->dpe16[0].wDatagramIndex = cpu_to_le16(sizeof(struct mbim_tx_hdr));
++	ndp16->dpe16[0].wDatagramLength = cpu_to_le16(dgram_size);
++
++	/* null termination */
++	ndp16->dpe16[1].wDatagramIndex = 0;
++	ndp16->dpe16[1].wDatagramLength = 0;
++
++	return skb;
++}
++
++static int mbim_init(struct mhi_net_dev *mhi_netdev)
++{
++	struct net_device *ndev = mhi_netdev->ndev;
++
++	mhi_netdev->proto_data = devm_kzalloc(&ndev->dev,
++					      sizeof(struct mbim_context),
++					      GFP_KERNEL);
++	if (!mhi_netdev->proto_data)
++		return -ENOMEM;
++
++	ndev->needed_headroom = sizeof(struct mbim_tx_hdr);
++
++	return 0;
++}
++
++const struct mhi_net_proto proto_mbim = {
++	.init = mbim_init,
++	.rx = mbim_rx,
++	.tx_fixup = mbim_tx_fixup,
++};
+diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
+index 11096b561dab..43a4629edcd8 100644
+--- a/include/linux/u64_stats_sync.h
++++ b/include/linux/u64_stats_sync.h
+@@ -68,6 +68,49 @@ struct u64_stats_sync {
+ #endif
+ };
+ 
++#if BITS_PER_LONG == 64
++#include <asm/local64.h>
++
++typedef struct {
++	local64_t	v;
++} u64_stats_t ;
++
++static inline u64 u64_stats_read(const u64_stats_t *p)
++{
++	return local64_read(&p->v);
++}
++
++static inline void u64_stats_add(u64_stats_t *p, unsigned long val)
++{
++	local64_add(val, &p->v);
++}
++
++static inline void u64_stats_inc(u64_stats_t *p)
++{
++	local64_inc(&p->v);
++}
++
++#else
++
++typedef struct {
++	u64		v;
++} u64_stats_t;
++
++static inline u64 u64_stats_read(const u64_stats_t *p)
++{
++	return p->v;
++}
++
++static inline void u64_stats_add(u64_stats_t *p, unsigned long val)
++{
++	p->v += val;
++}
++
++static inline void u64_stats_inc(u64_stats_t *p)
++{
++	p->v++;
++}
++#endif
+ 
+ #if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
+ #define u64_stats_init(syncp)	seqcount_init(&(syncp)->seq)
+-- 
+2.30.2
+
