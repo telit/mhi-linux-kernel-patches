@@ -1,0 +1,67 @@
+From 01607aebc1d340467b8d600666530edd898bc445 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Tue, 19 Oct 2021 14:10:27 +0200
+Subject: [PATCH 60/60] drivers: mhi: uci: fix race condition between remove
+ and release
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/uci.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/uci.c b/drivers/bus/mhi/uci.c
+index 75d438539e90..a0a903423870 100644
+--- a/drivers/bus/mhi/uci.c
++++ b/drivers/bus/mhi/uci.c
+@@ -142,6 +142,18 @@ static int mhi_uci_release(struct inode *inode, struct file *file)
+ {
+ 	struct uci_dev *udev = file->private_data;
+ 
++	mutex_lock(&uci_drv_lock);
++
++	if (!udev) {
++		mutex_unlock(&uci_drv_lock);
++		return 0;
++	}
++
++	if (!test_bit(UCI_DEV_CONNECTED, &udev->flags)) {
++		mutex_unlock(&uci_drv_lock);
++		return 0;
++	}
++
+ 	/* Stop the channels, if it is not already destroyed */
+ 	mutex_lock(&udev->mhi_dev_lock);
+ 	if (udev->mhi_dev)
+@@ -155,6 +167,7 @@ static int mhi_uci_release(struct inode *inode, struct file *file)
+ 	file->private_data = NULL;
+ 
+ 	kref_put(&udev->ref_count, mhi_uci_dev_release);
++	mutex_unlock(&uci_drv_lock);
+ 
+ 	return 0;
+ }
+@@ -465,8 +478,12 @@ static void mhi_uci_remove(struct mhi_device *mhi_dev)
+ 	dev_set_drvdata(&mhi_dev->dev, NULL);
+ 
+ 	mutex_lock(&uci_drv_lock);
++	if (!udev) {
++		mutex_unlock(&uci_drv_lock);
++		return;
++	}
++
+ 	idr_remove(&uci_idr, udev->minor);
+-	mutex_unlock(&uci_drv_lock);
+ 
+ 	clear_bit(UCI_DEV_CONNECTED, &udev->flags);
+ 	device_destroy(uci_dev_class, MKDEV(uci_dev_major, udev->minor));
+@@ -481,6 +498,7 @@ static void mhi_uci_remove(struct mhi_device *mhi_dev)
+ 	wake_up_interruptible(&udev->ul_wq);
+ 
+ 	kref_put(&udev->ref_count, mhi_uci_dev_release);
++	mutex_unlock(&uci_drv_lock);
+ }
+ 
+ /* .driver_data stores max mtu */
+-- 
+2.30.2
+
