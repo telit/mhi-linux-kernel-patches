@@ -1,11 +1,11 @@
-From 297b1f1fbfc267b968a61b3f90a7f4b7ac9c2a33 Mon Sep 17 00:00:00 2001
+From 6b83db9693d6570509ee485a456cfb0ff976d964 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Wed, 6 Oct 2021 08:37:04 +0200
-Subject: [PATCH 11/11] bus: mhi: pci_generic: set wake get/put as no-op for
+Date: Thu, 18 Nov 2021 12:09:46 +0100
+Subject: [PATCH 9/9] bus: mhi: pci_generic: set wake get/put as no-op for
  FN980
 
-In some hosts also new hardware seems to fail booting if wake
-get/put are not set as no-op.
+FN980 does not properly support wake_db register related
+operations, so set wake get/put as no-op.
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -13,10 +13,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index cd9a25144b5c..46ba26c33d99 100644
+index adcb5303d249..daeeff892787 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -439,7 +439,8 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
+@@ -476,7 +476,8 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
  	.edl = "qcom/sdx55m/edl.mbn",
  	.config = &modem_telit_fn980_config,
  	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,

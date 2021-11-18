@@ -1,7 +1,7 @@
-From 149a443b79c52abbb778be88795ca18395df46e7 Mon Sep 17 00:00:00 2001
+From 8e5ef9a05373deec989f3d98892107bb7c4323fe Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Mon, 6 Sep 2021 14:16:00 +0200
-Subject: [PATCH 4/8] bus: mhi: force mhi host stack reset to detect modem
+Date: Wed, 17 Nov 2021 16:38:50 +0100
+Subject: [PATCH 4/9] bus: mhi: force mhi host stack reset to detect modem
  flashing end
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 7fe7832c3afc..080c7031d877 100644
+index c5600eff666a..09205d03812b 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -22,7 +22,7 @@
@@ -31,7 +31,7 @@ index 7fe7832c3afc..080c7031d877 100644
  
  /**
   * struct mhi_pci_dev_info - MHI PCI device specific information
-@@ -702,6 +702,13 @@ static void health_check(struct timer_list *t)
+@@ -743,6 +743,13 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -70,10 +70,10 @@ index 8cb1dcedd63e..0f3b09be6e7f 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index be8d09f38cd8..117c0f80049d 100644
+index 72b597be3d1c..f3ee55570a0f 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -473,6 +473,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
+@@ -476,6 +476,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
  }
  EXPORT_SYMBOL_GPL(wwan_port_get_drvdata);
  
@@ -87,13 +87,13 @@ index be8d09f38cd8..117c0f80049d 100644
  {
  	int ret = 0;
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index 944aa3aa3035..749cff669513 100644
+index 723985879035..4d383d291bf6 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
-@@ -448,6 +448,8 @@ struct mhi_controller {
- 	bool fbc_download;
+@@ -452,6 +452,8 @@ struct mhi_controller {
  	bool wake_set;
  	unsigned long irq_flags;
+ 	u32 mru;
 +	/* Flag to detect reset after xfp flashing  */
 +	bool xfp_reset;
  };
@@ -117,5 +117,5 @@ index 42a7eb170d43..26a137d561f3 100644
   * struct wwan_netdev_priv - WWAN core network device private data
   * @link_id: WWAN device data link id
 -- 
-2.17.1
+2.30.2
 
