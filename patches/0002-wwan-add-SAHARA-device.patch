@@ -1,7 +1,7 @@
-From 89556a63f2076cf4e0945fafad0553beee469c83 Mon Sep 17 00:00:00 2001
+From 8987d10eff5900c3f36159aecfa9137ebd45397f Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Mon, 6 Sep 2021 14:08:44 +0200
-Subject: [PATCH 2/8] wwan: add SAHARA device
+Subject: [PATCH 2/9] wwan: add SAHARA device
 
 Add SAHARA device to wwan subsystem.
 
@@ -25,7 +25,7 @@ index f7ca52353f40..8cb1dcedd63e 100644
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 35ece98134c0..be8d09f38cd8 100644
+index d293ab688044..72b597be3d1c 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
 @@ -252,6 +252,10 @@ static const struct {
@@ -52,5 +52,5 @@ index 9fac819f92e3..42a7eb170d43 100644
  	/* Add new port types above this line */
  
 -- 
-2.17.1
+2.30.2
 

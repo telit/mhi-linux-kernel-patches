@@ -1,7 +1,7 @@
-From a27bbdde1e9ccbeee2f81a2233fcd211e61c6e4a Mon Sep 17 00:00:00 2001
+From f71285bf8b3f6c62c9e4de588daaf6fd760d7798 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Mon, 28 Jun 2021 10:25:05 +0200
-Subject: [PATCH 6/8] mhi: controller: support flashing through USB 0x1055
+Date: Wed, 17 Nov 2021 16:53:03 +0100
+Subject: [PATCH 6/9] mhi: controller: support flashing through USB 0x1055
 
 Add a new controller file to be used when flashing through USB (composition 0x1055)
 in order to make the mhi stack aware of the process and not to reset the function.
@@ -15,7 +15,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  4 files changed, 51 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/bus/mhi/core/init.c b/drivers/bus/mhi/core/init.c
-index c81b377fca8f..9b5f1bcf4f7c 100644
+index 5aaca6d0f52b..f05350f1ecce 100644
 --- a/drivers/bus/mhi/core/init.c
 +++ b/drivers/bus/mhi/core/init.c
 @@ -87,6 +87,32 @@ const char *to_mhi_pm_state_str(enum mhi_pm_state state)
@@ -60,10 +60,10 @@ index c81b377fca8f..9b5f1bcf4f7c 100644
  };
  ATTRIBUTE_GROUPS(mhi_dev);
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 080c7031d877..81a3970c40ba 100644
+index 09205d03812b..02522525f3f4 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -702,8 +702,14 @@ static void health_check(struct timer_list *t)
+@@ -743,8 +743,14 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -94,7 +94,7 @@ index 0f3b09be6e7f..1c7f6d6f77e7 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index 614f1bfecacf..67cdfd58ca12 100644
+index f5cc7d387981..c7e59529b816 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -286,6 +286,18 @@ struct mhi_controller_config {
@@ -116,18 +116,18 @@ index 614f1bfecacf..67cdfd58ca12 100644
  /**
   * struct mhi_controller - Master MHI controller structure
   * @cntrl_dev: Pointer to the struct device of physical bus acting as the MHI
-@@ -356,6 +368,7 @@ struct mhi_controller_config {
+@@ -357,6 +369,7 @@ struct mhi_controller_config {
   * @fbc_download: MHI host needs to do complete image transfer (optional)
   * @wake_set: Device wakeup set flag
   * @irq_flags: irq flags passed to request_irq (optional)
 + * @xfp: xfp state used for flashing
+  * @mru: the default MRU for the MHI device
   *
   * Fields marked as (required) need to be populated by the controller driver
-  * before calling mhi_register_controller(). For the fields marked as (optional)
-@@ -448,8 +461,8 @@ struct mhi_controller {
- 	bool fbc_download;
+@@ -452,8 +465,8 @@ struct mhi_controller {
  	bool wake_set;
  	unsigned long irq_flags;
+ 	u32 mru;
 -	/* Flag to detect reset after xfp flashing  */
 -	bool xfp_reset;
 +	/* Flag to manage flashing status  */
@@ -136,5 +136,5 @@ index 614f1bfecacf..67cdfd58ca12 100644
  	bool forced_SBL;
  };
 -- 
-2.17.1
+2.30.2
 

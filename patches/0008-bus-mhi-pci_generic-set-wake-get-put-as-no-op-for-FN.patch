@@ -1,7 +1,7 @@
-From c20371b5b7d398f98b618956d0ba4816a805eb5f Mon Sep 17 00:00:00 2001
+From ee55b54e96526ffd77c0871b7ccb6cce35ae7f85 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 28 Sep 2021 14:41:13 +0200
-Subject: [PATCH 10/10] bus: mhi: pci_generic: set wake get/put as no-op for
+Subject: [PATCH 8/9] bus: mhi: pci_generic: set wake get/put as no-op for
  FN980 v1 hw
 
 FN980 v1 hw does not properly support wake_db register related
@@ -15,10 +15,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 31 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 759d7b41c443..cd9a25144b5c 100644
+index 7d298480c504..adcb5303d249 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -442,10 +442,40 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
+@@ -479,10 +479,40 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
  	.dma_data_width = 32
  };
  
@@ -28,7 +28,7 @@ index 759d7b41c443..cd9a25144b5c 100644
 +	MHI_CHANNEL_CONFIG_UL(14, "QMI", 16, 0),
 +	MHI_CHANNEL_CONFIG_DL(15, "QMI", 16, 0),
 +	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
-+	MHI_CHANNEL_CONFIG_DL(21, "IPCR", 16, 0),
++	MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(21, "IPCR", 16, 0),
 +	MHI_CHANNEL_CONFIG_HW_UL(100, "IP_HW0", 128, 2),
 +	MHI_CHANNEL_CONFIG_HW_DL(101, "IP_HW0", 128, 3),
 +};

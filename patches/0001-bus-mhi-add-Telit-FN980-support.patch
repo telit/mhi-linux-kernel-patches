@@ -1,7 +1,7 @@
-From 86b1c41bc36cb27c09f7d607ab0b6827579c6d77 Mon Sep 17 00:00:00 2001
+From 704acae68180cc1e16cb6337d9835856ddbbb2d4 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Mon, 6 Sep 2021 14:05:09 +0200
-Subject: [PATCH 1/8] bus: mhi: add Telit FN980 support
+Date: Wed, 17 Nov 2021 16:14:56 +0100
+Subject: [PATCH 1/9] bus: mhi: add Telit FN980 support
 
 Add support for Telit FN980 SDX55 based modem.
 
@@ -12,10 +12,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  2 files changed, 82 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 4dd1077354af..7fe7832c3afc 100644
+index 59a4896a8030..c5600eff666a 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -45,6 +45,36 @@ struct mhi_pci_dev_info {
+@@ -47,6 +47,36 @@ struct mhi_pci_dev_info {
  	bool sideband_wake;
  };
  
@@ -52,8 +52,8 @@ index 4dd1077354af..7fe7832c3afc 100644
  #define MHI_CHANNEL_CONFIG_UL(ch_num, ch_name, el_count, ev_ring) \
  	{						\
  		.num = ch_num,				\
-@@ -366,9 +396,59 @@ static const struct mhi_pci_dev_info mhi_foxconn_sdx55_info = {
- 	.sideband_wake = false,
+@@ -403,9 +433,59 @@ static const struct mhi_pci_dev_info mhi_mv31_info = {
+ 	.dma_data_width = 32,
  };
  
 +static const struct mhi_channel_config mhi_telit_fn980_channels[] = {
@@ -66,7 +66,7 @@ index 4dd1077354af..7fe7832c3afc 100644
 +	MHI_CHANNEL_CONFIG_UL(14, "QMI", 16, 0),
 +	MHI_CHANNEL_CONFIG_DL(15, "QMI", 16, 0),
 +	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
-+	MHI_CHANNEL_CONFIG_DL(21, "IPCR", 16, 0),
++	MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(21, "IPCR", 16, 0),
 +	MHI_CHANNEL_CONFIG_UL(32, "DUN", 8, 1),
 +	MHI_CHANNEL_CONFIG_DL(33, "DUN", 8, 1),
 +	MHI_CHANNEL_CONFIG_UL(92, "DUN2", 8, 1),
@@ -126,5 +126,5 @@ index e4d0f696687f..f7ca52353f40 100644
  	{ .chan = "QMI", .driver_data = WWAN_PORT_QMI },
  	{ .chan = "DIAG", .driver_data = WWAN_PORT_QCDM },
 -- 
-2.17.1
+2.30.2
 
