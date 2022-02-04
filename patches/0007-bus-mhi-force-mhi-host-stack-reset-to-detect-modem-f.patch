@@ -1,7 +1,7 @@
-From 8e5ef9a05373deec989f3d98892107bb7c4323fe Mon Sep 17 00:00:00 2001
-From: Daniele Palmas <dnlplm@gmail.com>
-Date: Wed, 17 Nov 2021 16:38:50 +0100
-Subject: [PATCH 4/9] bus: mhi: force mhi host stack reset to detect modem
+From 5e54286ea6ad9180951fdab81c0e7cf6c630b24d Mon Sep 17 00:00:00 2001
+From: Carlo Lobrano <carlo.lobrano@telit.com>
+Date: Mon, 31 Jan 2022 18:48:31 +0100
+Subject: [PATCH 7/9] bus: mhi: force mhi host stack reset to detect modem
  flashing end
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index c5600eff666a..09205d03812b 100644
+index 63e822d7ccce..12c49fb0da5e 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -22,7 +22,7 @@
@@ -31,7 +31,7 @@ index c5600eff666a..09205d03812b 100644
  
  /**
   * struct mhi_pci_dev_info - MHI PCI device specific information
-@@ -743,6 +743,13 @@ static void health_check(struct timer_list *t)
+@@ -774,6 +774,13 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -46,7 +46,7 @@ index c5600eff666a..09205d03812b 100644
  		dev_err(mhi_cntrl->cntrl_dev, "Device died\n");
  		queue_work(system_long_wq, &mhi_pdev->recovery_work);
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 8cb1dcedd63e..0f3b09be6e7f 100644
+index f7ca52353f40..3d49e33b617a 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -129,6 +129,8 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)
@@ -70,10 +70,10 @@ index 8cb1dcedd63e..0f3b09be6e7f 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 72b597be3d1c..f3ee55570a0f 100644
+index d293ab688044..0ad12585523f 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -476,6 +476,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
+@@ -472,6 +472,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
  }
  EXPORT_SYMBOL_GPL(wwan_port_get_drvdata);
  
@@ -100,10 +100,10 @@ index 723985879035..4d383d291bf6 100644
  
  /**
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index 42a7eb170d43..26a137d561f3 100644
+index 9fac819f92e3..9ebbffc8292b 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
-@@ -128,6 +128,12 @@ void wwan_port_txon(struct wwan_port *port);
+@@ -127,6 +127,12 @@ void wwan_port_txon(struct wwan_port *port);
   */
  void *wwan_port_get_drvdata(struct wwan_port *port);
  
@@ -117,5 +117,5 @@ index 42a7eb170d43..26a137d561f3 100644
   * struct wwan_netdev_priv - WWAN core network device private data
   * @link_id: WWAN device data link id
 -- 
-2.30.2
+2.25.1
 
