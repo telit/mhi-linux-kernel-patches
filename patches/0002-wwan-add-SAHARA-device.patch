@@ -1,7 +1,7 @@
-From 8987d10eff5900c3f36159aecfa9137ebd45397f Mon Sep 17 00:00:00 2001
+From 0ec7a3145ccdc87bb570ac491469849adb7fe3ab Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Mon, 6 Sep 2021 14:08:44 +0200
-Subject: [PATCH 2/9] wwan: add SAHARA device
+Subject: [PATCH 02/10] wwan: add SAHARA device
 
 Add SAHARA device to wwan subsystem.
 
@@ -13,10 +13,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  3 files changed, 6 insertions(+)
 
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index f7ca52353f40..8cb1dcedd63e 100644
+index e4d0f696687f..4cf420e0ce78 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
-@@ -263,6 +263,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
+@@ -262,6 +262,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
  	{ .chan = "QMI", .driver_data = WWAN_PORT_QMI },
  	{ .chan = "DIAG", .driver_data = WWAN_PORT_QCDM },
  	{ .chan = "FIREHOSE", .driver_data = WWAN_PORT_FIREHOSE },
