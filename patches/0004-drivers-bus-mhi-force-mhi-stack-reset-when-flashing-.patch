@@ -1,8 +1,8 @@
-From 8e5ef9a05373deec989f3d98892107bb7c4323fe Mon Sep 17 00:00:00 2001
+From 0d227337a4b4be15a12c29e327a2c63b45405fd5 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Wed, 17 Nov 2021 16:38:50 +0100
-Subject: [PATCH 4/9] bus: mhi: force mhi host stack reset to detect modem
- flashing end
+Date: Thu, 27 Jan 2022 12:00:51 +0100
+Subject: [PATCH 04/10] drivers: bus: mhi: force mhi stack reset when flashing
+ ends
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
 and is not detected anymore by the host.
@@ -19,19 +19,19 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index c5600eff666a..09205d03812b 100644
+index 17c5dafa1e45..3a61ee3daeae 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -22,7 +22,7 @@
  
- #define MHI_POST_RESET_DELAY_MS 500
+ #define MHI_POST_RESET_DELAY_MS 2000
  
 -#define HEALTH_CHECK_PERIOD (HZ * 2)
 +#define HEALTH_CHECK_PERIOD (HZ / 2)
  
  /**
   * struct mhi_pci_dev_info - MHI PCI device specific information
-@@ -743,6 +743,13 @@ static void health_check(struct timer_list *t)
+@@ -732,6 +732,13 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -46,7 +46,7 @@ index c5600eff666a..09205d03812b 100644
  		dev_err(mhi_cntrl->cntrl_dev, "Device died\n");
  		queue_work(system_long_wq, &mhi_pdev->recovery_work);
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 8cb1dcedd63e..0f3b09be6e7f 100644
+index 4cf420e0ce78..c38e56adacab 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -129,6 +129,8 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)
@@ -87,7 +87,7 @@ index 72b597be3d1c..f3ee55570a0f 100644
  {
  	int ret = 0;
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index 723985879035..4d383d291bf6 100644
+index a5cc4cdf9cc8..2530de114511 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -452,6 +452,8 @@ struct mhi_controller {

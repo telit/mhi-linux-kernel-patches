@@ -1,0 +1,84 @@
+From 7589b6046604147c42632d6be262d09a7f62f12f Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 27 Jan 2022 12:12:01 +0100
+Subject: [PATCH 08/10] drivers: bus: mhi: add FN980 v2 support
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/pci_generic.c    | 42 +++++++++++++++++++++++++++++++-
+ drivers/net/wwan/mhi_wwan_ctrl.c |  1 +
+ 2 files changed, 42 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+index 1f2128f96adb..45de23dadbda 100644
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -469,12 +469,52 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v1_info = {
+ 	.sideband_wake = true,
+ };
+ 
++static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
++	MHI_CHANNEL_CONFIG_UL_SBL(2, "SAHARA", 32, 0),
++	MHI_CHANNEL_CONFIG_DL_SBL(3, "SAHARA", 32, 0),
++	MHI_CHANNEL_CONFIG_AMSS_SBL_UL(4, "DIAG", 64, 1),
++	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
++	MHI_CHANNEL_CONFIG_UL(14, "QMI", 32, 0),
++	MHI_CHANNEL_CONFIG_DL(15, "QMI", 32, 0),
++	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
++	MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(21, "IPCR", 16, 0),
++	MHI_CHANNEL_CONFIG_UL(32, "DUN", 8, 1),
++	MHI_CHANNEL_CONFIG_DL(33, "DUN", 8, 1),
++	MHI_CHANNEL_CONFIG_UL(92, "DUN2", 8, 1),
++	MHI_CHANNEL_CONFIG_DL(93, "DUN2", 8, 1),
++	MHI_CHANNEL_CONFIG_UL(94, "NMEA", 8, 1),
++	MHI_CHANNEL_CONFIG_DL(95, "NMEA", 8, 1),
++	MHI_CHANNEL_CONFIG_HW_UL(100, "IP_HW0", 128, 2),
++	MHI_CHANNEL_CONFIG_HW_DL(101, "IP_HW0", 128, 3),
++};
++
++static struct mhi_controller_config modem_telit_fn980_hw_v2_config = {
++	.max_channels = 128,
++	.timeout_ms = 20000,
++	.num_channels = ARRAY_SIZE(mhi_telit_fn980_hw_v2_channels),
++	.ch_cfg = mhi_telit_fn980_hw_v2_channels,
++	.num_events = ARRAY_SIZE(mhi_telit_fn980_events),
++	.event_cfg = mhi_telit_fn980_events,
++};
++
++static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v2_info = {
++	.name = "telit-fn980",
++	.fw = "qcom/sdx55m/sbl1.mbn",
++	.edl = "qcom/sdx55m/edl.mbn",
++	.config = &modem_telit_fn980_hw_v2_config,
++	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
++	.dma_data_width = 32,
++	.mru_default = 32768,
++	.sideband_wake = true,
++};
++
+ static const struct pci_device_id mhi_pci_id_table[] = {
+ 	/* FN980 firmware release having Telit subvendor-id */
+ 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0306, 0x1C5D, 0x2000),
+ 		.driver_data = (kernel_ulong_t) &mhi_telit_fn980_hw_v1_info },
++	/* Modified also Qualcomm default entry for FN980 firmware release without Telit SSIDs */
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0306),
+-		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx55_info },
++		.driver_data = (kernel_ulong_t) &mhi_telit_fn980_hw_v2_info },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0304),
+ 		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx24_info },
+ 	{ PCI_DEVICE(0x1eac, 0x1001), /* EM120R-GL (sdx24) */
+diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
+index fa0b696085f4..1c7f6d6f77e7 100644
+--- a/drivers/net/wwan/mhi_wwan_ctrl.c
++++ b/drivers/net/wwan/mhi_wwan_ctrl.c
+@@ -264,6 +264,7 @@ static void mhi_wwan_ctrl_remove(struct mhi_device *mhi_dev)
+ 
+ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
+ 	{ .chan = "DUN", .driver_data = WWAN_PORT_AT },
++	{ .chan = "DUN2", .driver_data = WWAN_PORT_AT },
+ 	{ .chan = "MBIM", .driver_data = WWAN_PORT_MBIM },
+ 	{ .chan = "QMI", .driver_data = WWAN_PORT_QMI },
+ 	{ .chan = "DIAG", .driver_data = WWAN_PORT_QCDM },
+-- 
+2.30.2
+
