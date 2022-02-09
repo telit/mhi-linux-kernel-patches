@@ -1,0 +1,38 @@
+From e9fd2c75b6b9826e629efba67c083c79e4b25b36 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Wed, 9 Feb 2022 12:19:55 +0100
+Subject: [PATCH 6/6] drivers: bus: mhi: remove MBIM device support
+
+FN980 family is bound to mhi_net rmnet driver,
+so MBIM control devices are removed.
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/pci_generic.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+index de31ffc476b6..b5f713aa81e0 100644
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -377,8 +377,6 @@ static const struct mhi_channel_config mhi_telit_fn980_channels[] = {
+ 	MHI_CHANNEL_CONFIG_DL_SBL(3, "SAHARA", 32, 0),
+ 	MHI_CHANNEL_CONFIG_AMSS_SBL_UL(4, "DIAG", 64, 1),
+ 	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
+-	MHI_CHANNEL_CONFIG_UL(12, "MBIM", 4, 0),
+-	MHI_CHANNEL_CONFIG_DL(13, "MBIM", 4, 0),
+ 	MHI_CHANNEL_CONFIG_UL(14, "QMI", 16, 0),
+ 	MHI_CHANNEL_CONFIG_DL(15, "QMI", 16, 0),
+ 	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
+@@ -419,8 +417,6 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
+ };
+ 
+ static const struct mhi_channel_config mhi_telit_fn980_hw_v1_channels[] = {
+-	MHI_CHANNEL_CONFIG_UL(12, "MBIM", 4, 0),
+-	MHI_CHANNEL_CONFIG_DL(13, "MBIM", 4, 0),
+ 	MHI_CHANNEL_CONFIG_UL(14, "QMI", 16, 0),
+ 	MHI_CHANNEL_CONFIG_DL(15, "QMI", 16, 0),
+ 	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
+-- 
+2.32.0
+
