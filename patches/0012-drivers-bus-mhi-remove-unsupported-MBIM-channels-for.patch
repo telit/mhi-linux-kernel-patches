@@ -1,0 +1,36 @@
+From eb65532bea6d144940b2f8dadfd7ae0cd65afce7 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 10 Feb 2022 11:50:02 +0100
+Subject: [PATCH 12/12] drivers: bus: mhi: remove unsupported MBIM channels for
+ FN980
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/pci_generic.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+index 46ba26c33d99..fe151932dfcc 100644
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -401,8 +401,6 @@ static const struct mhi_channel_config mhi_telit_fn980_channels[] = {
+ 	MHI_CHANNEL_CONFIG_DL_SBL(3, "SAHARA", 32, 0),
+ 	MHI_CHANNEL_CONFIG_AMSS_SBL_UL(4, "DIAG", 64, 1),
+ 	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
+-	MHI_CHANNEL_CONFIG_UL(12, "MBIM", 4, 0),
+-	MHI_CHANNEL_CONFIG_DL(13, "MBIM", 4, 0),
+ 	MHI_CHANNEL_CONFIG_UL(14, "QMI", 16, 0),
+ 	MHI_CHANNEL_CONFIG_DL(15, "QMI", 16, 0),
+ 	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
+@@ -444,8 +442,6 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
+ };
+ 
+ static const struct mhi_channel_config mhi_telit_fn980_hw_v1_channels[] = {
+-	MHI_CHANNEL_CONFIG_UL(12, "MBIM", 4, 0),
+-	MHI_CHANNEL_CONFIG_DL(13, "MBIM", 4, 0),
+ 	MHI_CHANNEL_CONFIG_UL(14, "QMI", 16, 0),
+ 	MHI_CHANNEL_CONFIG_DL(15, "QMI", 16, 0),
+ 	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
+-- 
+2.32.0
+
