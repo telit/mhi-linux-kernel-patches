@@ -10,9 +10,9 @@ Modem support status
 Following the status of Telit modems support against the kernel version with patches applied:
 |  |v5.12|v5.13|v5.14|>= v5.15|
 |--|--|--|--|--|
-|<b>FN980 hw v1 |amss: QMI, QRTR, RMNET|amss: QMI, QRTR, RMNET|amss: QMI, QRTR, RMNET|amss: QMI, QRTR, RMNET|amss: QMI, QRTR, RMNET|amss: QMI, QRTR, RMNET|
-|<b>FN980 hw v2  |amss: QMI, QRTR, RMNET, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|amss: QMI, QRTR, RMNET, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|amss: QMI, QRTR, RMNET, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|amss: QMI, QRTR, RMNET, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|
-|<b>FN990  | n/a |n/a|n/a|amss: QMI, QRTR, MBIM, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|
+|<b>FN980 hw v1 |amss: QRTR, RMNET|amss: QRTR, RMNET|amss: QRTR, RMNET|amss: QRTR, RMNET|amss: QRTR, RMNET|amss: QRTR, RMNET|
+|<b>FN980 hw v2  |amss: QRTR, RMNET, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|amss: QRTR, RMNET, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|amss: QRTR, RMNET, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|amss: QRTR, RMNET, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|
+|<b>FN990  | n/a |n/a|n/a|amss: MBIM, DIAG, NMEA, AT, AT<br>sbl: DIAG, SAHARA|
 
 
 Applying the patches
