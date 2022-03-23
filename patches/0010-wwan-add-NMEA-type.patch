@@ -1,0 +1,53 @@
+From 71e8b7c9ab9cb20f1aab69a26a96b3016c7c27e4 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Wed, 23 Mar 2022 08:36:37 +0100
+Subject: [PATCH 10/10] wwan: add NMEA type
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/net/wwan/mhi_wwan_ctrl.c | 1 +
+ drivers/net/wwan/wwan_core.c     | 3 ++-
+ include/linux/wwan.h             | 1 +
+ 3 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
+index 4af208cea9bc..87cc6ae63532 100644
+--- a/drivers/net/wwan/mhi_wwan_ctrl.c
++++ b/drivers/net/wwan/mhi_wwan_ctrl.c
+@@ -270,6 +270,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
+ 	{ .chan = "DIAG", .driver_data = WWAN_PORT_QCDM },
+ 	{ .chan = "FIREHOSE", .driver_data = WWAN_PORT_FIREHOSE },
+ 	{ .chan = "SAHARA", .driver_data = WWAN_PORT_SAHARA },
++	{ .chan = "NMEA", .driver_data = WWAN_PORT_NMEA },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
+diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
+index 494e8b4b6229..e37817c50141 100644
+--- a/drivers/net/wwan/wwan_core.c
++++ b/drivers/net/wwan/wwan_core.c
+@@ -208,7 +208,8 @@ static const char * const wwan_port_type_str[] = {
+ 	"QMI",
+ 	"QCDM",
+ 	"FIREHOSE",
+-	"SAHARA"
++	"SAHARA",
++	"NMEA"
+ };
+ 
+ struct wwan_port *wwan_create_port(struct device *parent,
+diff --git a/include/linux/wwan.h b/include/linux/wwan.h
+index 9992132047ff..726c0f911dcc 100644
+--- a/include/linux/wwan.h
++++ b/include/linux/wwan.h
+@@ -25,6 +25,7 @@ enum wwan_port_type {
+ 	WWAN_PORT_QCDM,
+ 	WWAN_PORT_FIREHOSE,
+ 	WWAN_PORT_SAHARA,
++	WWAN_PORT_NMEA,
+ 	WWAN_PORT_MAX,
+ };
+ 
+-- 
+2.32.0
+
