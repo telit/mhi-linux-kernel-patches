@@ -1,7 +1,7 @@
-From 89556a63f2076cf4e0945fafad0553beee469c83 Mon Sep 17 00:00:00 2001
+From db21c06dcc07da2af152aacb36060fee2a4f566c Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Mon, 6 Sep 2021 14:08:44 +0200
-Subject: [PATCH 2/8] wwan: add SAHARA device
+Subject: [PATCH 02/11] wwan: add SAHARA device
 
 Add SAHARA device to wwan subsystem.
 
@@ -52,5 +52,5 @@ index 9fac819f92e3..42a7eb170d43 100644
  	/* Add new port types above this line */
  
 -- 
-2.17.1
+2.32.0
 

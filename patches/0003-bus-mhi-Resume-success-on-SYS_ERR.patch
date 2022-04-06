@@ -1,7 +1,7 @@
-From 5d3f75534c445b5f19b2d6640958b7b83cc1e427 Mon Sep 17 00:00:00 2001
+From d19e2856af4ca48beddb864b4544ff616c159ce6 Mon Sep 17 00:00:00 2001
 From: Loic Poulain <loic.poulain@linaro.org>
 Date: Fri, 21 May 2021 09:37:00 +0200
-Subject: [PATCH 3/8] bus: mhi: Resume success on SYS_ERR
+Subject: [PATCH 03/11] bus: mhi: Resume success on SYS_ERR
 
 Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
@@ -37,5 +37,5 @@ index bbf6cd04861e..b8073c4a852b 100644
  	/* Notify clients about exiting LPM */
  	list_for_each_entry_safe(itr, tmp, &mhi_cntrl->lpm_chans, node) {
 -- 
-2.17.1
+2.32.0
 

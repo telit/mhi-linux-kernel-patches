@@ -1,7 +1,7 @@
-From e1cf413fb32ec59f89bf5d71717981a3a1c4182e Mon Sep 17 00:00:00 2001
+From 31b68933bf64851b01db7665ab60f3909f57b3e8 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 21 Apr 2021 16:26:32 +0200
-Subject: [PATCH 5/8] bus: mhi: add SBL support as initial execution
+Subject: [PATCH 05/11] bus: mhi: add SBL support as initial execution
  environment
 
 This patch adds support for SBL as the initial execution environment,
@@ -169,5 +169,5 @@ index 749cff669513..614f1bfecacf 100644
  
  /**
 -- 
-2.17.1
+2.32.0
 

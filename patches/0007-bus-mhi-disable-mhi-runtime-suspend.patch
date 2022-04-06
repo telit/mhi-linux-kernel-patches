@@ -1,7 +1,7 @@
-From 97b413bdcbf6b40f4c9d365cf1412df9f3992fc0 Mon Sep 17 00:00:00 2001
+From 7fe3084da7b84ce8447bdda75effd38640077933 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 21 Apr 2021 15:08:33 +0200
-Subject: [PATCH 7/8] bus: mhi: disable mhi runtime suspend
+Subject: [PATCH 07/11] bus: mhi: disable mhi runtime suspend
 
 This patch disables runtime suspends, since it  prevents the detection
 of modem rebooting in specific scenarios (e.g. sahara coredump).
@@ -12,7 +12,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 8 deletions(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 81a3970c40ba..759d7b41c443 100644
+index 0635115fcdb7..e7be8cdc47ef 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -805,14 +805,6 @@ static int mhi_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
@@ -31,5 +31,5 @@ index 81a3970c40ba..759d7b41c443 100644
  
  err_unprepare:
 -- 
-2.17.1
+2.32.0
 

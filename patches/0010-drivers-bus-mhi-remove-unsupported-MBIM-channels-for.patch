@@ -1,7 +1,7 @@
-From eb65532bea6d144940b2f8dadfd7ae0cd65afce7 Mon Sep 17 00:00:00 2001
+From bbdacf563c99721ebd3c179555d2fd37d1bcd5d7 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 10 Feb 2022 11:50:02 +0100
-Subject: [PATCH 12/12] drivers: bus: mhi: remove unsupported MBIM channels for
+Subject: [PATCH 10/11] drivers: bus: mhi: remove unsupported MBIM channels for
  FN980
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
@@ -10,7 +10,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 4 deletions(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 46ba26c33d99..fe151932dfcc 100644
+index f48f0c28df25..a8ff07b87a8e 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -401,8 +401,6 @@ static const struct mhi_channel_config mhi_telit_fn980_channels[] = {
