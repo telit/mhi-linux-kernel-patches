@@ -1,6 +1,6 @@
-From 7589b6046604147c42632d6be262d09a7f62f12f Mon Sep 17 00:00:00 2001
+From 5dc202b6727d715340361aba4bd63079a9153c3a Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Thu, 27 Jan 2022 12:12:01 +0100
+Date: Fri, 1 Apr 2022 10:03:46 +0200
 Subject: [PATCH 08/10] drivers: bus: mhi: add FN980 v2 support
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
@@ -10,11 +10,11 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  2 files changed, 42 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 1f2128f96adb..45de23dadbda 100644
+index bcd9f1f61124..3949ad67d5f2 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -469,12 +469,52 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v1_info = {
- 	.sideband_wake = true,
+@@ -289,6 +289,45 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v1_info = {
+ 	.sideband_wake = false,
  };
  
 +static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
@@ -56,10 +56,13 @@ index 1f2128f96adb..45de23dadbda 100644
 +	.sideband_wake = true,
 +};
 +
- static const struct pci_device_id mhi_pci_id_table[] = {
- 	/* FN980 firmware release having Telit subvendor-id */
- 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0306, 0x1C5D, 0x2000),
- 		.driver_data = (kernel_ulong_t) &mhi_telit_fn980_hw_v1_info },
+ static const struct mhi_channel_config modem_qcom_v1_mhi_channels[] = {
+ 	MHI_CHANNEL_CONFIG_UL(4, "DIAG", 16, 1),
+ 	MHI_CHANNEL_CONFIG_DL(5, "DIAG", 16, 1),
+@@ -518,8 +557,9 @@ static const struct pci_device_id mhi_pci_id_table[] = {
+ 	/* EM919x (sdx55), use the same vid:pid as qcom-sdx55m */
+ 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0306, 0x18d7, 0x0200),
+ 		.driver_data = (kernel_ulong_t) &mhi_sierra_em919x_info },
 +	/* Modified also Qualcomm default entry for FN980 firmware release without Telit SSIDs */
  	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0306),
 -		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx55_info },
@@ -80,5 +83,5 @@ index fa0b696085f4..1c7f6d6f77e7 100644
  	{ .chan = "QMI", .driver_data = WWAN_PORT_QMI },
  	{ .chan = "DIAG", .driver_data = WWAN_PORT_QCDM },
 -- 
-2.30.2
+2.32.0
 

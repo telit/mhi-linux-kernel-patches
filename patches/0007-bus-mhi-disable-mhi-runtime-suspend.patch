@@ -1,4 +1,4 @@
-From 4acc03c4dae66e660529e79df590ed5e137ff9e4 Mon Sep 17 00:00:00 2001
+From 7775e41974b5f9c85d22cf7581fcf4682e82600b Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 21 Apr 2021 15:08:33 +0200
 Subject: [PATCH 07/10] bus: mhi: disable mhi runtime suspend
@@ -12,10 +12,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 8 deletions(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 96df7470bfa4..1f2128f96adb 100644
+index 7339cccc4bc4..bcd9f1f61124 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -836,14 +836,6 @@ static int mhi_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+@@ -878,14 +878,6 @@ static int mhi_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  	/* start health check */
  	mod_timer(&mhi_pdev->health_check_timer, jiffies + HEALTH_CHECK_PERIOD);
  
@@ -31,5 +31,5 @@ index 96df7470bfa4..1f2128f96adb 100644
  
  err_unprepare:
 -- 
-2.30.2
+2.32.0
 

@@ -1,7 +1,7 @@
-From 9c4841d804606f273f96b4b51367abfe7fb51c3d Mon Sep 17 00:00:00 2001
+From 1be70629ea13e755fe5a4fda33a301369a253aa3 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 22 Mar 2022 13:21:54 +0100
-Subject: [PATCH 11/11] wwan: add NMEA type
+Subject: [PATCH 10/10] wwan: add NMEA type
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -23,10 +23,10 @@ index 1c7f6d6f77e7..6c8ff4fcaa7f 100644
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index f3ee55570a0f..e7222cc4d451 100644
+index cebebb9470fa..cdf6b2c3c596 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -253,9 +253,13 @@ static const struct {
+@@ -283,9 +283,13 @@ static const struct {
  		.devsuf = "firehose",
  	},
  	[WWAN_PORT_SAHARA] = {
@@ -44,10 +44,10 @@ index f3ee55570a0f..e7222cc4d451 100644
  
  static ssize_t type_show(struct device *dev, struct device_attribute *attr,
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index 26a137d561f3..5cdb1bf4616d 100644
+index 65415c2742a7..f9a169b311eb 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
-@@ -30,6 +30,7 @@ enum wwan_port_type {
+@@ -27,6 +27,7 @@ enum wwan_port_type {
  	WWAN_PORT_QCDM,
  	WWAN_PORT_FIREHOSE,
  	WWAN_PORT_SAHARA,

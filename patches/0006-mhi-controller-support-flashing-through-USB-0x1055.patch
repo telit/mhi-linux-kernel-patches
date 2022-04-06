@@ -1,4 +1,4 @@
-From 5a34da8869727ad12645d76957412861756def6a Mon Sep 17 00:00:00 2001
+From 26fe3d7bfc48fef0b88b76b982ab5a5e30f1d175 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 17 Nov 2021 16:53:03 +0100
 Subject: [PATCH 06/10] mhi: controller: support flashing through USB 0x1055
@@ -15,10 +15,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  4 files changed, 51 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/bus/mhi/core/init.c b/drivers/bus/mhi/core/init.c
-index 5aaca6d0f52b..f05350f1ecce 100644
+index 046f407dc5d6..9a05e954ebe1 100644
 --- a/drivers/bus/mhi/core/init.c
 +++ b/drivers/bus/mhi/core/init.c
-@@ -87,6 +87,32 @@ const char *to_mhi_pm_state_str(enum mhi_pm_state state)
+@@ -88,6 +88,32 @@ const char *to_mhi_pm_state_str(enum mhi_pm_state state)
  	return mhi_pm_state_str[index];
  }
  
@@ -51,7 +51,7 @@ index 5aaca6d0f52b..f05350f1ecce 100644
  static ssize_t serial_number_show(struct device *dev,
  				  struct device_attribute *attr,
  				  char *buf)
-@@ -119,6 +145,7 @@ static DEVICE_ATTR_RO(oem_pk_hash);
+@@ -120,6 +146,7 @@ static DEVICE_ATTR_RO(oem_pk_hash);
  static struct attribute *mhi_dev_attrs[] = {
  	&dev_attr_serial_number.attr,
  	&dev_attr_oem_pk_hash.attr,
@@ -60,10 +60,10 @@ index 5aaca6d0f52b..f05350f1ecce 100644
  };
  ATTRIBUTE_GROUPS(mhi_dev);
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 3a61ee3daeae..96df7470bfa4 100644
+index cfbcf6226aae..7339cccc4bc4 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -732,8 +732,14 @@ static void health_check(struct timer_list *t)
+@@ -774,8 +774,14 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -94,7 +94,7 @@ index c38e56adacab..fa0b696085f4 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index fb52a21c060d..33a24e76bc51 100644
+index f5f5ca8e09c0..bb78d38ce1f1 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -286,6 +286,18 @@ struct mhi_controller_config {
@@ -136,5 +136,5 @@ index fb52a21c060d..33a24e76bc51 100644
  	bool forced_SBL;
  };
 -- 
-2.30.2
+2.32.0
 

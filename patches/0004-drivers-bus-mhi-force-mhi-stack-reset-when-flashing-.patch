@@ -1,4 +1,4 @@
-From 0d227337a4b4be15a12c29e327a2c63b45405fd5 Mon Sep 17 00:00:00 2001
+From e032ed4fea54e3004fe13d478ac6e74d1af3def3 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 27 Jan 2022 12:00:51 +0100
 Subject: [PATCH 04/10] drivers: bus: mhi: force mhi stack reset when flashing
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 17c5dafa1e45..3a61ee3daeae 100644
+index 379b83a78ade..cfbcf6226aae 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -22,7 +22,7 @@
@@ -31,7 +31,7 @@ index 17c5dafa1e45..3a61ee3daeae 100644
  
  /**
   * struct mhi_pci_dev_info - MHI PCI device specific information
-@@ -732,6 +732,13 @@ static void health_check(struct timer_list *t)
+@@ -774,6 +774,13 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -70,10 +70,10 @@ index 4cf420e0ce78..c38e56adacab 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 72b597be3d1c..f3ee55570a0f 100644
+index 50beadf19868..cebebb9470fa 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -476,6 +476,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
+@@ -506,6 +506,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
  }
  EXPORT_SYMBOL_GPL(wwan_port_get_drvdata);
  
@@ -87,7 +87,7 @@ index 72b597be3d1c..f3ee55570a0f 100644
  {
  	int ret = 0;
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index a5cc4cdf9cc8..2530de114511 100644
+index a5441ad33c74..49ce90cd2123 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -452,6 +452,8 @@ struct mhi_controller {
@@ -100,10 +100,10 @@ index a5cc4cdf9cc8..2530de114511 100644
  
  /**
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index 42a7eb170d43..26a137d561f3 100644
+index 7882829e7e96..65415c2742a7 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
-@@ -128,6 +128,12 @@ void wwan_port_txon(struct wwan_port *port);
+@@ -129,6 +129,12 @@ void wwan_port_txon(struct wwan_port *port);
   */
  void *wwan_port_get_drvdata(struct wwan_port *port);
  
@@ -117,5 +117,5 @@ index 42a7eb170d43..26a137d561f3 100644
   * struct wwan_netdev_priv - WWAN core network device private data
   * @link_id: WWAN device data link id
 -- 
-2.30.2
+2.32.0
 

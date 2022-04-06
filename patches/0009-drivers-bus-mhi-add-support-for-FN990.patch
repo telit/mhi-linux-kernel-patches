@@ -1,18 +1,18 @@
-From c5d90fbdea2f86a53d4349d6a355ff7686b09e8a Mon Sep 17 00:00:00 2001
+From d73f91fa04bd71ec68be1007ae91f4b29b04f3a9 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Thu, 27 Jan 2022 12:15:28 +0100
+Date: Fri, 1 Apr 2022 10:07:30 +0200
 Subject: [PATCH 09/10] drivers: bus: mhi: add support for FN990
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
- drivers/bus/mhi/pci_generic.c | 44 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 43 insertions(+), 1 deletion(-)
+ drivers/bus/mhi/pci_generic.c | 44 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 45de23dadbda..bef3dd9c68f3 100644
+index 3949ad67d5f2..27d0db35b480 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -508,6 +508,48 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v2_info = {
+@@ -328,6 +328,48 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v2_info = {
  	.sideband_wake = true,
  };
  
@@ -58,18 +58,18 @@ index 45de23dadbda..bef3dd9c68f3 100644
 +	.mru_default = 32768,
 +};
 +
- static const struct pci_device_id mhi_pci_id_table[] = {
- 	/* FN980 firmware release having Telit subvendor-id */
- 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0306, 0x1C5D, 0x2000),
-@@ -522,7 +564,7 @@ static const struct pci_device_id mhi_pci_id_table[] = {
+ static const struct mhi_channel_config modem_qcom_v1_mhi_channels[] = {
+ 	MHI_CHANNEL_CONFIG_UL(4, "DIAG", 16, 1),
+ 	MHI_CHANNEL_CONFIG_DL(5, "DIAG", 16, 1),
+@@ -566,6 +608,8 @@ static const struct pci_device_id mhi_pci_id_table[] = {
+ 		.driver_data = (kernel_ulong_t) &mhi_quectel_em1xx_info },
  	{ PCI_DEVICE(0x1eac, 0x1002), /* EM160R-GL (sdx24) */
  		.driver_data = (kernel_ulong_t) &mhi_quectel_em1xx_info },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0308),
--		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx65_info },
++	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0308, 0x1c5d, 0x2010),
 +		.driver_data = (kernel_ulong_t) &mhi_telit_fn990_info },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0308),
+ 		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx65_info },
  	/* T99W175 (sdx55), Both for eSIM and Non-eSIM */
- 	{ PCI_DEVICE(PCI_VENDOR_ID_FOXCONN, 0xe0ab),
- 		.driver_data = (kernel_ulong_t) &mhi_foxconn_sdx55_info },
 -- 
-2.30.2
+2.32.0
 

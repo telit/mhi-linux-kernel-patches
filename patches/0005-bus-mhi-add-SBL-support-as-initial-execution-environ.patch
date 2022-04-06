@@ -1,11 +1,8 @@
-From 67983c966f04601c239caac74838c5147b104a72 Mon Sep 17 00:00:00 2001
+From 92312437d21c723ab0493a23c76f74fd1881ef04 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Wed, 17 Nov 2021 16:47:49 +0100
+Date: Fri, 1 Apr 2022 09:59:12 +0200
 Subject: [PATCH 05/10] bus: mhi: add SBL support as initial execution
  environment
-
-This patch adds support for SBL as the initial execution environment,
-used, for example, when firmware update goes wrong.
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -14,7 +11,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  2 files changed, 85 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index 3b639edcbe5d..daff64b07300 100644
+index 103cd7615007..7f3057cc97dd 100644
 --- a/drivers/bus/mhi/core/pm.c
 +++ b/drivers/bus/mhi/core/pm.c
 @@ -370,6 +370,56 @@ int mhi_pm_m3_transition(struct mhi_controller *mhi_cntrl)
@@ -92,18 +89,18 @@ index 3b639edcbe5d..daff64b07300 100644
  			break;
  		case DEV_ST_TRANSITION_MISSION_MODE:
  			mhi_pm_mission_mode_transition(mhi_cntrl);
-@@ -779,6 +834,10 @@ void mhi_pm_st_worker(struct work_struct *work)
+@@ -782,6 +837,10 @@ void mhi_pm_st_worker(struct work_struct *work)
  			break;
- 		case DEV_ST_TRANSITION_READY:
- 			mhi_ready_state_transition(mhi_cntrl);
+ 		case DEV_ST_TRANSITION_SYS_ERR:
+ 			mhi_pm_sys_error_transition(mhi_cntrl);
 +			if (mhi_cntrl->forced_SBL) {
 +				dev_dbg(dev, "Queuing transition to DEV_ST_TRANSITION_SBL\n");
 +				mhi_queue_state_transition(mhi_cntrl, DEV_ST_TRANSITION_SBL);
 +			}
  			break;
- 		case DEV_ST_TRANSITION_SYS_ERR:
- 			mhi_pm_sys_error_transition(mhi_cntrl);
-@@ -1098,12 +1157,18 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+ 		case DEV_ST_TRANSITION_DISABLE:
+ 			mhi_pm_disable_transition(mhi_cntrl);
+@@ -1094,12 +1153,18 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
  	current_ee = mhi_get_exec_env(mhi_cntrl);
  	write_unlock_irq(&mhi_cntrl->pm_lock);
  
@@ -111,23 +108,23 @@ index 3b639edcbe5d..daff64b07300 100644
 +		TO_MHI_EXEC_STR(current_ee));
 +
  	/* Confirm that the device is in valid exec env */
- 	if (!MHI_IN_PBL(current_ee) && current_ee != MHI_EE_AMSS) {
+ 	if (!MHI_POWER_UP_CAPABLE(current_ee)) {
 -		dev_err(dev, "%s is not a valid EE for power on\n",
 -			TO_MHI_EXEC_STR(current_ee));
 -		ret = -EIO;
--		goto error_async_power_up;
+-		goto error_exit;
 +		dev_dbg(dev, "Checking if EE is SBL\n");
 +		if (current_ee != MHI_EE_SBL) {
 +			dev_err(dev, "%s is not a valid EE for power on\n",
 +				TO_MHI_EXEC_STR(current_ee));
 +			ret = -EIO;
-+			goto error_async_power_up;
++			goto error_exit;
 +		}
  	}
  
  	state = mhi_get_mhi_state(mhi_cntrl);
-@@ -1136,8 +1201,15 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 	}
+@@ -1128,8 +1193,15 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+ 		goto error_exit;
  
  	/* Transition to next state */
 -	next_state = MHI_IN_PBL(current_ee) ?
@@ -144,7 +141,7 @@ index 3b639edcbe5d..daff64b07300 100644
  
  	mhi_queue_state_transition(mhi_cntrl, next_state);
  
-@@ -1212,10 +1284,11 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
+@@ -1201,10 +1273,11 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
  
  	wait_event_timeout(mhi_cntrl->state_event,
  			   MHI_IN_MISSION_MODE(mhi_cntrl->ee) ||
@@ -158,7 +155,7 @@ index 3b639edcbe5d..daff64b07300 100644
  		mhi_power_down(mhi_cntrl, false);
  
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index 2530de114511..fb52a21c060d 100644
+index 49ce90cd2123..f5f5ca8e09c0 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -454,6 +454,8 @@ struct mhi_controller {
@@ -171,5 +168,5 @@ index 2530de114511..fb52a21c060d 100644
  
  /**
 -- 
-2.30.2
+2.32.0
 
