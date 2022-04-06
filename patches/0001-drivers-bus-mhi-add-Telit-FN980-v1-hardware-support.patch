@@ -1,6 +1,6 @@
-From 40c287995236eade3b2d03f1463bb296646fc65c Mon Sep 17 00:00:00 2001
+From 7a3d03750b61c5d097c817ad6fcd1ad7d2799529 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Thu, 27 Jan 2022 11:39:32 +0100
+Date: Fri, 1 Apr 2022 09:49:05 +0200
 Subject: [PATCH 01/10] drivers: bus: mhi: add Telit FN980 v1 hardware support
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
@@ -9,7 +9,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 69 insertions(+)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 4c577a731709..17c5dafa1e45 100644
+index b79895810c52..379b83a78ade 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -47,6 +47,36 @@ struct mhi_pci_dev_info {
@@ -49,9 +49,9 @@ index 4c577a731709..17c5dafa1e45 100644
  #define MHI_CHANNEL_CONFIG_UL(ch_num, ch_name, el_count, ev_ring) \
  	{						\
  		.num = ch_num,				\
-@@ -403,7 +433,46 @@ static const struct mhi_pci_dev_info mhi_mv31_info = {
- 	.dma_data_width = 32,
- };
+@@ -223,6 +253,42 @@ struct mhi_pci_dev_info {
+ 		.channel = ch_num,		\
+ 	}
  
 +static const struct mhi_channel_config mhi_telit_fn980_hw_v1_channels[] = {
 +	MHI_CHANNEL_CONFIG_UL(14, "QMI", 32, 0),
@@ -86,16 +86,22 @@ index 4c577a731709..17c5dafa1e45 100644
 +	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
 +	.dma_data_width = 32,
 +	.mru_default = 32768,
-+	.sideband_wake = true,
++	.sideband_wake = false,
 +};
 +
+ static const struct mhi_channel_config modem_qcom_v1_mhi_channels[] = {
+ 	MHI_CHANNEL_CONFIG_UL(4, "DIAG", 16, 1),
+ 	MHI_CHANNEL_CONFIG_DL(5, "DIAG", 16, 1),
+@@ -446,6 +512,9 @@ static const struct mhi_pci_dev_info mhi_sierra_em919x_info = {
+ };
+ 
  static const struct pci_device_id mhi_pci_id_table[] = {
 +	/* FN980 firmware release having Telit subvendor-id */
 +	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0306, 0x1C5D, 0x2000),
 +		.driver_data = (kernel_ulong_t) &mhi_telit_fn980_hw_v1_info },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0306),
- 		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx55_info },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0304),
+ 	/* EM919x (sdx55), use the same vid:pid as qcom-sdx55m */
+ 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0306, 0x18d7, 0x0200),
+ 		.driver_data = (kernel_ulong_t) &mhi_sierra_em919x_info },
 -- 
-2.30.2
+2.32.0
 
