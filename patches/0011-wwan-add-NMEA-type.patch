@@ -1,7 +1,7 @@
-From 62b612dbbf4ec51bb762ff138405638282e4389c Mon Sep 17 00:00:00 2001
+From edab27a8eefc1d861e8228ff5d100bd684294c10 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 22 Mar 2022 13:21:54 +0100
-Subject: [PATCH 13/13] wwan: add NMEA type
+Subject: [PATCH 11/11] wwan: add NMEA type
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -11,7 +11,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  3 files changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 7e918d147d7c..a8b673f8b4f4 100644
+index 1c7f6d6f77e7..6c8ff4fcaa7f 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -270,6 +270,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {

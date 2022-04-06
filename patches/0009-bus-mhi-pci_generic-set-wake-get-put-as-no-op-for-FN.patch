@@ -1,7 +1,7 @@
-From 297b1f1fbfc267b968a61b3f90a7f4b7ac9c2a33 Mon Sep 17 00:00:00 2001
+From ff49f087af33cca3caf8f71e7089405535c613a3 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 6 Oct 2021 08:37:04 +0200
-Subject: [PATCH 11/11] bus: mhi: pci_generic: set wake get/put as no-op for
+Subject: [PATCH 09/11] bus: mhi: pci_generic: set wake get/put as no-op for
  FN980
 
 In some hosts also new hardware seems to fail booting if wake
@@ -13,7 +13,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index cd9a25144b5c..46ba26c33d99 100644
+index 6eb65bca2c42..f48f0c28df25 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -439,7 +439,8 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
@@ -27,5 +27,5 @@ index cd9a25144b5c..46ba26c33d99 100644
  
  static const struct mhi_channel_config mhi_telit_fn980_hw_v1_channels[] = {
 -- 
-2.30.2
+2.32.0
 

@@ -1,7 +1,7 @@
-From 149a443b79c52abbb778be88795ca18395df46e7 Mon Sep 17 00:00:00 2001
+From 4ed2d9beab31c20abf7e1fc716cf420085d2bf73 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Mon, 6 Sep 2021 14:16:00 +0200
-Subject: [PATCH 4/8] bus: mhi: force mhi host stack reset to detect modem
+Subject: [PATCH 04/11] bus: mhi: force mhi host stack reset to detect modem
  flashing end
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 7fe7832c3afc..080c7031d877 100644
+index 20fd4ff80621..9d965c3847d9 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -22,7 +22,7 @@
@@ -117,5 +117,5 @@ index 42a7eb170d43..26a137d561f3 100644
   * struct wwan_netdev_priv - WWAN core network device private data
   * @link_id: WWAN device data link id
 -- 
-2.17.1
+2.32.0
 
