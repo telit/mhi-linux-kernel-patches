@@ -1,7 +1,7 @@
-From adcffe29133ff0ab9db6b6a7555b17212207a92c Mon Sep 17 00:00:00 2001
+From 5e32940830613f9aadb6c4e6877dbcfdf48edff5 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 28 Sep 2021 14:41:13 +0200
-Subject: [PATCH 08/13] bus: mhi: pci_generic: set wake get/put as no-op for
+Subject: [PATCH 08/12] bus: mhi: pci_generic: set wake get/put as no-op for
  FN980 v1 hw
 
 FN980 v1 hw does not properly support wake_db register related
@@ -15,7 +15,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 31 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 76b378ffb038..1b4be2d20353 100644
+index a142c29a8dd5..1363edd0e26b 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -479,10 +479,40 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
