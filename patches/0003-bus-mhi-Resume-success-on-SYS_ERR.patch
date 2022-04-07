@@ -1,23 +1,22 @@
-From bfa8c90ff157b044c14241ed816476a7d14f11f3 Mon Sep 17 00:00:00 2001
-From: Loic Poulain <loic.poulain@linaro.org>
-Date: Fri, 21 May 2021 09:37:00 +0200
-Subject: [PATCH 3/9] bus: mhi: Resume success on SYS_ERR
+From 6eb91699db041bb3eb3fc21f30e79b5a63bd237b Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 7 Apr 2022 10:04:01 +0200
+Subject: [PATCH 03/13] bus: mhi: Resume success on SYS_ERR
 
 Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
- drivers/bus/mhi/core/pm.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ drivers/bus/mhi/core/pm.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index fb99e3727155..2affd7a793a0 100644
+index 547e6e769546..e0a75c4f6236 100644
 --- a/drivers/bus/mhi/core/pm.c
 +++ b/drivers/bus/mhi/core/pm.c
-@@ -898,8 +898,27 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
+@@ -898,6 +898,22 @@ static int __mhi_pm_resume(struct mhi_controller *mhi_cntrl, bool force)
  	if (MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state))
  		return -EIO;
  
--	if (mhi_get_mhi_state(mhi_cntrl) != MHI_STATE_M3)
 +	if (mhi_get_mhi_state(mhi_cntrl) == MHI_STATE_SYS_ERR) {
 +		/* If we are in SYS_ERR state, let MHI stack manages the error
 +		 * and resume successfully.
@@ -34,14 +33,9 @@ index fb99e3727155..2affd7a793a0 100644
 +		return 0;
 +	}
 +
-+	if (mhi_get_mhi_state(mhi_cntrl) != MHI_STATE_M3) {
-+		dev_warn(dev, "Is not in M3 state, resume failed %d\n",
-+			 mhi_get_mhi_state(mhi_cntrl));
- 		return -EINVAL;
-+	}
- 
- 	/* Notify clients about exiting LPM */
- 	list_for_each_entry_safe(itr, tmp, &mhi_cntrl->lpm_chans, node) {
+ 	if (mhi_get_mhi_state(mhi_cntrl) != MHI_STATE_M3) {
+ 		dev_warn(dev, "Resuming from non M3 state (%s)\n",
+ 			 TO_MHI_STATE_STR(mhi_get_mhi_state(mhi_cntrl)));
 -- 
-2.30.2
+2.32.0
 

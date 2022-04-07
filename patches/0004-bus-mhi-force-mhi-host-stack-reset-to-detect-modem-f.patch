@@ -1,8 +1,8 @@
-From 8e5ef9a05373deec989f3d98892107bb7c4323fe Mon Sep 17 00:00:00 2001
+From cfa07b686f3bac0e4b6e61c334d188f3f283db1a Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Wed, 17 Nov 2021 16:38:50 +0100
-Subject: [PATCH 4/9] bus: mhi: force mhi host stack reset to detect modem
- flashing end
+Date: Thu, 7 Apr 2022 10:12:32 +0200
+Subject: [PATCH 04/13] bus: mhi: force mhi host stack reset to detect modem
+ flashing
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
 and is not detected anymore by the host.
@@ -19,12 +19,12 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index c5600eff666a..09205d03812b 100644
+index 09cae1d6bbe5..ea2cdee4ca62 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -22,7 +22,7 @@
  
- #define MHI_POST_RESET_DELAY_MS 500
+ #define MHI_POST_RESET_DELAY_MS 2000
  
 -#define HEALTH_CHECK_PERIOD (HZ * 2)
 +#define HEALTH_CHECK_PERIOD (HZ / 2)
@@ -87,7 +87,7 @@ index 72b597be3d1c..f3ee55570a0f 100644
  {
  	int ret = 0;
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index 723985879035..4d383d291bf6 100644
+index a5cc4cdf9cc8..2530de114511 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -452,6 +452,8 @@ struct mhi_controller {
@@ -117,5 +117,5 @@ index 42a7eb170d43..26a137d561f3 100644
   * struct wwan_netdev_priv - WWAN core network device private data
   * @link_id: WWAN device data link id
 -- 
-2.30.2
+2.32.0
 
