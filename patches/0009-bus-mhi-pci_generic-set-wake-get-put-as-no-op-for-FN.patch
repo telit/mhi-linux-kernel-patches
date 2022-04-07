@@ -1,4 +1,4 @@
-From 865c90806b2748f97d006279f99cadfa20009543 Mon Sep 17 00:00:00 2001
+From 6dde91e3879bc600e99bf7bd6184b8fa16b2ae96 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 18 Nov 2021 12:09:46 +0100
 Subject: [PATCH 09/12] bus: mhi: pci_generic: set wake get/put as no-op for
@@ -13,10 +13,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 1363edd0e26b..18646c20eef4 100644
+index 44b8300e5a5b..1f35dd5a1382 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -476,7 +476,8 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
+@@ -296,7 +296,8 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
  	.edl = "qcom/sdx55m/edl.mbn",
  	.config = &modem_telit_fn980_config,
  	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,

@@ -1,6 +1,6 @@
-From 0e214dcb69b83a1dd33f08173d0ce6ddc88314a1 Mon Sep 17 00:00:00 2001
+From 1d9c94555c97fb0581da5ffafc2fca8cf67160a2 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Thu, 27 Jan 2022 12:15:28 +0100
+Date: Thu, 7 Apr 2022 11:45:09 +0200
 Subject: [PATCH 11/12] drivers: bus: mhi: add support for FN990
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
@@ -9,10 +9,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 43 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 06554ccd7ed6..7711cf093ecf 100644
+index 9556c43af039..7b684b936305 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -506,6 +506,48 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v1_info = {
+@@ -326,6 +326,48 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v1_info = {
  	.sideband_wake = true,
  };
  
@@ -58,10 +58,10 @@ index 06554ccd7ed6..7711cf093ecf 100644
 +	.mru_default = 32768,
 +};
 +
- static const struct pci_device_id mhi_pci_id_table[] = {
- 	/* FN980 firmware release having Telit subvendor-id */
- 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0306, 0x1C5D, 0x2000),
-@@ -520,7 +562,7 @@ static const struct pci_device_id mhi_pci_id_table[] = {
+ static const struct mhi_channel_config modem_qcom_v1_mhi_channels[] = {
+ 	MHI_CHANNEL_CONFIG_UL(4, "DIAG", 16, 1),
+ 	MHI_CHANNEL_CONFIG_DL(5, "DIAG", 16, 1),
+@@ -522,7 +564,7 @@ static const struct pci_device_id mhi_pci_id_table[] = {
  	{ PCI_DEVICE(0x1eac, 0x1002), /* EM160R-GL (sdx24) */
  		.driver_data = (kernel_ulong_t) &mhi_quectel_em1xx_info },
  	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0308),
