@@ -1,4 +1,4 @@
-From 8a291d5edfe857e742852c18b04d3d759c0d7b80 Mon Sep 17 00:00:00 2001
+From 6e9798ed32bf2d6408a88c26072df9d4e23ea938 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 7 Apr 2022 10:04:01 +0200
 Subject: [PATCH 03/12] bus: mhi: Resume success on SYS_ERR

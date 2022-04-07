@@ -1,4 +1,4 @@
-From 9dc3e8d22a9d03f6e0cb57214f8d633554a16ce4 Mon Sep 17 00:00:00 2001
+From c2f3fc51de5442d2762163f0a7e73e39e6108de3 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 22 Mar 2022 13:21:54 +0100
 Subject: [PATCH 12/12] wwan: add NMEA type

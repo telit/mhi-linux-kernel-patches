@@ -1,6 +1,6 @@
-From 5e32940830613f9aadb6c4e6877dbcfdf48edff5 Mon Sep 17 00:00:00 2001
+From 19ffaf159d10bab83da9aed75a426484d68fd993 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Tue, 28 Sep 2021 14:41:13 +0200
+Date: Thu, 7 Apr 2022 11:42:35 +0200
 Subject: [PATCH 08/12] bus: mhi: pci_generic: set wake get/put as no-op for
  FN980 v1 hw
 
@@ -15,10 +15,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 31 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index a142c29a8dd5..1363edd0e26b 100644
+index 20b8123d5347..44b8300e5a5b 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -479,10 +479,40 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
+@@ -299,6 +299,36 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_info = {
  	.dma_data_width = 32
  };
  
@@ -34,12 +34,12 @@ index a142c29a8dd5..1363edd0e26b 100644
 +};
 +
 +static struct mhi_controller_config modem_telit_fn980_hw_v1_config = {
-+        .max_channels = 128,
-+        .timeout_ms = 20000,
-+        .num_channels = ARRAY_SIZE(mhi_telit_fn980_hw_v1_channels),
-+        .ch_cfg = mhi_telit_fn980_hw_v1_channels,
-+        .num_events = ARRAY_SIZE(mhi_telit_fn980_events),
-+        .event_cfg = mhi_telit_fn980_events,
++	.max_channels = 128,
++	.timeout_ms = 20000,
++	.num_channels = ARRAY_SIZE(mhi_telit_fn980_hw_v1_channels),
++	.ch_cfg = mhi_telit_fn980_hw_v1_channels,
++	.num_events = ARRAY_SIZE(mhi_telit_fn980_events),
++	.event_cfg = mhi_telit_fn980_events,
 +};
 +
 +static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v1_info = {
@@ -52,6 +52,10 @@ index a142c29a8dd5..1363edd0e26b 100644
 +	.sideband_wake = true,
 +};
 +
+ static const struct mhi_channel_config modem_qcom_v1_mhi_channels[] = {
+ 	MHI_CHANNEL_CONFIG_UL(4, "DIAG", 16, 1),
+ 	MHI_CHANNEL_CONFIG_DL(5, "DIAG", 16, 1),
+@@ -484,7 +514,7 @@ static const struct mhi_pci_dev_info mhi_mv31_info = {
  static const struct pci_device_id mhi_pci_id_table[] = {
  	/* FN980 firmware release having Telit subvendor-id */
  	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0306, 0x1C5D, 0x2000),

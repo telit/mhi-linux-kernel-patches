@@ -1,4 +1,4 @@
-From 4a26bf8fc8094b79d84031b5471bbedd4df1e11c Mon Sep 17 00:00:00 2001
+From 01a8baa8f00a9b81c5a908fc38446443ecdaf761 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 17 Nov 2021 16:53:03 +0100
 Subject: [PATCH 06/12] mhi: controller: support flashing through USB 0x1055
@@ -60,10 +60,10 @@ index f1ec34417592..2acdd91b34da 100644
  };
  ATTRIBUTE_GROUPS(mhi_dev);
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index a754e89e2279..efcd524c79f0 100644
+index 15568fff22d8..9c07fe20e535 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -743,8 +743,14 @@ static void health_check(struct timer_list *t)
+@@ -745,8 +745,14 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
