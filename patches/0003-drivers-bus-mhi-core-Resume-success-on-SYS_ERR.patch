@@ -1,7 +1,7 @@
-From b72883c3ee3711eef4455c4fd3b77d8abdbedd9b Mon Sep 17 00:00:00 2001
+From 54ea2a69858ee60b44a1dc558df378f00b492aa6 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 27 Jan 2022 11:50:27 +0100
-Subject: [PATCH 03/10] drivers: bus: mhi: core: Resume success on SYS_ERR
+Subject: [PATCH 3/9] drivers: bus: mhi: core: Resume success on SYS_ERR
 
 When a crash occurs while in suspended state M3/D3hot, the host
 only discovers SYS_ERR pm-state change on resume. Handle this
@@ -15,7 +15,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 16 insertions(+)
 
 diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index 547e6e769546..3b639edcbe5d 100644
+index bb9a2043f3a2..b0552020d57b 100644
 --- a/drivers/bus/mhi/core/pm.c
 +++ b/drivers/bus/mhi/core/pm.c
 @@ -898,6 +898,22 @@ static int __mhi_pm_resume(struct mhi_controller *mhi_cntrl, bool force)
@@ -42,5 +42,5 @@ index 547e6e769546..3b639edcbe5d 100644
  		dev_warn(dev, "Resuming from non M3 state (%s)\n",
  			 TO_MHI_STATE_STR(mhi_get_mhi_state(mhi_cntrl)));
 -- 
-2.30.2
+2.32.0
 

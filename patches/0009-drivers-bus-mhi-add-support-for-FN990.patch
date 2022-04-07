@@ -1,7 +1,7 @@
-From c5d90fbdea2f86a53d4349d6a355ff7686b09e8a Mon Sep 17 00:00:00 2001
+From 45a417844e2277e13132ffa98408686d8078d0bf Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 27 Jan 2022 12:15:28 +0100
-Subject: [PATCH 09/10] drivers: bus: mhi: add support for FN990
+Subject: [PATCH 9/9] drivers: bus: mhi: add support for FN990
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 43 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 45de23dadbda..bef3dd9c68f3 100644
+index 5d7cf7484a0c..4931e5cec4bc 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -508,6 +508,48 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v2_info = {
@@ -71,5 +71,5 @@ index 45de23dadbda..bef3dd9c68f3 100644
  	{ PCI_DEVICE(PCI_VENDOR_ID_FOXCONN, 0xe0ab),
  		.driver_data = (kernel_ulong_t) &mhi_foxconn_sdx55_info },
 -- 
-2.30.2
+2.32.0
 

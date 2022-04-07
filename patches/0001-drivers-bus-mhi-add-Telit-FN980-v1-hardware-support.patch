@@ -1,7 +1,7 @@
-From 40c287995236eade3b2d03f1463bb296646fc65c Mon Sep 17 00:00:00 2001
+From a2caed7bdebafd6b797c791a2013da8ee297208e Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 27 Jan 2022 11:39:32 +0100
-Subject: [PATCH 01/10] drivers: bus: mhi: add Telit FN980 v1 hardware support
+Subject: [PATCH 1/9] drivers: bus: mhi: add Telit FN980 v1 hardware support
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 69 insertions(+)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 4c577a731709..17c5dafa1e45 100644
+index b8b2811c7c0a..6aa5cb47f84d 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -47,6 +47,36 @@ struct mhi_pci_dev_info {
@@ -97,5 +97,5 @@ index 4c577a731709..17c5dafa1e45 100644
  		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx55_info },
  	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0304),
 -- 
-2.30.2
+2.32.0
 

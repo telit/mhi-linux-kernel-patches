@@ -1,7 +1,7 @@
-From 0d227337a4b4be15a12c29e327a2c63b45405fd5 Mon Sep 17 00:00:00 2001
+From fe8dd3aef17b3430f5679d2e3dc4def05486a954 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 27 Jan 2022 12:00:51 +0100
-Subject: [PATCH 04/10] drivers: bus: mhi: force mhi stack reset when flashing
+Subject: [PATCH 4/9] drivers: bus: mhi: force mhi stack reset when flashing
  ends
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 17c5dafa1e45..3a61ee3daeae 100644
+index 6aa5cb47f84d..0ea44da6f15a 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -22,7 +22,7 @@
@@ -117,5 +117,5 @@ index 42a7eb170d43..26a137d561f3 100644
   * struct wwan_netdev_priv - WWAN core network device private data
   * @link_id: WWAN device data link id
 -- 
-2.30.2
+2.32.0
 
