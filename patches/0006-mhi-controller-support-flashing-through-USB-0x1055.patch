@@ -1,7 +1,7 @@
-From f71285bf8b3f6c62c9e4de588daaf6fd760d7798 Mon Sep 17 00:00:00 2001
+From c6b999da238dd4e2e6dccf515405dd2cdd2d7df9 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 17 Nov 2021 16:53:03 +0100
-Subject: [PATCH 6/9] mhi: controller: support flashing through USB 0x1055
+Subject: [PATCH 06/13] mhi: controller: support flashing through USB 0x1055
 
 Add a new controller file to be used when flashing through USB (composition 0x1055)
 in order to make the mhi stack aware of the process and not to reset the function.
@@ -60,7 +60,7 @@ index 5aaca6d0f52b..f05350f1ecce 100644
  };
  ATTRIBUTE_GROUPS(mhi_dev);
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 09205d03812b..02522525f3f4 100644
+index ea2cdee4ca62..b6bdbd40c2ab 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -743,8 +743,14 @@ static void health_check(struct timer_list *t)
@@ -94,7 +94,7 @@ index 0f3b09be6e7f..1c7f6d6f77e7 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index f5cc7d387981..c7e59529b816 100644
+index fb52a21c060d..33a24e76bc51 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -286,6 +286,18 @@ struct mhi_controller_config {
@@ -136,5 +136,5 @@ index f5cc7d387981..c7e59529b816 100644
  	bool forced_SBL;
  };
 -- 
-2.30.2
+2.32.0
 
