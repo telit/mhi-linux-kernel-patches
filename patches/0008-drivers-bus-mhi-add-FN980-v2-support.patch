@@ -1,7 +1,7 @@
-From 7589b6046604147c42632d6be262d09a7f62f12f Mon Sep 17 00:00:00 2001
+From f18fd969e67e3f30a1bd5297e2627778b6052f5e Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 27 Jan 2022 12:12:01 +0100
-Subject: [PATCH 08/10] drivers: bus: mhi: add FN980 v2 support
+Subject: [PATCH 8/9] drivers: bus: mhi: add FN980 v2 support
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -10,7 +10,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  2 files changed, 42 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 1f2128f96adb..45de23dadbda 100644
+index 330036e2f082..5d7cf7484a0c 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -469,12 +469,52 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v1_info = {
@@ -80,5 +80,5 @@ index fa0b696085f4..1c7f6d6f77e7 100644
  	{ .chan = "QMI", .driver_data = WWAN_PORT_QMI },
  	{ .chan = "DIAG", .driver_data = WWAN_PORT_QCDM },
 -- 
-2.30.2
+2.32.0
 
