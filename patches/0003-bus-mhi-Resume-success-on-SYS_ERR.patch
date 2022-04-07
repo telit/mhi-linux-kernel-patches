@@ -1,7 +1,7 @@
-From 6eb91699db041bb3eb3fc21f30e79b5a63bd237b Mon Sep 17 00:00:00 2001
+From 8a291d5edfe857e742852c18b04d3d759c0d7b80 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 7 Apr 2022 10:04:01 +0200
-Subject: [PATCH 03/13] bus: mhi: Resume success on SYS_ERR
+Subject: [PATCH 03/12] bus: mhi: Resume success on SYS_ERR
 
 Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
@@ -10,7 +10,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 16 insertions(+)
 
 diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index 547e6e769546..e0a75c4f6236 100644
+index bb9a2043f3a2..e165e0f5b0f8 100644
 --- a/drivers/bus/mhi/core/pm.c
 +++ b/drivers/bus/mhi/core/pm.c
 @@ -898,6 +898,22 @@ static int __mhi_pm_resume(struct mhi_controller *mhi_cntrl, bool force)

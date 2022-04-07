@@ -1,7 +1,7 @@
-From 1587c5d3ad0dcecac46c4f6a99feac9458bad723 Mon Sep 17 00:00:00 2001
+From a0c7d32da4e5dd3b6bbb5f88e0f20c84b5992402 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 17 Nov 2021 16:14:56 +0100
-Subject: [PATCH 01/13] bus: mhi: add Telit FN980 support
+Subject: [PATCH 01/12] bus: mhi: add Telit FN980 support
 
 Add support for Telit FN980 SDX55 based modem.
 
@@ -12,7 +12,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  2 files changed, 82 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 4c577a731709..09cae1d6bbe5 100644
+index b8b2811c7c0a..2362be4b9c8d 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -47,6 +47,36 @@ struct mhi_pci_dev_info {

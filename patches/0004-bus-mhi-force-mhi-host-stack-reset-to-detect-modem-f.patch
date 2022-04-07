@@ -1,7 +1,7 @@
-From cfa07b686f3bac0e4b6e61c334d188f3f283db1a Mon Sep 17 00:00:00 2001
+From 5681996cf9ce018b416b796e504b758a611750fe Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 7 Apr 2022 10:12:32 +0200
-Subject: [PATCH 04/13] bus: mhi: force mhi host stack reset to detect modem
+Subject: [PATCH 04/12] bus: mhi: force mhi host stack reset to detect modem
  flashing
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 09cae1d6bbe5..ea2cdee4ca62 100644
+index 2362be4b9c8d..a754e89e2279 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
 @@ -22,7 +22,7 @@
