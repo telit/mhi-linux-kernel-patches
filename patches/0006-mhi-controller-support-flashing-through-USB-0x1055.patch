@@ -1,7 +1,7 @@
-From 7f5ea97848781ca702f68703a928643734163da8 Mon Sep 17 00:00:00 2001
+From 3623fb1298c3e345e375d7f3361837d7e67bab29 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 17 Nov 2021 16:53:03 +0100
-Subject: [PATCH 6/9] mhi: controller: support flashing through USB 0x1055
+Subject: [PATCH 06/10] mhi: controller: support flashing through USB 0x1055
 
 Add a new controller file to be used when flashing through USB (composition 0x1055)
 in order to make the mhi stack aware of the process and not to reset the function.
@@ -60,10 +60,10 @@ index f1ec34417592..2acdd91b34da 100644
  };
  ATTRIBUTE_GROUPS(mhi_dev);
 diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 0ea44da6f15a..340e53c0c8bb 100644
+index 15568fff22d8..9c07fe20e535 100644
 --- a/drivers/bus/mhi/pci_generic.c
 +++ b/drivers/bus/mhi/pci_generic.c
-@@ -732,8 +732,14 @@ static void health_check(struct timer_list *t)
+@@ -745,8 +745,14 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -81,7 +81,7 @@ index 0ea44da6f15a..340e53c0c8bb 100644
  		queue_work(system_long_wq, &mhi_pdev->recovery_work);
  		return;
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index c38e56adacab..fa0b696085f4 100644
+index 0f3b09be6e7f..1c7f6d6f77e7 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -142,7 +142,7 @@ static void mhi_wwan_ctrl_stop(struct wwan_port *port)
