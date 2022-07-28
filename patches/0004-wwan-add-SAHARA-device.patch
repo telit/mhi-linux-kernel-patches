@@ -1,9 +1,7 @@
-From 67937ff3c160f49da22230540be284c3d0eb5eca Mon Sep 17 00:00:00 2001
+From ce4caee2f8249e195b8ff4fb0956cc3e2a2dd266 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Mon, 6 Sep 2021 14:08:44 +0200
-Subject: [PATCH 02/10] wwan: add SAHARA device
-
-Add SAHARA device to wwan subsystem.
+Date: Thu, 28 Jul 2022 15:54:12 +0200
+Subject: [PATCH 04/11] wwan: add SAHARA device
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -25,22 +23,22 @@ index e4d0f696687f..4cf420e0ce78 100644
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 1508dc2a497b..50beadf19868 100644
+index b8c7843730ed..26306777f405 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -282,6 +282,10 @@ static const struct {
+@@ -318,6 +318,10 @@ static const struct {
  		.name = "FIREHOSE",
  		.devsuf = "firehose",
  	},
 +	[WWAN_PORT_SAHARA] = {
-+                .name = "SAHARA",
-+                .devsuf = "sahara",
-+        },
++		.name = "SAHARA",
++		.devsuf = "sahara",
++	},
  };
  
  static ssize_t type_show(struct device *dev, struct device_attribute *attr,
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index afb3334ec8c5..7882829e7e96 100644
+index 5ce2acf444fb..fc8ecafd25fa 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
 @@ -26,6 +26,7 @@ enum wwan_port_type {
@@ -52,5 +50,5 @@ index afb3334ec8c5..7882829e7e96 100644
  	/* Add new port types above this line */
  
 -- 
-2.32.0
+2.37.1
 

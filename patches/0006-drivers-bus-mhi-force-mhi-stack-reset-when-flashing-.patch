@@ -1,7 +1,7 @@
-From e032ed4fea54e3004fe13d478ac6e74d1af3def3 Mon Sep 17 00:00:00 2001
+From 865defc9ff1630ec9f602ed7894c4abe5534fe13 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Thu, 27 Jan 2022 12:00:51 +0100
-Subject: [PATCH 04/10] drivers: bus: mhi: force mhi stack reset when flashing
+Date: Thu, 28 Jul 2022 16:07:54 +0200
+Subject: [PATCH 06/11] drivers: bus: mhi: force mhi stack reset when flashing
  ends
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
@@ -11,17 +11,17 @@ Force a reset of the mhi stack in order to detect it again.
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
- drivers/bus/mhi/pci_generic.c    | 9 ++++++++-
- drivers/net/wwan/mhi_wwan_ctrl.c | 6 ++++++
- drivers/net/wwan/wwan_core.c     | 6 ++++++
- include/linux/mhi.h              | 2 ++
- include/linux/wwan.h             | 6 ++++++
+ drivers/bus/mhi/host/pci_generic.c | 9 ++++++++-
+ drivers/net/wwan/mhi_wwan_ctrl.c   | 6 ++++++
+ drivers/net/wwan/wwan_core.c       | 6 ++++++
+ include/linux/mhi.h                | 2 ++
+ include/linux/wwan.h               | 6 ++++++
  5 files changed, 28 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 379b83a78ade..cfbcf6226aae 100644
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
+diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
+index db874f6809a1..ad09dbea9cd5 100644
+--- a/drivers/bus/mhi/host/pci_generic.c
++++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -22,7 +22,7 @@
  
  #define MHI_POST_RESET_DELAY_MS 2000
@@ -31,7 +31,7 @@ index 379b83a78ade..cfbcf6226aae 100644
  
  /**
   * struct mhi_pci_dev_info - MHI PCI device specific information
-@@ -774,6 +774,13 @@ static void health_check(struct timer_list *t)
+@@ -775,6 +775,13 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -70,10 +70,10 @@ index 4cf420e0ce78..c38e56adacab 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 50beadf19868..cebebb9470fa 100644
+index 26306777f405..90a477ac160d 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -506,6 +506,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
+@@ -542,6 +542,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
  }
  EXPORT_SYMBOL_GPL(wwan_port_get_drvdata);
  
@@ -100,7 +100,7 @@ index a5441ad33c74..49ce90cd2123 100644
  
  /**
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index 7882829e7e96..65415c2742a7 100644
+index fc8ecafd25fa..f30dc490a174 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
 @@ -129,6 +129,12 @@ void wwan_port_txon(struct wwan_port *port);
@@ -117,5 +117,5 @@ index 7882829e7e96..65415c2742a7 100644
   * struct wwan_netdev_priv - WWAN core network device private data
   * @link_id: WWAN device data link id
 -- 
-2.32.0
+2.37.1
 

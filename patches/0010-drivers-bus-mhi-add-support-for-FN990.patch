@@ -1,19 +1,19 @@
-From d73f91fa04bd71ec68be1007ae91f4b29b04f3a9 Mon Sep 17 00:00:00 2001
+From cd3f34a7beea2f5a28ff2fddd0141658d4a224b6 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Fri, 1 Apr 2022 10:07:30 +0200
-Subject: [PATCH 09/10] drivers: bus: mhi: add support for FN990
+Date: Thu, 28 Jul 2022 16:34:42 +0200
+Subject: [PATCH 10/11] drivers: bus: mhi: add support for FN990
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
- drivers/bus/mhi/pci_generic.c | 44 +++++++++++++++++++++++++++++++++++
+ drivers/bus/mhi/host/pci_generic.c | 44 ++++++++++++++++++++++++++++++
  1 file changed, 44 insertions(+)
 
-diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 3949ad67d5f2..27d0db35b480 100644
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
+diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
+index eb326dbc19ff..f29bf16324f1 100644
+--- a/drivers/bus/mhi/host/pci_generic.c
++++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -328,6 +328,48 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v2_info = {
- 	.sideband_wake = true,
+ 	.sideband_wake = false,
  };
  
 +static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
@@ -61,7 +61,7 @@ index 3949ad67d5f2..27d0db35b480 100644
  static const struct mhi_channel_config modem_qcom_v1_mhi_channels[] = {
  	MHI_CHANNEL_CONFIG_UL(4, "DIAG", 16, 1),
  	MHI_CHANNEL_CONFIG_DL(5, "DIAG", 16, 1),
-@@ -566,6 +608,8 @@ static const struct pci_device_id mhi_pci_id_table[] = {
+@@ -567,6 +609,8 @@ static const struct pci_device_id mhi_pci_id_table[] = {
  		.driver_data = (kernel_ulong_t) &mhi_quectel_em1xx_info },
  	{ PCI_DEVICE(0x1eac, 0x1002), /* EM160R-GL (sdx24) */
  		.driver_data = (kernel_ulong_t) &mhi_quectel_em1xx_info },
@@ -71,5 +71,5 @@ index 3949ad67d5f2..27d0db35b480 100644
  		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx65_info },
  	/* T99W175 (sdx55), Both for eSIM and Non-eSIM */
 -- 
-2.32.0
+2.37.1
 
