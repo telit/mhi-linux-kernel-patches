@@ -1,0 +1,57 @@
+From ab246193777485199eb5e684365e612258b11283 Mon Sep 17 00:00:00 2001
+From: Qiang Yu <quic_qianyu@quicinc.com>
+Date: Fri, 22 Jul 2022 11:17:18 +0800
+Subject: [PATCH 02/11] bus: mhi: host: Fix up null pointer access in
+ mhi_irq_handler
+
+The irq handler for a shared IRQ ought to be prepared for running
+even now it's being freed. So let's check the pointer used by
+mhi_irq_handler to avoid null pointer access since it is probably
+released before freeing IRQ.
+
+Signed-off-by: Qiang Yu <quic_qianyu@quicinc.com>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Tested-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1658459838-30802-1-git-send-email-quic_qianyu@quicinc.com
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/host/main.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/bus/mhi/host/main.c b/drivers/bus/mhi/host/main.c
+index 9021be7f2359..9bcb20cbf6f2 100644
+--- a/drivers/bus/mhi/host/main.c
++++ b/drivers/bus/mhi/host/main.c
+@@ -427,12 +427,25 @@ irqreturn_t mhi_irq_handler(int irq_number, void *dev)
+ {
+ 	struct mhi_event *mhi_event = dev;
+ 	struct mhi_controller *mhi_cntrl = mhi_event->mhi_cntrl;
+-	struct mhi_event_ctxt *er_ctxt =
+-		&mhi_cntrl->mhi_ctxt->er_ctxt[mhi_event->er_index];
++	struct mhi_event_ctxt *er_ctxt;
+ 	struct mhi_ring *ev_ring = &mhi_event->ring;
+-	dma_addr_t ptr = le64_to_cpu(er_ctxt->rp);
++	dma_addr_t ptr;
+ 	void *dev_rp;
+ 
++	/*
++	 * If CONFIG_DEBUG_SHIRQ is set, the IRQ handler will get invoked during __free_irq()
++	 * and by that time mhi_ctxt() would've freed. So check for the existence of mhi_ctxt
++	 * before handling the IRQs.
++	 */
++	if (!mhi_cntrl->mhi_ctxt) {
++		dev_dbg(&mhi_cntrl->mhi_dev->dev,
++			"mhi_ctxt has been freed\n");
++		return IRQ_HANDLED;
++	}
++
++	er_ctxt = &mhi_cntrl->mhi_ctxt->er_ctxt[mhi_event->er_index];
++	ptr = le64_to_cpu(er_ctxt->rp);
++
+ 	if (!is_valid_ring_ptr(ev_ring, ptr)) {
+ 		dev_err(&mhi_cntrl->mhi_dev->dev,
+ 			"Event ring rp points outside of the event ring\n");
+-- 
+2.37.1
+
