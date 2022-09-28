@@ -1,7 +1,7 @@
-From 0a1bd5c773edc26d5ab4192c9e29b2c294b4da3f Mon Sep 17 00:00:00 2001
+From 802c8836d9d5f7d3b8e31909d10f198acb13bbee Mon Sep 17 00:00:00 2001
 From: Qiang Yu <quic_qianyu@quicinc.com>
 Date: Thu, 23 Jun 2022 10:43:03 +0800
-Subject: [PATCH 01/11] bus: mhi: host: Move IRQ allocation to controller
+Subject: [PATCH 01/14] bus: mhi: host: Move IRQ allocation to controller
  registration phase
 
 During runtime, the MHI endpoint may be powered up/down several times.
@@ -19,6 +19,7 @@ Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
 Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
 Link: https://lore.kernel.org/r/1655952183-66792-1-git-send-email-quic_qianyu@quicinc.com
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+(cherry picked from commit 1227d2a20cd7319fb45c62fab4b252600e0308bf)
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
  drivers/bus/mhi/host/init.c | 17 ++++++++++++++++-
@@ -26,10 +27,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  2 files changed, 29 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
-index a665b8e92408..ea53644ed613 100644
+index c137d55ccfa0..bf672de35131 100644
 --- a/drivers/bus/mhi/host/init.c
 +++ b/drivers/bus/mhi/host/init.c
-@@ -165,6 +165,12 @@ int mhi_init_irq_setup(struct mhi_controller *mhi_cntrl)
+@@ -178,6 +178,12 @@ int mhi_init_irq_setup(struct mhi_controller *mhi_cntrl)
  				   "bhi", mhi_cntrl);
  	if (ret)
  		return ret;
@@ -42,7 +43,7 @@ index a665b8e92408..ea53644ed613 100644
  
  	for (i = 0; i < mhi_cntrl->total_ev_rings; i++, mhi_event++) {
  		if (mhi_event->offload_ev)
-@@ -186,6 +192,8 @@ int mhi_init_irq_setup(struct mhi_controller *mhi_cntrl)
+@@ -199,6 +205,8 @@ int mhi_init_irq_setup(struct mhi_controller *mhi_cntrl)
  				mhi_cntrl->irq[mhi_event->irq], i);
  			goto error_request;
  		}
@@ -51,7 +52,7 @@ index a665b8e92408..ea53644ed613 100644
  	}
  
  	return 0;
-@@ -960,12 +968,16 @@ int mhi_register_controller(struct mhi_controller *mhi_cntrl,
+@@ -978,12 +986,16 @@ int mhi_register_controller(struct mhi_controller *mhi_cntrl,
  		goto err_destroy_wq;
  	}
  
@@ -69,7 +70,7 @@ index a665b8e92408..ea53644ed613 100644
  	}
  
  	mhi_dev->dev_type = MHI_DEVICE_CONTROLLER;
-@@ -988,6 +1000,8 @@ int mhi_register_controller(struct mhi_controller *mhi_cntrl,
+@@ -1006,6 +1018,8 @@ int mhi_register_controller(struct mhi_controller *mhi_cntrl,
  
  err_release_dev:
  	put_device(&mhi_dev->dev);
@@ -78,7 +79,7 @@ index a665b8e92408..ea53644ed613 100644
  err_ida_free:
  	ida_free(&mhi_controller_ida, mhi_cntrl->index);
  err_destroy_wq:
-@@ -1008,6 +1022,7 @@ void mhi_unregister_controller(struct mhi_controller *mhi_cntrl)
+@@ -1026,6 +1040,7 @@ void mhi_unregister_controller(struct mhi_controller *mhi_cntrl)
  	struct mhi_chan *mhi_chan = mhi_cntrl->mhi_chan;
  	unsigned int i;
  
@@ -87,10 +88,10 @@ index a665b8e92408..ea53644ed613 100644
  
  	destroy_workqueue(mhi_cntrl->hiprio_wq);
 diff --git a/drivers/bus/mhi/host/pm.c b/drivers/bus/mhi/host/pm.c
-index 3d90b8ecd3d9..231ab06bffc1 100644
+index dc2e8ff3bff2..4a42186ff111 100644
 --- a/drivers/bus/mhi/host/pm.c
 +++ b/drivers/bus/mhi/host/pm.c
-@@ -484,7 +484,7 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl)
+@@ -500,7 +500,7 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl)
  	for (i = 0; i < mhi_cntrl->total_ev_rings; i++, mhi_event++) {
  		if (mhi_event->offload_ev)
  			continue;
@@ -99,7 +100,7 @@ index 3d90b8ecd3d9..231ab06bffc1 100644
  		tasklet_kill(&mhi_event->task);
  	}
  
-@@ -1044,12 +1044,13 @@ static void mhi_deassert_dev_wake(struct mhi_controller *mhi_cntrl,
+@@ -1060,12 +1060,13 @@ static void mhi_deassert_dev_wake(struct mhi_controller *mhi_cntrl,
  
  int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
  {
@@ -114,7 +115,7 @@ index 3d90b8ecd3d9..231ab06bffc1 100644
  
  	dev_info(dev, "Requested to power ON\n");
  
-@@ -1101,9 +1102,15 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+@@ -1117,9 +1118,15 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
  		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
  	}
  
@@ -133,7 +134,7 @@ index 3d90b8ecd3d9..231ab06bffc1 100644
  
  	/* Transition to next state */
  	next_state = MHI_IN_PBL(current_ee) ?
-@@ -1166,7 +1173,7 @@ void mhi_power_down(struct mhi_controller *mhi_cntrl, bool graceful)
+@@ -1182,7 +1189,7 @@ void mhi_power_down(struct mhi_controller *mhi_cntrl, bool graceful)
  	/* Wait for shutdown to complete */
  	flush_work(&mhi_cntrl->st_worker);
  

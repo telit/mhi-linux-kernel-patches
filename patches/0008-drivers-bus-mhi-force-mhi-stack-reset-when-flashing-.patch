@@ -1,7 +1,7 @@
-From 865defc9ff1630ec9f602ed7894c4abe5534fe13 Mon Sep 17 00:00:00 2001
+From 88e7fca8e30abf8df376c1b509bfdc1f1249d16a Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:07:54 +0200
-Subject: [PATCH 06/11] drivers: bus: mhi: force mhi stack reset when flashing
+Subject: [PATCH 08/14] drivers: bus: mhi: force mhi stack reset when flashing
  ends
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index db874f6809a1..ad09dbea9cd5 100644
+index bb70892c0e9d..f774e456f1d5 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -22,7 +22,7 @@
@@ -31,7 +31,7 @@ index db874f6809a1..ad09dbea9cd5 100644
  
  /**
   * struct mhi_pci_dev_info - MHI PCI device specific information
-@@ -775,6 +775,13 @@ static void health_check(struct timer_list *t)
+@@ -820,6 +820,13 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -46,7 +46,7 @@ index db874f6809a1..ad09dbea9cd5 100644
  		dev_err(mhi_cntrl->cntrl_dev, "Device died\n");
  		queue_work(system_long_wq, &mhi_pdev->recovery_work);
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 4cf420e0ce78..c38e56adacab 100644
+index 8cb1dcedd63e..0f3b09be6e7f 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -129,6 +129,8 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)

@@ -1,0 +1,36 @@
+From cbf8ea97de84cc9fde84edf1038eaeb5c5671c09 Mon Sep 17 00:00:00 2001
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Date: Mon, 27 Jun 2022 10:07:17 -0700
+Subject: [PATCH 02/14] bus: mhi: host: pci_generic: Add another Foxconn
+ T99W175
+
+The Foxconn e0c3 device identifies itself as a T99W175 X55, add support
+for this to the pci_generic driver.
+
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Link: https://lore.kernel.org/r/20220627170717.2252335-1-bjorn.andersson@linaro.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+(cherry picked from commit 2113651ddf3d0689a8b25461adf038e9d4c8a7cb)
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/host/pci_generic.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
+index 841626727f6b..01ce2f986d30 100644
+--- a/drivers/bus/mhi/host/pci_generic.c
++++ b/drivers/bus/mhi/host/pci_generic.c
+@@ -569,6 +569,9 @@ static const struct pci_device_id mhi_pci_id_table[] = {
+ 	/* T99W175 (sdx55), Based on Qualcomm new baseline */
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_FOXCONN, 0xe0bf),
+ 		.driver_data = (kernel_ulong_t) &mhi_foxconn_sdx55_info },
++	/* T99W175 (sdx55) */
++	{ PCI_DEVICE(PCI_VENDOR_ID_FOXCONN, 0xe0c3),
++		.driver_data = (kernel_ulong_t) &mhi_foxconn_sdx55_info },
+ 	/* T99W368 (sdx65) */
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_FOXCONN, 0xe0d8),
+ 		.driver_data = (kernel_ulong_t) &mhi_foxconn_sdx65_info },
+-- 
+2.37.1
+
