@@ -1,0 +1,46 @@
+From 163cb063b151abae2ffcbbae086f0e2d4e8bcb5f Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 6 Oct 2022 09:46:46 +0200
+Subject: [PATCH 14/14] drivers: net: wwan: let userspace manage xfp fw update
+ states
+
+The heuristic for detecting firmware upgrade does not work well.
+
+Let userspace manage firmware upgrade start and stop by writing
+to the fw_update sysfs file.
+
+The firmware update process consists of these steps:
+
+- Disable runtime power management on the mhi pci device
+- Write 1 to the fw_update sysfs file to races between
+  the recovery work and other mhi operations
+- Start the firmware update
+- Write 0 to the fw_update sysfs file to reset the mhi stack
+
+Firmware update requires also upstream commit
+d651ce8e917fa1bf6cfab8dca74c512edffc35d3
+bus: mhi: core: Fix race while handling SYS_ERR at power up
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/net/wwan/mhi_wwan_ctrl.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
+index 6c8ff4fcaa7f..4e65378b0222 100644
+--- a/drivers/net/wwan/mhi_wwan_ctrl.c
++++ b/drivers/net/wwan/mhi_wwan_ctrl.c
+@@ -139,10 +139,6 @@ static void mhi_wwan_ctrl_stop(struct wwan_port *port)
+ 	cancel_work_sync(&mhiwwan->rx_refill);
+ 
+ 	mhi_unprepare_from_transfer(mhiwwan->mhi_dev);
+-
+-	/* Check to detect if the modem has finished flashing and is resetting */
+-	if (wwan_port_get_type(port) == WWAN_PORT_QCDM && cntrl->ee == MHI_EE_SBL)
+-		cntrl->xfp = XFP_STATE_NEED_RESET;
+ }
+ 
+ static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
+-- 
+2.37.1
+
