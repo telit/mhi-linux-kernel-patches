@@ -1,7 +1,7 @@
-From aaf0b524aa4a6956d49ee12bbed3be168947c754 Mon Sep 17 00:00:00 2001
+From 10db3a705c0992d66856e8b3aa94242cc1cace23 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
-Date: Thu, 28 Jul 2022 16:37:26 +0200
-Subject: [PATCH 11/14] wwan: add NMEA type
+Date: Thu, 28 Jul 2022 15:54:12 +0200
+Subject: [PATCH 03/13] wwan: add SAHARA device
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -11,41 +11,41 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  3 files changed, 6 insertions(+)
 
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 1c7f6d6f77e7..6c8ff4fcaa7f 100644
+index f7ca52353f40..8cb1dcedd63e 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
-@@ -270,6 +270,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
+@@ -263,6 +263,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
+ 	{ .chan = "QMI", .driver_data = WWAN_PORT_QMI },
  	{ .chan = "DIAG", .driver_data = WWAN_PORT_QCDM },
  	{ .chan = "FIREHOSE", .driver_data = WWAN_PORT_FIREHOSE },
- 	{ .chan = "SAHARA", .driver_data = WWAN_PORT_SAHARA },
-+	{ .chan = "NMEA", .driver_data = WWAN_PORT_NMEA },
++	{ .chan = "SAHARA", .driver_data = WWAN_PORT_SAHARA },
  	{},
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 90a477ac160d..12f16df71c0e 100644
+index b8c7843730ed..26306777f405 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -322,6 +322,10 @@ static const struct {
- 		.name = "SAHARA",
- 		.devsuf = "sahara",
+@@ -318,6 +318,10 @@ static const struct {
+ 		.name = "FIREHOSE",
+ 		.devsuf = "firehose",
  	},
-+	[WWAN_PORT_NMEA] = {
-+		.name = "NMEA",
-+		.devsuf = "nmea",
++	[WWAN_PORT_SAHARA] = {
++		.name = "SAHARA",
++		.devsuf = "sahara",
 +	},
  };
  
  static ssize_t type_show(struct device *dev, struct device_attribute *attr,
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index f30dc490a174..368f6fa243a2 100644
+index 5ce2acf444fb..fc8ecafd25fa 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
-@@ -27,6 +27,7 @@ enum wwan_port_type {
+@@ -26,6 +26,7 @@ enum wwan_port_type {
+ 	WWAN_PORT_QMI,
  	WWAN_PORT_QCDM,
  	WWAN_PORT_FIREHOSE,
- 	WWAN_PORT_SAHARA,
-+	WWAN_PORT_NMEA,
++	WWAN_PORT_SAHARA,
  
  	/* Add new port types above this line */
  
