@@ -1,7 +1,7 @@
-From 10db3a705c0992d66856e8b3aa94242cc1cace23 Mon Sep 17 00:00:00 2001
+From c800ec05d3422967757b09d3a606ab6afdcc3a1a Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 15:54:12 +0200
-Subject: [PATCH 03/13] wwan: add SAHARA device
+Subject: [PATCH 01/11] wwan: add SAHARA device
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -23,10 +23,10 @@ index f7ca52353f40..8cb1dcedd63e 100644
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index b8c7843730ed..26306777f405 100644
+index 62e9f7d6c9fe..f2544ace976b 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -318,6 +318,10 @@ static const struct {
+@@ -319,6 +319,10 @@ static const struct {
  		.name = "FIREHOSE",
  		.devsuf = "firehose",
  	},

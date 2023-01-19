@@ -1,7 +1,7 @@
-From f98061fd57aa3573b857a04b2eecaf093fbd794f Mon Sep 17 00:00:00 2001
+From a366f749f1e453036f411cb0055d069a76ad7733 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 14 Sep 2022 12:34:13 +0200
-Subject: [PATCH 11/13] drivers: net: wwan: add simple DTR driver
+Subject: [PATCH 09/11] drivers: net: wwan: add simple DTR driver
 
 Telit modem requires DTR to be set in virtual serial ports for
 properly receiving unsolicited indications.
@@ -51,7 +51,7 @@ index df0fbfee7b78..1ef4a0511b59 100644
  }
  
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index 4de4aa8528f3..abeb84902ba8 100644
+index 0e96265dedd9..84844c24d0f7 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -535,6 +535,8 @@ static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
@@ -73,7 +73,7 @@ index 4de4aa8528f3..abeb84902ba8 100644
  	MHI_CHANNEL_CONFIG_DL(33, "DUN", 32, 0),
  	MHI_CHANNEL_CONFIG_UL(92, "DUN2", 32, 1),
 diff --git a/drivers/net/wwan/Kconfig b/drivers/net/wwan/Kconfig
-index 3486ffe94ac4..91a7a9174160 100644
+index ac4d73b5626f..861807052765 100644
 --- a/drivers/net/wwan/Kconfig
 +++ b/drivers/net/wwan/Kconfig
 @@ -39,6 +39,7 @@ config WWAN_HWSIM

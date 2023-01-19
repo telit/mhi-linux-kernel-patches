@@ -1,7 +1,7 @@
-From e5d0fea4d726e2d87b58951b20d8a1f61bc55884 Mon Sep 17 00:00:00 2001
+From 287e217bad9503cca3b7fb3dd906ad7c7e85fa5d Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 20 Oct 2022 15:33:18 +0200
-Subject: [PATCH 13/13] bus: mhi: host: Fix race between channel preparation
+Subject: [PATCH 11/11] bus: mhi: host: Fix race between channel preparation
  and M0 event
 
 There is a race condition where mhi_prepare_channel() updates the
