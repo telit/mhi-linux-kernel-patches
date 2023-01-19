@@ -1,7 +1,7 @@
-From 016b89c96f92efd38161b44eb87c5dd594e2139f Mon Sep 17 00:00:00 2001
+From 83f63c99369614db17d3c35e5c67d3ad62fd54f6 Mon Sep 17 00:00:00 2001
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 Date: Fri, 16 Sep 2022 16:43:28 +0200
-Subject: [PATCH 04/14] net: wwan: mhi_wwan_ctrl: Add DUN2 to have a secondary
+Subject: [PATCH 01/13] net: wwan: mhi_wwan_ctrl: Add DUN2 to have a secondary
  AT port
 
 In order to have a secondary AT port add "DUN2".

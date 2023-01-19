@@ -1,7 +1,7 @@
-From cd43e1f687d22ae959d995bfbca5ddd8c2eecfe2 Mon Sep 17 00:00:00 2001
+From 8f586a60c3654fd5dac5f223ceb8026e8a8d3f61 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 6 Sep 2022 13:37:26 +0200
-Subject: [PATCH 12/14] drivers: bus: mhi: add FN980 v2 support
+Subject: [PATCH 08/13] drivers: bus: mhi: add FN980 v2 support
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 78 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index a0cd1ee88130..12b328a451ca 100644
+index cf3eb4abb4b3..aa0afce0bde6 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -47,6 +47,36 @@ struct mhi_pci_dev_info {

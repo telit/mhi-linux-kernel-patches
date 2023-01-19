@@ -1,7 +1,7 @@
-From 163cb063b151abae2ffcbbae086f0e2d4e8bcb5f Mon Sep 17 00:00:00 2001
+From d11fb2655b412127408e018a49f289d7a3f60172 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 6 Oct 2022 09:46:46 +0200
-Subject: [PATCH 14/14] drivers: net: wwan: let userspace manage xfp fw update
+Subject: [PATCH 10/13] drivers: net: wwan: let userspace manage xfp fw update
  states
 
 The heuristic for detecting firmware upgrade does not work well.

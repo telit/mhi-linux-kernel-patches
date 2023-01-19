@@ -1,7 +1,7 @@
-From 88e7fca8e30abf8df376c1b509bfdc1f1249d16a Mon Sep 17 00:00:00 2001
+From 53d8796cc2c2e0a66adb26024bd31e2d95c61978 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:07:54 +0200
-Subject: [PATCH 08/14] drivers: bus: mhi: force mhi stack reset when flashing
+Subject: [PATCH 04/13] drivers: bus: mhi: force mhi stack reset when flashing
  ends
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index bb70892c0e9d..f774e456f1d5 100644
+index fa2246da63c1..193dfadb6f87 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -22,7 +22,7 @@
@@ -31,7 +31,7 @@ index bb70892c0e9d..f774e456f1d5 100644
  
  /**
   * struct mhi_pci_dev_info - MHI PCI device specific information
-@@ -820,6 +820,13 @@ static void health_check(struct timer_list *t)
+@@ -825,6 +825,13 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  

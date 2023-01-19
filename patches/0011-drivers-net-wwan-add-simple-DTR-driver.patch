@@ -1,13 +1,13 @@
-From 88718de6bd4ee7141c310dbd5bf88a9cb840e781 Mon Sep 17 00:00:00 2001
+From f98061fd57aa3573b857a04b2eecaf093fbd794f Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 14 Sep 2022 12:34:13 +0200
-Subject: [PATCH 15/15] drivers: net: wwan: add simple DTR driver
+Subject: [PATCH 11/13] drivers: net: wwan: add simple DTR driver
 
 Telit modem requires DTR to be set in virtual serial ports for
 properly receiving unsolicited indications.
 
 Add a simple WWAN driver for setting DTR and RTS at port opening
-and removing at port closing.
+and removing at port closing (just AT channels).
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -15,10 +15,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  drivers/bus/mhi/host/pci_generic.c |   4 +
  drivers/net/wwan/Kconfig           |  10 ++
  drivers/net/wwan/Makefile          |   1 +
- drivers/net/wwan/mhi_wwan_ctrl.c   |   8 ++
+ drivers/net/wwan/mhi_wwan_ctrl.c   |  18 +++-
  drivers/net/wwan/mhi_wwan_dtr.c    | 162 +++++++++++++++++++++++++++++
  include/linux/mhi.h                |   2 +
- 7 files changed, 198 insertions(+)
+ 7 files changed, 206 insertions(+), 2 deletions(-)
  create mode 100644 drivers/net/wwan/mhi_wwan_dtr.c
 
 diff --git a/drivers/bus/mhi/host/main.c b/drivers/bus/mhi/host/main.c
@@ -51,7 +51,7 @@ index df0fbfee7b78..1ef4a0511b59 100644
  }
  
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index 1b8f775ef3f4..08afb2739747 100644
+index 4de4aa8528f3..abeb84902ba8 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -535,6 +535,8 @@ static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
@@ -113,10 +113,10 @@ index 3960c0ae2445..c37396680f33 100644
  obj-$(CONFIG_MHI_WWAN_MBIM) += mhi_wwan_mbim.o
  obj-$(CONFIG_QCOM_BAM_DMUX) += qcom_bam_dmux.o
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 4e65378b0222..ab42deb21c36 100644
+index 4e65378b0222..fe2656937794 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
-@@ -104,6 +104,8 @@ static void mhi_wwan_ctrl_refill_work(struct work_struct *work)
+@@ -104,9 +104,12 @@ static void mhi_wwan_ctrl_refill_work(struct work_struct *work)
  	}
  }
  
@@ -125,26 +125,38 @@ index 4e65378b0222..ab42deb21c36 100644
  static int mhi_wwan_ctrl_start(struct wwan_port *port)
  {
  	struct mhi_wwan_dev *mhiwwan = wwan_port_get_drvdata(port);
-@@ -123,6 +125,9 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)
++	enum wwan_port_type type;
+ 	int ret;
+ 
+ 	/* Start mhi device's channel(s) */
+@@ -123,14 +126,25 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)
  		mhi_wwan_ctrl_refill_work(&mhiwwan->rx_refill);
  	}
  
-+	dev_dbg(&mhiwwan->mhi_dev->dev, "Setting DTR and RTS for port\n");
-+	mhi_wwan_dtr_set(port, 1, 1);
++	type = wwan_port_get_type(port);
++	if (type == WWAN_PORT_AT) {
++		dev_dbg(&mhiwwan->mhi_dev->dev, "Setting DTR and RTS for port\n");
++		mhi_wwan_dtr_set(port, 1, 1);
++	}
 +
  	return 0;
  }
  
-@@ -132,6 +137,9 @@ static void mhi_wwan_ctrl_stop(struct wwan_port *port)
- 	struct mhi_device *mhi_dev = mhiwwan->mhi_dev;
- 	struct mhi_controller *cntrl = mhi_dev->mhi_cntrl;
- 
-+	dev_dbg(&mhiwwan->mhi_dev->dev, "Unsetting DTR and RTS for port\n");
-+	mhi_wwan_dtr_set(port, 0, 0);
+ static void mhi_wwan_ctrl_stop(struct wwan_port *port)
+ {
+ 	struct mhi_wwan_dev *mhiwwan = wwan_port_get_drvdata(port);
+-	struct mhi_device *mhi_dev = mhiwwan->mhi_dev;
+-	struct mhi_controller *cntrl = mhi_dev->mhi_cntrl;
++	enum wwan_port_type type;
 +
++	type = wwan_port_get_type(port);
++	if (type == WWAN_PORT_AT) {
++		dev_dbg(&mhiwwan->mhi_dev->dev, "Unsetting DTR and RTS for port\n");
++		mhi_wwan_dtr_set(port, 0, 0);
++	}
+ 
  	spin_lock_bh(&mhiwwan->rx_lock);
  	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
- 	spin_unlock_bh(&mhiwwan->rx_lock);
 diff --git a/drivers/net/wwan/mhi_wwan_dtr.c b/drivers/net/wwan/mhi_wwan_dtr.c
 new file mode 100644
 index 000000000000..f68f959ff455

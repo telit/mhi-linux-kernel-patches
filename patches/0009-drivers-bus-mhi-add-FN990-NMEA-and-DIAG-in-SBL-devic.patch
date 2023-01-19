@@ -1,7 +1,7 @@
-From 1558f14c8694092ec3a71e4fe4815b40921649b2 Mon Sep 17 00:00:00 2001
+From b8b52d4f0780835cfd6c8410b716051cf49f932b Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 30 Sep 2022 09:07:06 +0200
-Subject: [PATCH 13/14] drivers: bus: mhi: add FN990 NMEA and DIAG in SBL
+Subject: [PATCH 09/13] drivers: bus: mhi: add FN990 NMEA and DIAG in SBL
  devices
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
@@ -10,7 +10,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index 12b328a451ca..1b8f775ef3f4 100644
+index aa0afce0bde6..4de4aa8528f3 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -577,14 +577,16 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v2_info = {
