@@ -1,7 +1,7 @@
-From f2f7484da2d9af4e19f83db242c237091fe2d033 Mon Sep 17 00:00:00 2001
+From 72283464fdfc2ba1d7e6e43908d54291be3cfbc7 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:37:26 +0200
-Subject: [PATCH 07/13] wwan: add NMEA type
+Subject: [PATCH 05/11] wwan: add NMEA type
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
@@ -23,10 +23,10 @@ index 1c7f6d6f77e7..6c8ff4fcaa7f 100644
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 90a477ac160d..12f16df71c0e 100644
+index c14b75acadff..4cd794b1de14 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -322,6 +322,10 @@ static const struct {
+@@ -323,6 +323,10 @@ static const struct {
  		.name = "SAHARA",
  		.devsuf = "sahara",
  	},
