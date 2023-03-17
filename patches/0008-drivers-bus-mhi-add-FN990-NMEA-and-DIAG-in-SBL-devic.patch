@@ -1,7 +1,7 @@
-From 88a85c29826a35a52509278e4dbbb456cbef007e Mon Sep 17 00:00:00 2001
+From c67aa83e2fc7161eff0e2a9d5abf14763c4bb4cc Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 30 Sep 2022 09:07:06 +0200
-Subject: [PATCH 07/11] drivers: bus: mhi: add FN990 NMEA and DIAG in SBL
+Subject: [PATCH 08/11] drivers: bus: mhi: add FN990 NMEA and DIAG in SBL
  devices
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
@@ -10,10 +10,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index d22d96310f58..0e96265dedd9 100644
+index 4b7f31e2d063..ff2243e5a803 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
-@@ -577,14 +577,16 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v2_info = {
+@@ -583,14 +583,16 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v2_info = {
  static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
  	MHI_CHANNEL_CONFIG_UL_SBL(2, "SAHARA", 32, 0),
  	MHI_CHANNEL_CONFIG_DL_SBL(3, "SAHARA", 32, 0),

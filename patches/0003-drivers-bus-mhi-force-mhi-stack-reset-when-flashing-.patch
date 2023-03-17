@@ -1,7 +1,7 @@
-From 7e6f5f14bbdfae04206ea896899bad80d3543568 Mon Sep 17 00:00:00 2001
+From 057a6b4375a85f7cf739e1fb8c486a885cb71123 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:07:54 +0200
-Subject: [PATCH 02/11] drivers: bus: mhi: force mhi stack reset when flashing
+Subject: [PATCH 03/11] drivers: bus: mhi: force mhi stack reset when flashing
  ends
 
 Once flashing in SBL through the XFP protocol ends, FN980 resets
@@ -19,7 +19,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  5 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index caa4ce28cf9e..a962a1984ee2 100644
+index ff6d25eba1b1..e2aa09c36cc4 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -22,7 +22,7 @@
@@ -29,9 +29,9 @@ index caa4ce28cf9e..a962a1984ee2 100644
 -#define HEALTH_CHECK_PERIOD (HZ * 2)
 +#define HEALTH_CHECK_PERIOD (HZ / 2)
  
- /**
-  * struct mhi_pci_dev_info - MHI PCI device specific information
-@@ -825,6 +825,13 @@ static void health_check(struct timer_list *t)
+ /* PCI VID definitions */
+ #define PCI_VENDOR_ID_THALES	0x1269
+@@ -834,6 +834,13 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -70,10 +70,10 @@ index 8cb1dcedd63e..0f3b09be6e7f 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index f2544ace976b..c14b75acadff 100644
+index c780297d0f16..52467138a162 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -543,6 +543,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
+@@ -547,6 +547,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
  }
  EXPORT_SYMBOL_GPL(wwan_port_get_drvdata);
  
@@ -100,10 +100,10 @@ index a5441ad33c74..49ce90cd2123 100644
  
  /**
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index fc8ecafd25fa..f30dc490a174 100644
+index ec2c7450ab7b..318bc87e1fd7 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
-@@ -129,6 +129,12 @@ void wwan_port_txon(struct wwan_port *port);
+@@ -131,6 +131,12 @@ void wwan_port_txon(struct wwan_port *port);
   */
  void *wwan_port_get_drvdata(struct wwan_port *port);
  

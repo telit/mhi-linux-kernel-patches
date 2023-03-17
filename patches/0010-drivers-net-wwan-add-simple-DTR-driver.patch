@@ -1,7 +1,7 @@
-From a366f749f1e453036f411cb0055d069a76ad7733 Mon Sep 17 00:00:00 2001
+From b92fb95c95b3a016d8b5d42be47e0e42bed7adb9 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 14 Sep 2022 12:34:13 +0200
-Subject: [PATCH 09/11] drivers: net: wwan: add simple DTR driver
+Subject: [PATCH 10/11] drivers: net: wwan: add simple DTR driver
 
 Telit modem requires DTR to be set in virtual serial ports for
 properly receiving unsolicited indications.
@@ -51,10 +51,10 @@ index df0fbfee7b78..1ef4a0511b59 100644
  }
  
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index 0e96265dedd9..84844c24d0f7 100644
+index ff2243e5a803..1fcb8d78f673 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
-@@ -535,6 +535,8 @@ static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
+@@ -541,6 +541,8 @@ static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
  	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
  	MHI_CHANNEL_CONFIG_UL(14, "QMI", 32, 0),
  	MHI_CHANNEL_CONFIG_DL(15, "QMI", 32, 0),
@@ -63,7 +63,7 @@ index 0e96265dedd9..84844c24d0f7 100644
  	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
  	MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(21, "IPCR", 16, 0),
  	MHI_CHANNEL_CONFIG_UL(32, "DUN", 8, 1),
-@@ -581,6 +583,8 @@ static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
+@@ -587,6 +589,8 @@ static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
  	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
  	MHI_CHANNEL_CONFIG_UL(12, "MBIM", 32, 0),
  	MHI_CHANNEL_CONFIG_DL(13, "MBIM", 32, 0),
@@ -73,7 +73,7 @@ index 0e96265dedd9..84844c24d0f7 100644
  	MHI_CHANNEL_CONFIG_DL(33, "DUN", 32, 0),
  	MHI_CHANNEL_CONFIG_UL(92, "DUN2", 32, 1),
 diff --git a/drivers/net/wwan/Kconfig b/drivers/net/wwan/Kconfig
-index ac4d73b5626f..861807052765 100644
+index 410b0245114e..abbca83ad8eb 100644
 --- a/drivers/net/wwan/Kconfig
 +++ b/drivers/net/wwan/Kconfig
 @@ -39,6 +39,7 @@ config WWAN_HWSIM
