@@ -1,0 +1,26 @@
+From f67b3719d4ec94eb6e46b6154c569d36f438b71f Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 20 Jul 2023 11:49:12 +0200
+Subject: [PATCH 27/28] drivers: bus: mhi: host: clean white space in pm.c
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/host/pm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/host/pm.c b/drivers/bus/mhi/host/pm.c
+index 2a53f049d20f..18872c5017be 100644
+--- a/drivers/bus/mhi/host/pm.c
++++ b/drivers/bus/mhi/host/pm.c
+@@ -302,7 +302,7 @@ int mhi_pm_m0_transition(struct mhi_controller *mhi_cntrl)
+ 
+ 		/* Only ring DB if ring is not empty */
+ 		if (tre_ring->base && tre_ring->wp  != tre_ring->rp &&
+-			mhi_chan->ch_state == MHI_CH_STATE_ENABLED)
++		    mhi_chan->ch_state == MHI_CH_STATE_ENABLED)
+ 			mhi_ring_chan_db(mhi_cntrl, mhi_chan);
+ 		read_unlock_irq(&mhi_chan->lock);
+ 	}
+-- 
+2.37.1
+

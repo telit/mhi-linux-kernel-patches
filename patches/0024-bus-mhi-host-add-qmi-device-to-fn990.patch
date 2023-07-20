@@ -1,0 +1,26 @@
+From cbe075e10492392c95016ba1a9cf0f155cee5e7a Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Tue, 21 Feb 2023 08:59:46 +0100
+Subject: [PATCH 24/28] bus: mhi: host: add qmi device to fn990
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/host/pci_generic.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
+index aed8d8528734..e530de7e47bd 100644
+--- a/drivers/bus/mhi/host/pci_generic.c
++++ b/drivers/bus/mhi/host/pci_generic.c
+@@ -583,6 +583,8 @@ static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
+ 	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
+ 	MHI_CHANNEL_CONFIG_UL(12, "MBIM", 32, 0),
+ 	MHI_CHANNEL_CONFIG_DL(13, "MBIM", 32, 0),
++	MHI_CHANNEL_CONFIG_UL(14, "QMI", 32, 0),
++	MHI_CHANNEL_CONFIG_DL(15, "QMI", 32, 0),
+ 	MHI_CHANNEL_CONFIG_UL(18, "IP_CTRL", 8, 1),
+ 	MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(19, "IP_CTRL", 8, 1),
+ 	MHI_CHANNEL_CONFIG_UL(32, "DUN", 32, 0),
+-- 
+2.37.1
+

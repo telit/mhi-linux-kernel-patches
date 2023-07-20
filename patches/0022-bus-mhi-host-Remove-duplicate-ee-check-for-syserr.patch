@@ -1,0 +1,46 @@
+From 8ebd3248fb027e4479f6054faf07119bcade8ae7 Mon Sep 17 00:00:00 2001
+From: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Date: Mon, 10 Apr 2023 09:58:11 -0600
+Subject: [PATCH 22/28] bus: mhi: host: Remove duplicate ee check for syserr
+
+If we detect a system error via intvec, we only process the syserr if the
+current ee is different than the last observed ee.  The reason for this
+check is to prevent bhie from running multiple times, but with the single
+queue handling syserr, that is not possible.
+
+The check can cause an issue with device recovery.  If PBL loads a bad SBL
+via BHI, but that SBL hangs before notifying the host of an ee change,
+then issuing soc_reset to crash the device and retry (after supplying a
+fixed SBL) will not recover the device as the host will observe a PBL->PBL
+transition and not process the syserr.  The device will be stuck until
+either the driver is reloaded, or the host is rebooted.  Instead, remove
+the check so that we can attempt to recover the device.
+
+Fixes: ef2126c4e2ea ("bus: mhi: core: Process execution environment changes serially")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Reviewed-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Link: https://lore.kernel.org/r/1681142292-27571-2-git-send-email-quic_jhugo@quicinc.com
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/host/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/host/main.c b/drivers/bus/mhi/host/main.c
+index 1ef4a0511b59..7757674fe0cd 100644
+--- a/drivers/bus/mhi/host/main.c
++++ b/drivers/bus/mhi/host/main.c
+@@ -514,7 +514,7 @@ irqreturn_t mhi_intvec_threaded_handler(int irq_number, void *priv)
+ 	}
+ 	write_unlock_irq(&mhi_cntrl->pm_lock);
+ 
+-	if (pm_state != MHI_PM_SYS_ERR_DETECT || ee == mhi_cntrl->ee)
++	if (pm_state != MHI_PM_SYS_ERR_DETECT)
+ 		goto exit_intvec;
+ 
+ 	switch (ee) {
+-- 
+2.37.1
+
