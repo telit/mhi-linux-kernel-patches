@@ -1,7 +1,7 @@
-From c8fe0825eb9f9c998ef88af7b831a891b37dbc3a Mon Sep 17 00:00:00 2001
+From ec4a52e74602c3cb512a12c6ed3807175c494308 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 14 Oct 2022 11:25:56 +0200
-Subject: [PATCH 17/19] drivers: bus: mhi: host: fix recovery process when
+Subject: [PATCH 11/11] drivers: bus: mhi: host: fix recovery process when
  modem reboots
 
 It could happen that when the modem reboots it is not immediately
@@ -15,10 +15,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index 08afb2739747..aed8d8528734 100644
+index 1fcb8d78f673..69f2a09dfa0d 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
-@@ -866,6 +866,10 @@ static void mhi_pci_recovery_work(struct work_struct *work)
+@@ -880,6 +880,10 @@ static void mhi_pci_recovery_work(struct work_struct *work)
  		mhi_unprepare_after_power_down(mhi_cntrl);
  	}
  
