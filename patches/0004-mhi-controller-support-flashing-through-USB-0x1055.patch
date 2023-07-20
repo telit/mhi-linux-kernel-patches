@@ -1,7 +1,7 @@
 From ac8e0bbe498d7d103cda13962fe6933629f56346 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 6 Sep 2022 13:32:16 +0200
-Subject: [PATCH 04/10] mhi: controller: support flashing through USB 0x1055
+Subject: [PATCH 04/17] mhi: controller: support flashing through USB 0x1055
 
 Add a new controller file to be used when flashing through USB (composition 0x1055)
 in order to make the mhi stack aware of the process and not to reset the function.
