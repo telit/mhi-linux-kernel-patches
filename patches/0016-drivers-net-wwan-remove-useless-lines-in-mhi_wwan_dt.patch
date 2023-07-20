@@ -1,0 +1,45 @@
+From 9c792ffee1e539c3def496e91d0c144f813b0ec2 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 20 Jul 2023 11:46:34 +0200
+Subject: [PATCH 16/17] drivers: net: wwan: remove useless lines in
+ mhi_wwan_dtr
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/net/wwan/mhi_wwan_dtr.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/net/wwan/mhi_wwan_dtr.c b/drivers/net/wwan/mhi_wwan_dtr.c
+index f68f959ff455..83d571d0feb5 100644
+--- a/drivers/net/wwan/mhi_wwan_dtr.c
++++ b/drivers/net/wwan/mhi_wwan_dtr.c
+@@ -18,7 +18,6 @@ int mhi_wwan_dtr_set(struct wwan_port *port, int dtr, int rts)
+ 	struct mhi_wwan_dev *mhiwwan = wwan_port_get_drvdata(port);
+ 	int ret;
+ 
+-	/* get/put ? */
+ 	if (mhiwwan->mhi_dev->mhi_cntrl->mhi_dev_ip_ctrl) {
+ 		struct __packed dtr_ctrl_msg {
+ 			u32 preamble;
+@@ -31,7 +30,6 @@ int mhi_wwan_dtr_set(struct wwan_port *port, int dtr, int rts)
+ 		struct dtr_ctrl_msg dtr_msg = {0};
+ 		struct sk_buff *skb;
+ 
+-		/* Need to take care of endianness? */
+ 		dtr_msg.preamble = 0x4C525443;
+ 		dtr_msg.msg_id = 0x10;
+ 		dtr_msg.dest_id = mhiwwan->mhi_dev->ul_chan_id;
+@@ -98,10 +96,6 @@ static void mhi_dtr_dl_xfer_cb(struct mhi_device *mhi_dev,
+ 			   struct mhi_result *mhi_result)
+ {
+ 	/* Currently we don't use the information provided by the modem */
+-#if 0
+-	struct sk_buff *skb = mhi_result->buf_addr;
+-#endif
+-
+ 	dev_dbg(&mhi_dev->dev, "%s: status: %d receive_len: %zu\n", __func__,
+ 		mhi_result->transaction_status, mhi_result->bytes_xferd);
+ }
+-- 
+2.43.2
+

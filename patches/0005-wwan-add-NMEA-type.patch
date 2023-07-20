@@ -1,7 +1,7 @@
 From 91661267ff05f84785509bd5993c3b464ea30cfd Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:37:26 +0200
-Subject: [PATCH 05/10] wwan: add NMEA type
+Subject: [PATCH 05/17] wwan: add NMEA type
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---

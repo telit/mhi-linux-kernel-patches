@@ -1,0 +1,31 @@
+From 9bea87ade4ae034d53f8b97ee94f523cdd98e5e5 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Thu, 20 Jul 2023 11:45:01 +0200
+Subject: [PATCH 15/17] drivers: net: wwan: fix MHI_WWAN_DTR description
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/net/wwan/Kconfig | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wwan/Kconfig b/drivers/net/wwan/Kconfig
+index 861807052765..a4c7c9bf9559 100644
+--- a/drivers/net/wwan/Kconfig
++++ b/drivers/net/wwan/Kconfig
+@@ -54,10 +54,11 @@ config MHI_WWAN_DTR
+ 	tristate "MHI WWAN DTR driver for QCOM-based PCIe modems"
+ 	depends on MHI_BUS
+ 	help
+-	  MHI WWAN DTR allows QCOM-based PCIe modems to expose UART signals.
++	  MHI WWAN DTR allows to set DTR and RTS signals on QCOM-based PCIe
++	  DUN ports.
+ 
+ 	  To compile this driver as a module, choose M here: the module will be
+-	  called mhi_wwan_ctrl.
++	  called mhi_wwan_dtr.
+ 
+ config MHI_WWAN_MBIM
+         tristate "MHI WWAN MBIM network driver for QCOM-based PCIe modems"
+-- 
+2.43.2
+
