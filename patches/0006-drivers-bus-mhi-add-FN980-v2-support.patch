@@ -1,7 +1,7 @@
-From 0fa4845a1a56fdd778e8d4fbac99ba3b8740aa17 Mon Sep 17 00:00:00 2001
+From 9ec2a362da5fba864e8766abde247d7e7994201f Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 6 Sep 2022 13:37:26 +0200
-Subject: [PATCH 07/11] drivers: bus: mhi: add FN980 v2 support
+Subject: [PATCH 6/9] drivers: bus: mhi: add FN980 v2 support
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---

@@ -1,8 +1,8 @@
-From ec4a52e74602c3cb512a12c6ed3807175c494308 Mon Sep 17 00:00:00 2001
+From fbad69b2eb4e1825e4fd32e409fe03628af1d559 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 14 Oct 2022 11:25:56 +0200
-Subject: [PATCH 11/11] drivers: bus: mhi: host: fix recovery process when
- modem reboots
+Subject: [PATCH 9/9] drivers: bus: mhi: host: fix recovery process when modem
+ reboots
 
 It could happen that when the modem reboots it is not immediately
 able to cope with PCIe requests.
