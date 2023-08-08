@@ -1,4 +1,4 @@
-From a626b4485ba881707303f095a8cd1701a6e5c4d4 Mon Sep 17 00:00:00 2001
+From 4d3897c8ae0a28b26dc6716db4ab013788357f0e Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:07:54 +0200
 Subject: [PATCH 4/9] drivers: bus: mhi: let userspace manage xfp fw update
@@ -34,15 +34,15 @@ bus: mhi: core: Fix race while handling SYS_ERR at power up
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
  drivers/bus/mhi/host/init.c        | 27 +++++++++++++++++++++++++++
- drivers/bus/mhi/host/pci_generic.c | 15 ++++++++++++++-
+ drivers/bus/mhi/host/pci_generic.c | 14 +++++++++++++-
  drivers/net/wwan/mhi_wwan_ctrl.c   |  2 ++
  drivers/net/wwan/wwan_core.c       |  6 ++++++
  include/linux/mhi.h                | 17 +++++++++++++++++
  include/linux/wwan.h               |  6 ++++++
- 6 files changed, 72 insertions(+), 1 deletion(-)
+ 6 files changed, 71 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
-index 3d779ee6396d..f5749bb56837 100644
+index f72fcb66f408..bcfdad4d9993 100644
 --- a/drivers/bus/mhi/host/init.c
 +++ b/drivers/bus/mhi/host/init.c
 @@ -79,6 +79,32 @@ const char *to_mhi_pm_state_str(u32 state)
@@ -87,10 +87,10 @@ index 3d779ee6396d..f5749bb56837 100644
  };
  ATTRIBUTE_GROUPS(mhi_dev);
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index ff6d25eba1b1..0a1075fc3464 100644
+index 2f25d8d5e2d4..1cfac941bda8 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
-@@ -22,7 +22,7 @@
+@@ -21,7 +21,7 @@
  
  #define MHI_POST_RESET_DELAY_MS 2000
  
@@ -99,12 +99,11 @@ index ff6d25eba1b1..0a1075fc3464 100644
  
  /* PCI VID definitions */
  #define PCI_VENDOR_ID_THALES	0x1269
-@@ -834,6 +834,19 @@ static void health_check(struct timer_list *t)
+@@ -849,6 +849,18 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
 +	if (mhi_cntrl->xfp == XFP_STATE_FLASHING) {
-+		/* Flashing through USB, wait until users notifies that it has finished */
 +		mod_timer(&mhi_pdev->health_check_timer, jiffies + HEALTH_CHECK_PERIOD);
 +		return;
 +	}
@@ -120,7 +119,7 @@ index ff6d25eba1b1..0a1075fc3464 100644
  		dev_err(mhi_cntrl->cntrl_dev, "Device died\n");
  		queue_work(system_long_wq, &mhi_pdev->recovery_work);
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 8cb1dcedd63e..ff84d9a582a2 100644
+index 79bf6ce48ad5..290510489d67 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -129,6 +129,8 @@ static int mhi_wwan_ctrl_start(struct wwan_port *port)
@@ -133,10 +132,10 @@ index 8cb1dcedd63e..ff84d9a582a2 100644
  	spin_lock_bh(&mhiwwan->rx_lock);
  	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index c780297d0f16..52467138a162 100644
+index 901fb5d87624..94f29d50f34c 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -547,6 +547,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
+@@ -557,6 +557,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
  }
  EXPORT_SYMBOL_GPL(wwan_port_get_drvdata);
  
@@ -150,7 +149,7 @@ index c780297d0f16..52467138a162 100644
  {
  	int ret = 0;
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index a5441ad33c74..bb78d38ce1f1 100644
+index f6de4b6ecfc7..51fa0ff09bd1 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -286,6 +286,18 @@ struct mhi_controller_config {
@@ -192,10 +191,10 @@ index a5441ad33c74..bb78d38ce1f1 100644
  
  /**
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index ec2c7450ab7b..318bc87e1fd7 100644
+index eac4a60471e2..4fde2dbdaf37 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
-@@ -131,6 +131,12 @@ void wwan_port_txon(struct wwan_port *port);
+@@ -142,6 +142,12 @@ void wwan_port_txon(struct wwan_port *port);
   */
  void *wwan_port_get_drvdata(struct wwan_port *port);
  
