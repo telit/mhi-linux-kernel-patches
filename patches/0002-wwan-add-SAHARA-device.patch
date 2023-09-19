@@ -1,4 +1,4 @@
-From 53573999532833722b9ebf17e142d8a5b9d139bb Mon Sep 17 00:00:00 2001
+From 44b02afb0f874a6c73dbb7e622a439d2bbf9e1c2 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 15:54:12 +0200
 Subject: [PATCH 2/9] wwan: add SAHARA device
@@ -11,7 +11,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  3 files changed, 6 insertions(+)
 
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index f7ca52353f40..8cb1dcedd63e 100644
+index e9f979d2d851..79bf6ce48ad5 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -263,6 +263,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
@@ -23,10 +23,10 @@ index f7ca52353f40..8cb1dcedd63e 100644
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 966d0ccd2276..c780297d0f16 100644
+index 284ab1f56391..901fb5d87624 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -323,6 +323,10 @@ static const struct {
+@@ -327,6 +327,10 @@ static const struct {
  		.name = "XMMRPC",
  		.devsuf = "xmmrpc",
  	},
@@ -38,7 +38,7 @@ index 966d0ccd2276..c780297d0f16 100644
  
  static ssize_t type_show(struct device *dev, struct device_attribute *attr,
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index 24d76500b1cc..ec2c7450ab7b 100644
+index 01fa15506286..eac4a60471e2 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
 @@ -28,6 +28,7 @@ enum wwan_port_type {

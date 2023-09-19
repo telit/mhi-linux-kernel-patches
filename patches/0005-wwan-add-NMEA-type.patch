@@ -1,4 +1,4 @@
-From eec880c730828bea313613e4c3a93c9b6d6090a1 Mon Sep 17 00:00:00 2001
+From 66a3e2a018d5515f5b8fc3e19f4a398e6f7b7048 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:37:26 +0200
 Subject: [PATCH 5/9] wwan: add NMEA type
@@ -11,7 +11,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  3 files changed, 6 insertions(+)
 
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index ff84d9a582a2..4e65378b0222 100644
+index 290510489d67..9dd70f9cb6e3 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -266,6 +266,7 @@ static const struct mhi_device_id mhi_wwan_ctrl_match_table[] = {
@@ -23,10 +23,10 @@ index ff84d9a582a2..4e65378b0222 100644
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 52467138a162..3fc20d82c283 100644
+index 94f29d50f34c..4c3c6da0572d 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -327,6 +327,10 @@ static const struct {
+@@ -331,6 +331,10 @@ static const struct {
  		.name = "SAHARA",
  		.devsuf = "sahara",
  	},
@@ -38,7 +38,7 @@ index 52467138a162..3fc20d82c283 100644
  
  static ssize_t type_show(struct device *dev, struct device_attribute *attr,
 diff --git a/include/linux/wwan.h b/include/linux/wwan.h
-index 318bc87e1fd7..9eb2f1565839 100644
+index 4fde2dbdaf37..d7ffdbcce2d8 100644
 --- a/include/linux/wwan.h
 +++ b/include/linux/wwan.h
 @@ -29,6 +29,7 @@ enum wwan_port_type {

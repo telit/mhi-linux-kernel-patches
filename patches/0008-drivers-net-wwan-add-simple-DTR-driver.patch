@@ -1,4 +1,4 @@
-From 3baef3b4ecf7ff9ee9c5189fe3df0d80c46f548e Mon Sep 17 00:00:00 2001
+From 4952a4ce721fd79f1555ba5fddcf2c7af024066a Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 14 Sep 2022 12:34:13 +0200
 Subject: [PATCH 8/9] drivers: net: wwan: add simple DTR driver
@@ -13,16 +13,16 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
  drivers/bus/mhi/host/main.c        |  11 ++
  drivers/bus/mhi/host/pci_generic.c |   4 +
- drivers/net/wwan/Kconfig           |  10 ++
+ drivers/net/wwan/Kconfig           |  11 ++
  drivers/net/wwan/Makefile          |   1 +
  drivers/net/wwan/mhi_wwan_ctrl.c   |  18 +++-
- drivers/net/wwan/mhi_wwan_dtr.c    | 162 +++++++++++++++++++++++++++++
+ drivers/net/wwan/mhi_wwan_dtr.c    | 156 +++++++++++++++++++++++++++++
  include/linux/mhi.h                |   2 +
- 7 files changed, 206 insertions(+), 2 deletions(-)
+ 7 files changed, 201 insertions(+), 2 deletions(-)
  create mode 100644 drivers/net/wwan/mhi_wwan_dtr.c
 
 diff --git a/drivers/bus/mhi/host/main.c b/drivers/bus/mhi/host/main.c
-index df0fbfee7b78..1ef4a0511b59 100644
+index 74a75439c713..70c8ba3b4295 100644
 --- a/drivers/bus/mhi/host/main.c
 +++ b/drivers/bus/mhi/host/main.c
 @@ -323,6 +323,11 @@ int mhi_destroy_device(struct device *dev, void *data)
@@ -51,10 +51,10 @@ index df0fbfee7b78..1ef4a0511b59 100644
  }
  
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index ff2243e5a803..1fcb8d78f673 100644
+index 3b70957cb9a1..16af30828353 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
-@@ -541,6 +541,8 @@ static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
+@@ -547,6 +547,8 @@ static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
  	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
  	MHI_CHANNEL_CONFIG_UL(14, "QMI", 32, 0),
  	MHI_CHANNEL_CONFIG_DL(15, "QMI", 32, 0),
@@ -63,7 +63,7 @@ index ff2243e5a803..1fcb8d78f673 100644
  	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
  	MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(21, "IPCR", 16, 0),
  	MHI_CHANNEL_CONFIG_UL(32, "DUN", 8, 1),
-@@ -587,6 +589,8 @@ static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
+@@ -593,6 +595,8 @@ static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
  	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
  	MHI_CHANNEL_CONFIG_UL(12, "MBIM", 32, 0),
  	MHI_CHANNEL_CONFIG_DL(13, "MBIM", 32, 0),
@@ -73,7 +73,7 @@ index ff2243e5a803..1fcb8d78f673 100644
  	MHI_CHANNEL_CONFIG_DL(33, "DUN", 32, 0),
  	MHI_CHANNEL_CONFIG_UL(92, "DUN2", 32, 1),
 diff --git a/drivers/net/wwan/Kconfig b/drivers/net/wwan/Kconfig
-index 410b0245114e..abbca83ad8eb 100644
+index 410b0245114e..66794849b532 100644
 --- a/drivers/net/wwan/Kconfig
 +++ b/drivers/net/wwan/Kconfig
 @@ -39,6 +39,7 @@ config WWAN_HWSIM
@@ -84,7 +84,7 @@ index 410b0245114e..abbca83ad8eb 100644
  	help
  	  MHI WWAN CTRL allows QCOM-based PCIe modems to expose different modem
  	  control protocols/ports to userspace, including AT, MBIM, QMI, DIAG
-@@ -49,6 +50,15 @@ config MHI_WWAN_CTRL
+@@ -49,6 +50,16 @@ config MHI_WWAN_CTRL
  	  To compile this driver as a module, choose M here: the module will be
  	  called mhi_wwan_ctrl.
  
@@ -92,10 +92,11 @@ index 410b0245114e..abbca83ad8eb 100644
 +	tristate "MHI WWAN DTR driver for QCOM-based PCIe modems"
 +	depends on MHI_BUS
 +	help
-+	  MHI WWAN DTR allows QCOM-based PCIe modems to expose UART signals.
++	  MHI WWAN DTR allows to set DTR and RTS signals on QCOM-based PCIe
++	  DUN ports.
 +
 +	  To compile this driver as a module, choose M here: the module will be
-+	  called mhi_wwan_ctrl.
++	  called mhi_wwan_dtr.
 +
  config MHI_WWAN_MBIM
          tristate "MHI WWAN MBIM network driver for QCOM-based PCIe modems"
@@ -113,7 +114,7 @@ index 3960c0ae2445..c37396680f33 100644
  obj-$(CONFIG_MHI_WWAN_MBIM) += mhi_wwan_mbim.o
  obj-$(CONFIG_QCOM_BAM_DMUX) += qcom_bam_dmux.o
 diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 4e65378b0222..fe2656937794 100644
+index 9dd70f9cb6e3..f0fcef821296 100644
 --- a/drivers/net/wwan/mhi_wwan_ctrl.c
 +++ b/drivers/net/wwan/mhi_wwan_ctrl.c
 @@ -104,9 +104,12 @@ static void mhi_wwan_ctrl_refill_work(struct work_struct *work)
@@ -159,10 +160,10 @@ index 4e65378b0222..fe2656937794 100644
  	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
 diff --git a/drivers/net/wwan/mhi_wwan_dtr.c b/drivers/net/wwan/mhi_wwan_dtr.c
 new file mode 100644
-index 000000000000..f68f959ff455
+index 000000000000..83d571d0feb5
 --- /dev/null
 +++ b/drivers/net/wwan/mhi_wwan_dtr.c
-@@ -0,0 +1,162 @@
+@@ -0,0 +1,156 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/* Copyright (c) 2021, Daniele Palmas <dnlplm@gmail.com> */
 +#include <linux/kernel.h>
@@ -183,7 +184,6 @@ index 000000000000..f68f959ff455
 +	struct mhi_wwan_dev *mhiwwan = wwan_port_get_drvdata(port);
 +	int ret;
 +
-+	/* get/put ? */
 +	if (mhiwwan->mhi_dev->mhi_cntrl->mhi_dev_ip_ctrl) {
 +		struct __packed dtr_ctrl_msg {
 +			u32 preamble;
@@ -196,7 +196,6 @@ index 000000000000..f68f959ff455
 +		struct dtr_ctrl_msg dtr_msg = {0};
 +		struct sk_buff *skb;
 +
-+		/* Need to take care of endianness? */
 +		dtr_msg.preamble = 0x4C525443;
 +		dtr_msg.msg_id = 0x10;
 +		dtr_msg.dest_id = mhiwwan->mhi_dev->ul_chan_id;
@@ -263,10 +262,6 @@ index 000000000000..f68f959ff455
 +			   struct mhi_result *mhi_result)
 +{
 +	/* Currently we don't use the information provided by the modem */
-+#if 0
-+	struct sk_buff *skb = mhi_result->buf_addr;
-+#endif
-+
 +	dev_dbg(&mhi_dev->dev, "%s: status: %d receive_len: %zu\n", __func__,
 +		mhi_result->transaction_status, mhi_result->bytes_xferd);
 +}
@@ -326,7 +321,7 @@ index 000000000000..f68f959ff455
 +MODULE_DESCRIPTION("MHI WWAN DTR Simple Driver");
 +MODULE_AUTHOR("Daniele Palmas <dnlplm@gmail.com>");
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index bb78d38ce1f1..c275862660cf 100644
+index 51fa0ff09bd1..fca83252d1c4 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -389,6 +389,8 @@ struct mhi_controller {
