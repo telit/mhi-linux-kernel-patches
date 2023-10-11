@@ -1,4 +1,4 @@
-From 17d740a538b1b6fe07beec7267ba6fdbae36b94c Mon Sep 17 00:00:00 2001
+From dbda4d78298ed2eb032c53ff11fec2c24183b9a7 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 30 May 2023 11:13:40 +0200
 Subject: [PATCH 3/9] bus: mhi: host: allow SBL as initial EE
