@@ -1,4 +1,4 @@
-From 4952a4ce721fd79f1555ba5fddcf2c7af024066a Mon Sep 17 00:00:00 2001
+From f4d32d2b6badd7dac46a6eb9f10422c813e17eff Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 14 Sep 2022 12:34:13 +0200
 Subject: [PATCH 8/9] drivers: net: wwan: add simple DTR driver
@@ -11,14 +11,14 @@ and removing at port closing (just AT channels).
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
- drivers/bus/mhi/host/main.c        |  11 ++
+ drivers/bus/mhi/host/main.c        |  11 +++
  drivers/bus/mhi/host/pci_generic.c |   4 +
- drivers/net/wwan/Kconfig           |  11 ++
+ drivers/net/wwan/Kconfig           |  11 +++
  drivers/net/wwan/Makefile          |   1 +
  drivers/net/wwan/mhi_wwan_ctrl.c   |  18 +++-
- drivers/net/wwan/mhi_wwan_dtr.c    | 156 +++++++++++++++++++++++++++++
+ drivers/net/wwan/mhi_wwan_dtr.c    | 150 +++++++++++++++++++++++++++++
  include/linux/mhi.h                |   2 +
- 7 files changed, 201 insertions(+), 2 deletions(-)
+ 7 files changed, 195 insertions(+), 2 deletions(-)
  create mode 100644 drivers/net/wwan/mhi_wwan_dtr.c
 
 diff --git a/drivers/bus/mhi/host/main.c b/drivers/bus/mhi/host/main.c
@@ -160,10 +160,10 @@ index 9dd70f9cb6e3..f0fcef821296 100644
  	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
 diff --git a/drivers/net/wwan/mhi_wwan_dtr.c b/drivers/net/wwan/mhi_wwan_dtr.c
 new file mode 100644
-index 000000000000..83d571d0feb5
+index 000000000000..708259981cb7
 --- /dev/null
 +++ b/drivers/net/wwan/mhi_wwan_dtr.c
-@@ -0,0 +1,156 @@
+@@ -0,0 +1,150 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/* Copyright (c) 2021, Daniele Palmas <dnlplm@gmail.com> */
 +#include <linux/kernel.h>
@@ -174,9 +174,6 @@ index 000000000000..83d571d0feb5
 +
 +struct mhi_wwan_dev {
 +	struct mhi_device *mhi_dev;
-+
-+	/* Protect against concurrent TX and TX-completion (bh) */
-+	spinlock_t tx_lock;
 +};
 +
 +int mhi_wwan_dtr_set(struct wwan_port *port, int dtr, int rts)
@@ -232,10 +229,8 @@ index 000000000000..83d571d0feb5
 +	struct mhi_wwan_dev *mhiwwan = wwan_port_get_drvdata(port);
 +	int ret;
 +
-+	/* Queue the packet for MHI transfer and check fullness of the queue */
-+	spin_lock_bh(&mhiwwan->tx_lock);
++	/* Queue the packet for MHI transfer */
 +	ret = mhi_queue_skb(mhiwwan->mhi_dev, DMA_TO_DEVICE, skb, skb->len, MHI_EOT);
-+	spin_unlock_bh(&mhiwwan->tx_lock);
 +
 +	return ret;
 +}
@@ -277,7 +272,6 @@ index 000000000000..83d571d0feb5
 +		return -ENOMEM;
 +
 +	mhiwwan->mhi_dev = mhi_dev;
-+	spin_lock_init(&mhiwwan->tx_lock);
 +
 +	dev_set_drvdata(&mhi_dev->dev, mhiwwan);
 +
@@ -321,7 +315,7 @@ index 000000000000..83d571d0feb5
 +MODULE_DESCRIPTION("MHI WWAN DTR Simple Driver");
 +MODULE_AUTHOR("Daniele Palmas <dnlplm@gmail.com>");
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index 51fa0ff09bd1..fca83252d1c4 100644
+index 1e126800a9c1..c4f7bb0de2c4 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -389,6 +389,8 @@ struct mhi_controller {

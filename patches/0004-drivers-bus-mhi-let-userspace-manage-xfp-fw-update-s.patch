@@ -1,4 +1,4 @@
-From 4d3897c8ae0a28b26dc6716db4ab013788357f0e Mon Sep 17 00:00:00 2001
+From a5282cfc66dce5239b6098d4105fe26e1a58e7d2 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:07:54 +0200
 Subject: [PATCH 4/9] drivers: bus: mhi: let userspace manage xfp fw update
@@ -37,9 +37,9 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  drivers/bus/mhi/host/pci_generic.c | 14 +++++++++++++-
  drivers/net/wwan/mhi_wwan_ctrl.c   |  2 ++
  drivers/net/wwan/wwan_core.c       |  6 ++++++
- include/linux/mhi.h                | 17 +++++++++++++++++
+ include/linux/mhi.h                | 15 +++++++++++++++
  include/linux/wwan.h               |  6 ++++++
- 6 files changed, 71 insertions(+), 1 deletion(-)
+ 6 files changed, 69 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
 index f72fcb66f408..bcfdad4d9993 100644
@@ -149,7 +149,7 @@ index 901fb5d87624..94f29d50f34c 100644
  {
  	int ret = 0;
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index f6de4b6ecfc7..51fa0ff09bd1 100644
+index f6de4b6ecfc7..1e126800a9c1 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
 @@ -286,6 +286,18 @@ struct mhi_controller_config {
@@ -179,14 +179,12 @@ index f6de4b6ecfc7..51fa0ff09bd1 100644
   * @mru: the default MRU for the MHI device
   *
   * Fields marked as (required) need to be populated by the controller driver
-@@ -452,6 +465,10 @@ struct mhi_controller {
+@@ -452,6 +465,8 @@ struct mhi_controller {
  	bool wake_set;
  	unsigned long irq_flags;
  	u32 mru;
 +	/* Flag to manage flashing status  */
 +	enum xfp_state xfp;
-+	/* Flag to detect forced SBL */
-+	bool forced_SBL;
  };
  
  /**

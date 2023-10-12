@@ -1,4 +1,4 @@
-From ffc0f89a4e6ea779612afcec7381eb8dbb98a1f3 Mon Sep 17 00:00:00 2001
+From e2cc184e3b2f790e893ca0a961a8ada31ac4f998 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 14 Oct 2022 11:25:56 +0200
 Subject: [PATCH 9/9] drivers: bus: mhi: host: fix recovery process when modem
