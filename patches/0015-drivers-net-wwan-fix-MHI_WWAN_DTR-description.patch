@@ -1,7 +1,7 @@
 From 9bea87ade4ae034d53f8b97ee94f523cdd98e5e5 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 20 Jul 2023 11:45:01 +0200
-Subject: [PATCH 15/17] drivers: net: wwan: fix MHI_WWAN_DTR description
+Subject: [PATCH 15/18] drivers: net: wwan: fix MHI_WWAN_DTR description
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---

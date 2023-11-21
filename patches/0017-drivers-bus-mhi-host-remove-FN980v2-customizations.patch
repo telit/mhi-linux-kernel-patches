@@ -1,7 +1,7 @@
 From dd65f425e9228467208cd034eb4c765bf75bad12 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 20 Jul 2023 11:51:04 +0200
-Subject: [PATCH 17/17] drivers: bus: mhi: host: remove FN980v2 customizations
+Subject: [PATCH 17/18] drivers: bus: mhi: host: remove FN980v2 customizations
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---

@@ -1,7 +1,7 @@
 From 0c54c2980dafc2cabd5df0954833ed3a231082c0 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 14 Sep 2022 12:34:13 +0200
-Subject: [PATCH 09/17] drivers: net: wwan: add simple DTR driver
+Subject: [PATCH 09/18] drivers: net: wwan: add simple DTR driver
 
 Telit modem requires DTR to be set in virtual serial ports for
 properly receiving unsolicited indications.
