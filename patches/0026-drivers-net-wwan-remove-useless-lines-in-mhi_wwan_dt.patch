@@ -1,7 +1,7 @@
-From 093e53c1581120d1e7a0aaf6277695ed0061cb68 Mon Sep 17 00:00:00 2001
+From 6dffe51ecdfb8770c0394f83a2a5d92cada1a560 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 20 Jul 2023 11:46:34 +0200
-Subject: [PATCH 26/28] drivers: net: wwan: remove useless lines in
+Subject: [PATCH 26/30] drivers: net: wwan: remove useless lines in
  mhi_wwan_dtr
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>

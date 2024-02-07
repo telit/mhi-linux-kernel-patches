@@ -1,7 +1,7 @@
-From cbf045169b6dc963b0525f1e7d91555adf93ece2 Mon Sep 17 00:00:00 2001
+From 9d228e788a28057e9eee4cb96f80d752388cbef4 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 14 Oct 2022 11:24:31 +0200
-Subject: [PATCH 16/19] Revert "drivers: bus: mhi: core: Resume success on
+Subject: [PATCH 16/30] Revert "drivers: bus: mhi: core: Resume success on
  SYS_ERR"
 
 This reverts commit e962e190197355aa48329f245e37a6b2135fc26a.

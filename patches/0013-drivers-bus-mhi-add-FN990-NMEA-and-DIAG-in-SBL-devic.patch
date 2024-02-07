@@ -1,7 +1,7 @@
-From 1558f14c8694092ec3a71e4fe4815b40921649b2 Mon Sep 17 00:00:00 2001
+From 9bab81eced3cf774abb7628777f5fc4a5631413d Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 30 Sep 2022 09:07:06 +0200
-Subject: [PATCH 13/14] drivers: bus: mhi: add FN990 NMEA and DIAG in SBL
+Subject: [PATCH 13/30] drivers: bus: mhi: add FN990 NMEA and DIAG in SBL
  devices
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>

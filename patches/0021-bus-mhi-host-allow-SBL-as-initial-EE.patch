@@ -1,7 +1,7 @@
-From 2d9c692cd02174e85d77143e4d78e6b8980c4738 Mon Sep 17 00:00:00 2001
+From 380920a8ce659eeeb8d8d6ec8be7e39e9db243ce Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 30 May 2023 11:13:40 +0200
-Subject: [PATCH 21/28] bus: mhi: host: allow SBL as initial EE
+Subject: [PATCH 21/30] bus: mhi: host: allow SBL as initial EE
 
 There are situations in which SBL is a legitimate initial execution
 environment (e.g. modem stuck in SBL due to a firmware failure...), but

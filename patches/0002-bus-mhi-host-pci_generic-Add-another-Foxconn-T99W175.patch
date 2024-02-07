@@ -1,7 +1,7 @@
-From cbf8ea97de84cc9fde84edf1038eaeb5c5671c09 Mon Sep 17 00:00:00 2001
+From 40f327f081c6bd3984691db8652b4d77725b04a5 Mon Sep 17 00:00:00 2001
 From: Bjorn Andersson <bjorn.andersson@linaro.org>
 Date: Mon, 27 Jun 2022 10:07:17 -0700
-Subject: [PATCH 02/14] bus: mhi: host: pci_generic: Add another Foxconn
+Subject: [PATCH 02/30] bus: mhi: host: pci_generic: Add another Foxconn
  T99W175
 
 The Foxconn e0c3 device identifies itself as a T99W175 X55, add support

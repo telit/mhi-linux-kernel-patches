@@ -1,7 +1,7 @@
-From 9bdd4a30d164469242cf4f89b91df677e902502c Mon Sep 17 00:00:00 2001
+From e25f30e8cdaa170219674f38bb51a66fcfbceca0 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 19 Jul 2023 16:09:52 +0200
-Subject: [PATCH 20/28] Revert "bus: mhi: add SBL support as initial execution
+Subject: [PATCH 20/30] Revert "bus: mhi: add SBL support as initial execution
  environment"
 
 This reverts commit da94121752bc04e946278480cdc7a9e5409f64b1.

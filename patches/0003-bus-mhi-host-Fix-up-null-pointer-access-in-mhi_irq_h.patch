@@ -1,7 +1,7 @@
-From ab77a460b3c96cb14779b08f912513339c3e67b0 Mon Sep 17 00:00:00 2001
+From a5e0b489697762fbb6d242edc15e7cbe0c664068 Mon Sep 17 00:00:00 2001
 From: Qiang Yu <quic_qianyu@quicinc.com>
 Date: Fri, 22 Jul 2022 11:17:18 +0800
-Subject: [PATCH 03/14] bus: mhi: host: Fix up null pointer access in
+Subject: [PATCH 03/30] bus: mhi: host: Fix up null pointer access in
  mhi_irq_handler
 
 The irq handler for a shared IRQ ought to be prepared for running
