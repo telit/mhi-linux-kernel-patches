@@ -1,7 +1,7 @@
 From acfdc94de9e262150bb68af70540122fc5021558 Mon Sep 17 00:00:00 2001
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 Date: Tue, 21 Nov 2023 14:15:22 +0100
-Subject: [PATCH 18/18] bus: mhi: host: pci_generic: Use QMI for Telit FN990
+Subject: [PATCH 18/19] bus: mhi: host: pci_generic: Use QMI for Telit FN990
  network device
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
