@@ -1,7 +1,7 @@
 From 063c8bf031d485472c006c43e6036ca52028f460 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 21 Feb 2023 08:59:46 +0100
-Subject: [PATCH 14/18] bus: mhi: host: add qmi device to fn990
+Subject: [PATCH 14/19] bus: mhi: host: add qmi device to fn990
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---
