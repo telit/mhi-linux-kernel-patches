@@ -1,4 +1,4 @@
-From dbda4d78298ed2eb032c53ff11fec2c24183b9a7 Mon Sep 17 00:00:00 2001
+From 0ed13f5f9d6f56560ec32e846382b9e7aea24ff0 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 30 May 2023 11:13:40 +0200
 Subject: [PATCH 3/9] bus: mhi: host: allow SBL as initial EE
@@ -38,10 +38,10 @@ index 2e139e76de4c..3bdcd2321aa5 100644
  #define MHI_IN_MISSION_MODE(ee) (ee == MHI_EE_AMSS || ee == MHI_EE_WFW || \
  				 ee == MHI_EE_FP)
 diff --git a/drivers/bus/mhi/host/pm.c b/drivers/bus/mhi/host/pm.c
-index 083459028a4b..18872c5017be 100644
+index 8a4362d75fc4..5590be89b6fd 100644
 --- a/drivers/bus/mhi/host/pm.c
 +++ b/drivers/bus/mhi/host/pm.c
-@@ -1203,10 +1203,11 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
+@@ -1208,10 +1208,11 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
  
  	wait_event_timeout(mhi_cntrl->state_event,
  			   MHI_IN_MISSION_MODE(mhi_cntrl->ee) ||
