@@ -1,4 +1,4 @@
-From 461575f5961deaace9bf00b9220ca8153318b669 Mon Sep 17 00:00:00 2001
+From 6cbb91f239d4d4e6fbeb129c0ee75ba2b42dd551 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 14 Sep 2022 12:34:13 +0200
 Subject: [PATCH 8/9] drivers: net: wwan: add simple DTR driver

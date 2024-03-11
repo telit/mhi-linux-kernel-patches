@@ -1,4 +1,4 @@
-From 09e9ad35607b7cb16528dffe4701c504abe5f20f Mon Sep 17 00:00:00 2001
+From 8e8da2ee07691300c355fe4c10511a9a9bb0d4c3 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 15:54:12 +0200
 Subject: [PATCH 2/9] wwan: add SAHARA device
@@ -23,10 +23,10 @@ index e9f979d2d851..79bf6ce48ad5 100644
  };
  MODULE_DEVICE_TABLE(mhi, mhi_wwan_ctrl_match_table);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 284ab1f56391..901fb5d87624 100644
+index 72e01e550a16..0a1943cc50e0 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -327,6 +327,10 @@ static const struct {
+@@ -328,6 +328,10 @@ static const struct {
  		.name = "XMMRPC",
  		.devsuf = "xmmrpc",
  	},

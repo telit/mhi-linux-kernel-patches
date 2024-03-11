@@ -1,4 +1,4 @@
-From 574992e9eee1bb757af84e903485520645f483df Mon Sep 17 00:00:00 2001
+From 6452148eb55621acf203f93dd22f519a89c8486b Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:07:54 +0200
 Subject: [PATCH 4/9] drivers: bus: mhi: let userspace manage xfp fw update
@@ -42,7 +42,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  6 files changed, 69 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
-index f78aefd2d7a3..93a86a107de0 100644
+index f78aefd2d7a3..906a28a201b9 100644
 --- a/drivers/bus/mhi/host/init.c
 +++ b/drivers/bus/mhi/host/init.c
 @@ -79,6 +79,32 @@ const char *to_mhi_pm_state_str(u32 state)
@@ -63,7 +63,7 @@ index f78aefd2d7a3..93a86a107de0 100644
 +	struct mhi_controller *mhi_cntrl = mhi_dev->mhi_cntrl;
 +	bool enable;
 +
-+	if (strtobool(buf, &enable))
++	if (kstrtobool(buf, &enable))
 +		return -EINVAL;
 +
 +	if (enable)
@@ -132,10 +132,10 @@ index 79bf6ce48ad5..290510489d67 100644
  	spin_lock_bh(&mhiwwan->rx_lock);
  	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
 diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 901fb5d87624..94f29d50f34c 100644
+index 0a1943cc50e0..0cbb32a91248 100644
 --- a/drivers/net/wwan/wwan_core.c
 +++ b/drivers/net/wwan/wwan_core.c
-@@ -557,6 +557,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
+@@ -558,6 +558,12 @@ void *wwan_port_get_drvdata(struct wwan_port *port)
  }
  EXPORT_SYMBOL_GPL(wwan_port_get_drvdata);
  
