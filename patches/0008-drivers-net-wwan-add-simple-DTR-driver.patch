@@ -1,4 +1,4 @@
-From f4d32d2b6badd7dac46a6eb9f10422c813e17eff Mon Sep 17 00:00:00 2001
+From 461575f5961deaace9bf00b9220ca8153318b669 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 14 Sep 2022 12:34:13 +0200
 Subject: [PATCH 8/9] drivers: net: wwan: add simple DTR driver
@@ -22,7 +22,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  create mode 100644 drivers/net/wwan/mhi_wwan_dtr.c
 
 diff --git a/drivers/bus/mhi/host/main.c b/drivers/bus/mhi/host/main.c
-index 74a75439c713..70c8ba3b4295 100644
+index dcf627b36e82..50445e6134c4 100644
 --- a/drivers/bus/mhi/host/main.c
 +++ b/drivers/bus/mhi/host/main.c
 @@ -323,6 +323,11 @@ int mhi_destroy_device(struct device *dev, void *data)
@@ -51,10 +51,10 @@ index 74a75439c713..70c8ba3b4295 100644
  }
  
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index 3b70957cb9a1..16af30828353 100644
+index 69aa2e716eb5..24ff43d33580 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
-@@ -547,6 +547,8 @@ static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
+@@ -575,6 +575,8 @@ static const struct mhi_channel_config mhi_telit_fn980_hw_v2_channels[] = {
  	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
  	MHI_CHANNEL_CONFIG_UL(14, "QMI", 32, 0),
  	MHI_CHANNEL_CONFIG_DL(15, "QMI", 32, 0),
@@ -63,7 +63,7 @@ index 3b70957cb9a1..16af30828353 100644
  	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 16, 0),
  	MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(21, "IPCR", 16, 0),
  	MHI_CHANNEL_CONFIG_UL(32, "DUN", 8, 1),
-@@ -593,6 +595,8 @@ static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
+@@ -621,6 +623,8 @@ static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
  	MHI_CHANNEL_CONFIG_AMSS_SBL_DL(5, "DIAG", 64, 1),
  	MHI_CHANNEL_CONFIG_UL(12, "MBIM", 32, 0),
  	MHI_CHANNEL_CONFIG_DL(13, "MBIM", 32, 0),
@@ -315,10 +315,10 @@ index 000000000000..708259981cb7
 +MODULE_DESCRIPTION("MHI WWAN DTR Simple Driver");
 +MODULE_AUTHOR("Daniele Palmas <dnlplm@gmail.com>");
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index 1e126800a9c1..c4f7bb0de2c4 100644
+index 3e42a17fc5c0..13d858c143e3 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
-@@ -389,6 +389,8 @@ struct mhi_controller {
+@@ -393,6 +393,8 @@ struct mhi_controller {
  	struct device *cntrl_dev;
  	struct mhi_device *mhi_dev;
  	struct dentry *debugfs_dentry;
