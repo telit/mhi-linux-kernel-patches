@@ -1,7 +1,7 @@
-From 2f896244f614c86f1183ef2f2bcf310e53c40c58 Mon Sep 17 00:00:00 2001
+From e783d61129b964274ffe60816030019a3f07a921 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 5 Jul 2023 15:13:29 +0200
-Subject: [PATCH 23/28] drivers: bus: mhi: host: add error print in
+Subject: [PATCH 23/30] drivers: bus: mhi: host: add error print in
  prepare_for_power_up
 
 Add missing print in a few error paths, useful for debugging.

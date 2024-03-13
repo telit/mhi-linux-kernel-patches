@@ -1,7 +1,7 @@
-From 8ebd3248fb027e4479f6054faf07119bcade8ae7 Mon Sep 17 00:00:00 2001
+From 59ff93722eb1efd59ef0c5fa48ff44fe91302fb2 Mon Sep 17 00:00:00 2001
 From: Jeffrey Hugo <quic_jhugo@quicinc.com>
 Date: Mon, 10 Apr 2023 09:58:11 -0600
-Subject: [PATCH 22/28] bus: mhi: host: Remove duplicate ee check for syserr
+Subject: [PATCH 22/30] bus: mhi: host: Remove duplicate ee check for syserr
 
 If we detect a system error via intvec, we only process the syserr if the
 current ee is different than the last observed ee.  The reason for this

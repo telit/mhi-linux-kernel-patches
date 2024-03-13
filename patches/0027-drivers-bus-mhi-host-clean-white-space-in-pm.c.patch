@@ -1,7 +1,7 @@
-From f67b3719d4ec94eb6e46b6154c569d36f438b71f Mon Sep 17 00:00:00 2001
+From ea898086e9415ce86101269b6a32be00fa957dca Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 20 Jul 2023 11:49:12 +0200
-Subject: [PATCH 27/28] drivers: bus: mhi: host: clean white space in pm.c
+Subject: [PATCH 27/30] drivers: bus: mhi: host: clean white space in pm.c
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---

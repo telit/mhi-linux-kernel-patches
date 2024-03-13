@@ -1,7 +1,7 @@
-From 465c30346a3a9183abeaa0e9a709157024008b0e Mon Sep 17 00:00:00 2001
+From 97c3d6fbc4d9095d00150074290ddbbcf3dd1334 Mon Sep 17 00:00:00 2001
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 Date: Fri, 16 Sep 2022 16:43:29 +0200
-Subject: [PATCH 05/14] bus: mhi: host: pci_generic: Add a secondary AT port to
+Subject: [PATCH 05/30] bus: mhi: host: pci_generic: Add a secondary AT port to
  Telit FN990
 
 Add a secondary AT port using one of OEM reserved channel.

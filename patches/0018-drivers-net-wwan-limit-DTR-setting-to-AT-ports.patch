@@ -1,7 +1,7 @@
-From 993275125f33cd379e19360adc8b6a0b95c6a170 Mon Sep 17 00:00:00 2001
+From fbe4d7c773c861b61f656abd43f47d7c90790996 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Mon, 17 Oct 2022 11:43:35 +0200
-Subject: [PATCH 18/19] drivers: net: wwan: limit DTR setting to AT ports
+Subject: [PATCH 18/30] drivers: net: wwan: limit DTR setting to AT ports
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 ---

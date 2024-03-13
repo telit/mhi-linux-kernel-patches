@@ -1,7 +1,7 @@
-From e962e190197355aa48329f245e37a6b2135fc26a Mon Sep 17 00:00:00 2001
+From 738b063ea377c49efb4520fb7cfd1ba69d26faa4 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 15:57:25 +0200
-Subject: [PATCH 07/14] drivers: bus: mhi: core: Resume success on SYS_ERR
+Subject: [PATCH 07/30] drivers: bus: mhi: core: Resume success on SYS_ERR
 
 When a crash occurs while in suspended state M3/D3hot, the host
 only discovers SYS_ERR pm-state change on resume. Handle this

@@ -1,7 +1,7 @@
-From 802c8836d9d5f7d3b8e31909d10f198acb13bbee Mon Sep 17 00:00:00 2001
+From a2878bd349445ed9bb4bbdceee93e34d890bdf4e Mon Sep 17 00:00:00 2001
 From: Qiang Yu <quic_qianyu@quicinc.com>
 Date: Thu, 23 Jun 2022 10:43:03 +0800
-Subject: [PATCH 01/14] bus: mhi: host: Move IRQ allocation to controller
+Subject: [PATCH 01/30] bus: mhi: host: Move IRQ allocation to controller
  registration phase
 
 During runtime, the MHI endpoint may be powered up/down several times.
