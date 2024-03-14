@@ -1,7 +1,7 @@
-From ff595e42dfcc045a116dd08daef0b329bc4ce208 Mon Sep 17 00:00:00 2001
+From ac8e0bbe498d7d103cda13962fe6933629f56346 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 6 Sep 2022 13:32:16 +0200
-Subject: [PATCH 04/11] mhi: controller: support flashing through USB 0x1055
+Subject: [PATCH 04/10] mhi: controller: support flashing through USB 0x1055
 
 Add a new controller file to be used when flashing through USB (composition 0x1055)
 in order to make the mhi stack aware of the process and not to reset the function.
@@ -15,7 +15,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  4 files changed, 51 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
-index bf672de35131..9b7401e0c86b 100644
+index 04fbccff65ac..9ca7339dfe56 100644
 --- a/drivers/bus/mhi/host/init.c
 +++ b/drivers/bus/mhi/host/init.c
 @@ -79,6 +79,32 @@ const char *to_mhi_pm_state_str(u32 state)
@@ -136,5 +136,5 @@ index f5f5ca8e09c0..bb78d38ce1f1 100644
  	bool forced_SBL;
  };
 -- 
-2.37.1
+2.43.2
 
