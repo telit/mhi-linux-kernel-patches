@@ -1,7 +1,7 @@
-From db821edffe34c7a5b6e180aa484891ad904b298f Mon Sep 17 00:00:00 2001
+From 438f91e3bbfcf85429d4e56520e48b6c75552bf2 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 11 Aug 2022 10:18:00 +0200
-Subject: [PATCH 03/11] bus: mhi: add SBL support as initial execution
+Subject: [PATCH 03/19] bus: mhi: add SBL support as initial execution
  environment
 
 Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
@@ -11,10 +11,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  2 files changed, 85 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/bus/mhi/host/pm.c b/drivers/bus/mhi/host/pm.c
-index 4a42186ff111..f7bf23b3b624 100644
+index 8a4362d75fc4..ea77401cc47c 100644
 --- a/drivers/bus/mhi/host/pm.c
 +++ b/drivers/bus/mhi/host/pm.c
-@@ -374,6 +374,56 @@ int mhi_pm_m3_transition(struct mhi_controller *mhi_cntrl)
+@@ -375,6 +375,56 @@ int mhi_pm_m3_transition(struct mhi_controller *mhi_cntrl)
  	return 0;
  }
  
@@ -71,7 +71,7 @@ index 4a42186ff111..f7bf23b3b624 100644
  /* Handle device Mission Mode transition */
  static int mhi_pm_mission_mode_transition(struct mhi_controller *mhi_cntrl)
  {
-@@ -775,9 +825,14 @@ void mhi_pm_st_worker(struct work_struct *work)
+@@ -781,9 +831,14 @@ void mhi_pm_st_worker(struct work_struct *work)
  			 * device switches its Execution Environment (EE) to
  			 * either SBL or AMSS states
  			 */
@@ -89,7 +89,7 @@ index 4a42186ff111..f7bf23b3b624 100644
  			break;
  		case DEV_ST_TRANSITION_MISSION_MODE:
  			mhi_pm_mission_mode_transition(mhi_cntrl);
-@@ -793,6 +848,10 @@ void mhi_pm_st_worker(struct work_struct *work)
+@@ -799,6 +854,10 @@ void mhi_pm_st_worker(struct work_struct *work)
  			break;
  		case DEV_ST_TRANSITION_SYS_ERR:
  			mhi_pm_sys_error_transition(mhi_cntrl);
@@ -100,7 +100,7 @@ index 4a42186ff111..f7bf23b3b624 100644
  			break;
  		case DEV_ST_TRANSITION_DISABLE:
  			mhi_pm_disable_transition(mhi_cntrl);
-@@ -1090,12 +1149,18 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+@@ -1096,12 +1155,18 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
  	current_ee = mhi_get_exec_env(mhi_cntrl);
  	write_unlock_irq(&mhi_cntrl->pm_lock);
  
@@ -123,7 +123,7 @@ index 4a42186ff111..f7bf23b3b624 100644
  	}
  
  	state = mhi_get_mhi_state(mhi_cntrl);
-@@ -1129,8 +1194,15 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+@@ -1135,8 +1200,15 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
  	}
  
  	/* Transition to next state */
@@ -141,7 +141,7 @@ index 4a42186ff111..f7bf23b3b624 100644
  
  	mhi_queue_state_transition(mhi_cntrl, next_state);
  
-@@ -1202,10 +1274,11 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
+@@ -1208,10 +1280,11 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
  
  	wait_event_timeout(mhi_cntrl->state_event,
  			   MHI_IN_MISSION_MODE(mhi_cntrl->ee) ||
@@ -168,5 +168,5 @@ index 49ce90cd2123..f5f5ca8e09c0 100644
  
  /**
 -- 
-2.37.1
+2.43.2
 

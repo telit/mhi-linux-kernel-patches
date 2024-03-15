@@ -1,7 +1,7 @@
-From a366f749f1e453036f411cb0055d069a76ad7733 Mon Sep 17 00:00:00 2001
+From 0c54c2980dafc2cabd5df0954833ed3a231082c0 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 14 Sep 2022 12:34:13 +0200
-Subject: [PATCH 09/11] drivers: net: wwan: add simple DTR driver
+Subject: [PATCH 09/19] drivers: net: wwan: add simple DTR driver
 
 Telit modem requires DTR to be set in virtual serial ports for
 properly receiving unsolicited indications.
@@ -22,7 +22,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  create mode 100644 drivers/net/wwan/mhi_wwan_dtr.c
 
 diff --git a/drivers/bus/mhi/host/main.c b/drivers/bus/mhi/host/main.c
-index df0fbfee7b78..1ef4a0511b59 100644
+index 0c3a009ed9bb..7757674fe0cd 100644
 --- a/drivers/bus/mhi/host/main.c
 +++ b/drivers/bus/mhi/host/main.c
 @@ -323,6 +323,11 @@ int mhi_destroy_device(struct device *dev, void *data)
@@ -339,5 +339,5 @@ index bb78d38ce1f1..c275862660cf 100644
  	void __iomem *bhi;
  	void __iomem *bhie;
 -- 
-2.37.1
+2.43.2
 

@@ -1,7 +1,7 @@
-From acc2645bd6558578c765e147473bf954e72a3ed9 Mon Sep 17 00:00:00 2001
+From 52cf057ab3269d4893982d22c9bb796b882d67f6 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 14 Oct 2022 11:25:56 +0200
-Subject: [PATCH 10/11] drivers: bus: mhi: host: fix recovery process when
+Subject: [PATCH 10/19] drivers: bus: mhi: host: fix recovery process when
  modem reboots
 
 It could happen that when the modem reboots it is not immediately
@@ -30,5 +30,5 @@ index 84844c24d0f7..b50eeadb8a5e 100644
  	pci_load_saved_state(pdev, mhi_pdev->pci_state);
  	pci_restore_state(pdev);
 -- 
-2.37.1
+2.43.2
 

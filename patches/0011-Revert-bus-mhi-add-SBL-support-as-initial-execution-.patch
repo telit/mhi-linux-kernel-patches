@@ -1,0 +1,160 @@
+From 902bf5d8b556875bf4bb424a78ba6791a561ba8f Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Wed, 19 Jul 2023 16:09:52 +0200
+Subject: [PATCH 11/19] Revert "bus: mhi: add SBL support as initial execution
+ environment"
+
+This reverts commit da94121752bc04e946278480cdc7a9e5409f64b1.
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+---
+ drivers/bus/mhi/host/pm.c | 93 +++++----------------------------------
+ 1 file changed, 10 insertions(+), 83 deletions(-)
+
+diff --git a/drivers/bus/mhi/host/pm.c b/drivers/bus/mhi/host/pm.c
+index ea77401cc47c..8a4362d75fc4 100644
+--- a/drivers/bus/mhi/host/pm.c
++++ b/drivers/bus/mhi/host/pm.c
+@@ -375,56 +375,6 @@ int mhi_pm_m3_transition(struct mhi_controller *mhi_cntrl)
+ 	return 0;
+ }
+ 
+-/* Handle device forced SBL transition */
+-static int mhi_pm_forced_SBL_transition(struct mhi_controller *mhi_cntrl)
+-{
+-	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+-	enum mhi_ee_type ee = MHI_EE_MAX;
+-	int ret;
+-
+-	dev_dbg(dev, "Processing forced SBL transition\n");
+-
+-	write_lock_irq(&mhi_cntrl->pm_lock);
+-	if (MHI_REG_ACCESS_VALID(mhi_cntrl->pm_state))
+-		ee = mhi_get_exec_env(mhi_cntrl);
+-
+-	mhi_cntrl->ee = ee;
+-	write_unlock_irq(&mhi_cntrl->pm_lock);
+-
+-	wake_up_all(&mhi_cntrl->state_event);
+-
+-	/* Force MHI to be in M0 state before continuing */
+-	ret = __mhi_device_get_sync(mhi_cntrl);
+-	if (ret) {
+-		dev_err(dev, "__mhi_device_get_sync SBL forced err\n");
+-		return ret;
+-	}
+-
+-	read_lock_bh(&mhi_cntrl->pm_lock);
+-
+-	if (MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state)) {
+-		ret = -EIO;
+-		dev_err(dev, "MHI_PM_IN_ERROR_STATE SBL forced err\n");
+-		goto error_forced_SBL_mode;
+-	}
+-
+-	read_unlock_bh(&mhi_cntrl->pm_lock);
+-
+-	/*
+-	 * The MHI devices are only created when the client device switches its
+-	 * Execution Environment (EE) to either SBL or AMSS states
+-	 */
+-	mhi_create_devices(mhi_cntrl);
+-
+-	read_lock_bh(&mhi_cntrl->pm_lock);
+-
+-error_forced_SBL_mode:
+-	mhi_cntrl->wake_put(mhi_cntrl, false);
+-	read_unlock_bh(&mhi_cntrl->pm_lock);
+-
+-	return ret;
+-}
+-
+ /* Handle device Mission Mode transition */
+ static int mhi_pm_mission_mode_transition(struct mhi_controller *mhi_cntrl)
+ {
+@@ -831,14 +781,9 @@ void mhi_pm_st_worker(struct work_struct *work)
+ 			 * device switches its Execution Environment (EE) to
+ 			 * either SBL or AMSS states
+ 			 */
+-			if (mhi_cntrl->forced_SBL) {
+-				mhi_cntrl->forced_SBL = 0;
+-				mhi_pm_forced_SBL_transition(mhi_cntrl);
+-			} else {
+-				mhi_create_devices(mhi_cntrl);
+-				if (mhi_cntrl->fbc_download)
+-					mhi_download_amss_image(mhi_cntrl);
+-			}
++			mhi_create_devices(mhi_cntrl);
++			if (mhi_cntrl->fbc_download)
++				mhi_download_amss_image(mhi_cntrl);
+ 			break;
+ 		case DEV_ST_TRANSITION_MISSION_MODE:
+ 			mhi_pm_mission_mode_transition(mhi_cntrl);
+@@ -854,10 +799,6 @@ void mhi_pm_st_worker(struct work_struct *work)
+ 			break;
+ 		case DEV_ST_TRANSITION_SYS_ERR:
+ 			mhi_pm_sys_error_transition(mhi_cntrl);
+-			if (mhi_cntrl->forced_SBL) {
+-				dev_dbg(dev, "Queuing transition to DEV_ST_TRANSITION_SBL\n");
+-				mhi_queue_state_transition(mhi_cntrl, DEV_ST_TRANSITION_SBL);
+-			}
+ 			break;
+ 		case DEV_ST_TRANSITION_DISABLE:
+ 			mhi_pm_disable_transition(mhi_cntrl);
+@@ -1155,18 +1096,12 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+ 	current_ee = mhi_get_exec_env(mhi_cntrl);
+ 	write_unlock_irq(&mhi_cntrl->pm_lock);
+ 
+-	dev_info(dev, "current ee during async_power_up: %s\n",
+-		TO_MHI_EXEC_STR(current_ee));
+-
+ 	/* Confirm that the device is in valid exec env */
+ 	if (!MHI_POWER_UP_CAPABLE(current_ee)) {
+-		dev_dbg(dev, "Checking if EE is SBL\n");
+-		if (current_ee != MHI_EE_SBL) {
+-			dev_err(dev, "%s is not a valid EE for power on\n",
+-				TO_MHI_EXEC_STR(current_ee));
+-			ret = -EIO;
+-			goto error_exit;
+-		}
++		dev_err(dev, "%s is not a valid EE for power on\n",
++			TO_MHI_EXEC_STR(current_ee));
++		ret = -EIO;
++		goto error_exit;
+ 	}
+ 
+ 	state = mhi_get_mhi_state(mhi_cntrl);
+@@ -1200,15 +1135,8 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+ 	}
+ 
+ 	/* Transition to next state */
+-	if (MHI_IN_PBL(current_ee)) {
+-		next_state = DEV_ST_TRANSITION_PBL;
+-	} else if (current_ee == MHI_EE_SBL) {
+-		dev_info(dev, "Forced SBL mode\n");
+-		mhi_cntrl->forced_SBL = 1;
+-		next_state = DEV_ST_TRANSITION_READY;
+-	} else {
+-		next_state = DEV_ST_TRANSITION_READY;
+-	}
++	next_state = MHI_IN_PBL(current_ee) ?
++		DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
+ 
+ 	mhi_queue_state_transition(mhi_cntrl, next_state);
+ 
+@@ -1280,11 +1208,10 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
+ 
+ 	wait_event_timeout(mhi_cntrl->state_event,
+ 			   MHI_IN_MISSION_MODE(mhi_cntrl->ee) ||
+-			   mhi_cntrl->ee == MHI_EE_SBL ||
+ 			   MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
+ 			   msecs_to_jiffies(mhi_cntrl->timeout_ms));
+ 
+-	ret = (MHI_IN_MISSION_MODE(mhi_cntrl->ee) || mhi_cntrl->ee == MHI_EE_SBL) ? 0 : -ETIMEDOUT;
++	ret = (MHI_IN_MISSION_MODE(mhi_cntrl->ee)) ? 0 : -ETIMEDOUT;
+ 	if (ret)
+ 		mhi_power_down(mhi_cntrl, false);
+ 
+-- 
+2.43.2
+

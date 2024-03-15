@@ -1,7 +1,7 @@
-From a1a073768ea4e8c54ecbdb6a484e21706f5f104b Mon Sep 17 00:00:00 2001
+From dcd88ccbf557075e3beab25795879e1ea8c7dd55 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 6 Oct 2022 09:46:46 +0200
-Subject: [PATCH 08/11] drivers: net: wwan: let userspace manage xfp fw update
+Subject: [PATCH 08/19] drivers: net: wwan: let userspace manage xfp fw update
  states
 
 The heuristic for detecting firmware upgrade does not work well.
@@ -42,5 +42,5 @@ index 6c8ff4fcaa7f..4e65378b0222 100644
  
  static int mhi_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 -- 
-2.37.1
+2.43.2
 
