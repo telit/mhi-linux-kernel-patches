@@ -1,4 +1,4 @@
-From 6452148eb55621acf203f93dd22f519a89c8486b Mon Sep 17 00:00:00 2001
+From 8ec979121eaace3479a90d408a44fc7b8ef3960e Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:07:54 +0200
 Subject: [PATCH 4/9] drivers: bus: mhi: let userspace manage xfp fw update
@@ -42,7 +42,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  6 files changed, 69 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
-index f78aefd2d7a3..906a28a201b9 100644
+index 65ceac1837f9..c8aff6f743ac 100644
 --- a/drivers/bus/mhi/host/init.c
 +++ b/drivers/bus/mhi/host/init.c
 @@ -79,6 +79,32 @@ const char *to_mhi_pm_state_str(u32 state)
@@ -87,7 +87,7 @@ index f78aefd2d7a3..906a28a201b9 100644
  };
  ATTRIBUTE_GROUPS(mhi_dev);
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index ca8d8a4bf68d..6abe3a9b64b3 100644
+index 844a97f81599..07f5b00fa944 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
 @@ -21,7 +21,7 @@
@@ -99,7 +99,7 @@ index ca8d8a4bf68d..6abe3a9b64b3 100644
  
  /* PCI VID definitions */
  #define PCI_VENDOR_ID_THALES	0x1269
-@@ -894,6 +894,18 @@ static void health_check(struct timer_list *t)
+@@ -916,6 +916,18 @@ static void health_check(struct timer_list *t)
  			test_bit(MHI_PCI_DEV_SUSPENDED, &mhi_pdev->status))
  		return;
  
@@ -149,10 +149,10 @@ index 0a1943cc50e0..0cbb32a91248 100644
  {
  	int ret = 0;
 diff --git a/include/linux/mhi.h b/include/linux/mhi.h
-index 039943ec4d4e..3e42a17fc5c0 100644
+index d0f9b522f328..e2a0555aae5d 100644
 --- a/include/linux/mhi.h
 +++ b/include/linux/mhi.h
-@@ -286,6 +286,18 @@ struct mhi_controller_config {
+@@ -288,6 +288,18 @@ struct mhi_controller_config {
  	bool m2_no_db;
  };
  
@@ -171,7 +171,7 @@ index 039943ec4d4e..3e42a17fc5c0 100644
  /**
   * struct mhi_controller - Master MHI controller structure
   * @cntrl_dev: Pointer to the struct device of physical bus acting as the MHI
-@@ -361,6 +373,7 @@ struct mhi_controller_config {
+@@ -364,6 +376,7 @@ struct mhi_controller_config {
   * @fbc_download: MHI host needs to do complete image transfer (optional)
   * @wake_set: Device wakeup set flag
   * @irq_flags: irq flags passed to request_irq (optional)
@@ -179,7 +179,7 @@ index 039943ec4d4e..3e42a17fc5c0 100644
   * @mru: the default MRU for the MHI device
   *
   * Fields marked as (required) need to be populated by the controller driver
-@@ -458,6 +471,8 @@ struct mhi_controller {
+@@ -462,6 +475,8 @@ struct mhi_controller {
  	bool wake_set;
  	unsigned long irq_flags;
  	u32 mru;

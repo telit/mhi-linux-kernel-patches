@@ -1,4 +1,4 @@
-From 5f56d4a69cbd66cf15bbfa48598f392f18b3c6fb Mon Sep 17 00:00:00 2001
+From 34d519f323d4d7210ff253fbdf162da5fcebfdd1 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 30 May 2023 11:13:40 +0200
 Subject: [PATCH 3/9] bus: mhi: host: allow SBL as initial EE
@@ -25,7 +25,7 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  2 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/bus/mhi/host/internal.h b/drivers/bus/mhi/host/internal.h
-index 2e139e76de4c..3bdcd2321aa5 100644
+index 30ac415a3000..d4270913301f 100644
 --- a/drivers/bus/mhi/host/internal.h
 +++ b/drivers/bus/mhi/host/internal.h
 @@ -56,7 +56,7 @@ extern const char * const mhi_ee_str[MHI_EE_MAX];
@@ -38,16 +38,16 @@ index 2e139e76de4c..3bdcd2321aa5 100644
  #define MHI_IN_MISSION_MODE(ee) (ee == MHI_EE_AMSS || ee == MHI_EE_WFW || \
  				 ee == MHI_EE_FP)
 diff --git a/drivers/bus/mhi/host/pm.c b/drivers/bus/mhi/host/pm.c
-index 8a4362d75fc4..5590be89b6fd 100644
+index a2f2feef1476..5fde13e735b9 100644
 --- a/drivers/bus/mhi/host/pm.c
 +++ b/drivers/bus/mhi/host/pm.c
-@@ -1208,10 +1208,11 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
- 
+@@ -1218,10 +1218,11 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
+ 		mhi_cntrl->ready_timeout_ms : mhi_cntrl->timeout_ms;
  	wait_event_timeout(mhi_cntrl->state_event,
  			   MHI_IN_MISSION_MODE(mhi_cntrl->ee) ||
 +			   mhi_cntrl->ee == MHI_EE_SBL ||
  			   MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
- 			   msecs_to_jiffies(mhi_cntrl->timeout_ms));
+ 			   msecs_to_jiffies(timeout_ms));
  
 -	ret = (MHI_IN_MISSION_MODE(mhi_cntrl->ee)) ? 0 : -ETIMEDOUT;
 +	ret = (MHI_IN_MISSION_MODE(mhi_cntrl->ee) || mhi_cntrl->ee == MHI_EE_SBL) ? 0 : -ETIMEDOUT;
