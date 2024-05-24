@@ -1,4 +1,4 @@
-From 8e8da2ee07691300c355fe4c10511a9a9bb0d4c3 Mon Sep 17 00:00:00 2001
+From de503a890ecb2f806c714c5b7f89f9cd341884a7 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 15:54:12 +0200
 Subject: [PATCH 2/9] wwan: add SAHARA device

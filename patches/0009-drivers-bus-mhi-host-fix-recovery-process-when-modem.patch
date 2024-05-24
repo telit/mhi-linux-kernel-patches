@@ -1,4 +1,4 @@
-From 36154b6f1151f2a24e83565cc3f6348fab2cc682 Mon Sep 17 00:00:00 2001
+From 12fbb1e2c2b6dfe133c2b055139d06ab8410eed0 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 14 Oct 2022 11:25:56 +0200
 Subject: [PATCH 9/9] drivers: bus: mhi: host: fix recovery process when modem
@@ -15,10 +15,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index 24ff43d33580..1cca86c3c29b 100644
+index 65635cdcb943..87cff277793b 100644
 --- a/drivers/bus/mhi/host/pci_generic.c
 +++ b/drivers/bus/mhi/host/pci_generic.c
-@@ -940,6 +940,10 @@ static void mhi_pci_recovery_work(struct work_struct *work)
+@@ -962,6 +962,10 @@ static void mhi_pci_recovery_work(struct work_struct *work)
  		mhi_unprepare_after_power_down(mhi_cntrl);
  	}
  
