@@ -1,4 +1,4 @@
-From 6816df3f581570b399dd96674593ddf543f64f4c Mon Sep 17 00:00:00 2001
+From 26b6e01903084278670b82fb0d3cd63dba470e2d Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 14 Oct 2022 11:25:56 +0200
 Subject: [PATCH 10/26] drivers: bus: mhi: host: fix recovery process when
@@ -30,5 +30,5 @@ index 84844c24d0f7..b50eeadb8a5e 100644
  	pci_load_saved_state(pdev, mhi_pdev->pci_state);
  	pci_restore_state(pdev);
 -- 
-2.45.2
+2.46.0
 

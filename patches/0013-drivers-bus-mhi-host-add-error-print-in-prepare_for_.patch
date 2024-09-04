@@ -1,4 +1,4 @@
-From a16c9d3ab8420bcb2140d3c2ead564f63c3894bf Mon Sep 17 00:00:00 2001
+From 00973d85a0dde00b14ffb65964ec71e136705b18 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 5 Jul 2023 15:13:29 +0200
 Subject: [PATCH 13/26] drivers: bus: mhi: host: add error print in
@@ -12,10 +12,10 @@ Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
-index cdd23d5dda16..731543c7f3d8 100644
+index 9ca7339dfe56..0d81328f3b75 100644
 --- a/drivers/bus/mhi/host/init.c
 +++ b/drivers/bus/mhi/host/init.c
-@@ -1128,8 +1128,10 @@ int mhi_prepare_for_power_up(struct mhi_controller *mhi_cntrl)
+@@ -1127,8 +1127,10 @@ int mhi_prepare_for_power_up(struct mhi_controller *mhi_cntrl)
  	mutex_lock(&mhi_cntrl->pm_mutex);
  
  	ret = mhi_init_dev_ctxt(mhi_cntrl);
@@ -27,7 +27,7 @@ index cdd23d5dda16..731543c7f3d8 100644
  
  	ret = mhi_read_reg(mhi_cntrl, mhi_cntrl->regs, BHIOFF, &bhi_off);
  	if (ret) {
-@@ -1180,6 +1182,7 @@ int mhi_prepare_for_power_up(struct mhi_controller *mhi_cntrl)
+@@ -1179,6 +1181,7 @@ int mhi_prepare_for_power_up(struct mhi_controller *mhi_cntrl)
  			ret = mhi_rddm_prepare(mhi_cntrl,
  					       mhi_cntrl->rddm_image);
  			if (ret) {
@@ -36,5 +36,5 @@ index cdd23d5dda16..731543c7f3d8 100644
  						    mhi_cntrl->rddm_image);
  				goto error_reg_offset;
 -- 
-2.45.2
+2.46.0
 

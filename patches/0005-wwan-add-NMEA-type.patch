@@ -1,4 +1,4 @@
-From 6efa52a7c399bf9e03d5671d5ea96bd822d578ce Mon Sep 17 00:00:00 2001
+From fa990a9556a887a9f0bdb1aa1bdc9bbc945f4965 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:37:26 +0200
 Subject: [PATCH 05/26] wwan: add NMEA type
@@ -50,5 +50,5 @@ index f30dc490a174..368f6fa243a2 100644
  	/* Add new port types above this line */
  
 -- 
-2.45.2
+2.46.0
 

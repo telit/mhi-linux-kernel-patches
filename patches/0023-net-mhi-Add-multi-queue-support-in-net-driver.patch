@@ -1,4 +1,4 @@
-From 75a5f33283639e5588b63c0e3e11c052cf3ae184 Mon Sep 17 00:00:00 2001
+From 9e98ed9f5f3e572a2ccf6c1f56b482c0f009cca9 Mon Sep 17 00:00:00 2001
 From: Vivek Pernamitta <quic_vpernami@quicinc.com>
 Date: Tue, 30 Apr 2024 15:59:00 +0530
 Subject: [PATCH 23/26] net: mhi: Add multi queue support in net driver
@@ -399,5 +399,5 @@ index 0b9d37979133..062e4abbd623 100644
  		return -ENOMEM;
  
 -- 
-2.45.2
+2.46.0
 

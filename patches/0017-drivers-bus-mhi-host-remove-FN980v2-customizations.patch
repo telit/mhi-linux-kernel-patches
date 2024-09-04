@@ -1,4 +1,4 @@
-From f655bbfb0facf1a8562a2c52c20384c3f6a7d327 Mon Sep 17 00:00:00 2001
+From 1cae4cfc8666775fb338f5169134fdb575565612 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 20 Jul 2023 11:51:04 +0200
 Subject: [PATCH 17/26] drivers: bus: mhi: host: remove FN980v2 customizations
@@ -97,5 +97,5 @@ index 2cb97f90aca4..edd0e0add949 100644
  		return;
  	}
 -- 
-2.45.2
+2.46.0
 

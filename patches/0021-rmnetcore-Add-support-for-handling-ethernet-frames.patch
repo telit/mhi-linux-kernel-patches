@@ -1,4 +1,4 @@
-From 3ebbbbc54ea6ab2d65f937f6c683dcb6cabcd8c1 Mon Sep 17 00:00:00 2001
+From 86e7f63f2ac363c0cec3f64ee9813716127d8863 Mon Sep 17 00:00:00 2001
 From: Kaustubh Pandey <quic_kapandey@quicinc.com>
 Date: Sat, 11 May 2024 11:31:48 +0530
 Subject: [PATCH 21/26] rmnetcore: Add support for handling ethernet frames
@@ -290,5 +290,5 @@ index dc3a4443ef0a..5a3b6e58daba 100644
  		      struct rmnet_endpoint *ep);
  void rmnet_vnd_rx_fixup(struct sk_buff *skb, struct net_device *dev);
 -- 
-2.45.2
+2.46.0
 

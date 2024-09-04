@@ -1,4 +1,4 @@
-From c10133d3dd0a586fa52f6cceaeeafbde8a6ffe4c Mon Sep 17 00:00:00 2001
+From aecb492cd53ed63ec9a2ec05053020a722e1fbb6 Mon Sep 17 00:00:00 2001
 From: Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>
 Date: Tue, 17 Jan 2023 18:25:06 -0700
 Subject: [PATCH 20/26] rmnetcore: Add queue map support
@@ -15,7 +15,7 @@ Signed-off-by: Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>
  3 files changed, 145 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-index 64b209a0ad21..d068b4a4ccf8 100644
+index 27b1663c476e..d068b4a4ccf8 100644
 --- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
 +++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
 @@ -1,5 +1,6 @@
@@ -185,7 +185,7 @@ index 64b209a0ad21..d068b4a4ccf8 100644
  
  struct rtnl_link_ops rmnet_link_ops __read_mostly = {
  	.kind		= "rmnet",
--	.maxtype	= IFLA_RMNET_MAX,
+-	.maxtype	= __IFLA_RMNET_MAX,
 +	.maxtype	= __IFLA_RMNET_EXT_MAX - 1,
  	.priv_size	= sizeof(struct rmnet_priv),
  	.setup		= rmnet_vnd_setup,
@@ -280,5 +280,5 @@ index 1b2119b1d48a..ce88ca702783 100644
  	}
  
 -- 
-2.45.2
+2.46.0
 

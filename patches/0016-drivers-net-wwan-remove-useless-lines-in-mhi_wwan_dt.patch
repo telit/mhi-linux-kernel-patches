@@ -1,4 +1,4 @@
-From 7a9735d53aba3ed42b2c037e1b77ffb6b56f5352 Mon Sep 17 00:00:00 2001
+From 5770c0ea07272034f4ab1f1acd3583a8dd389cc3 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 20 Jul 2023 11:46:34 +0200
 Subject: [PATCH 16/26] drivers: net: wwan: remove useless lines in
@@ -41,5 +41,5 @@ index f68f959ff455..83d571d0feb5 100644
  		mhi_result->transaction_status, mhi_result->bytes_xferd);
  }
 -- 
-2.45.2
+2.46.0
 

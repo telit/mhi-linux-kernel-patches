@@ -1,4 +1,4 @@
-From 96d788735ceac13eb4a3ff552d7d44a2e4a06e47 Mon Sep 17 00:00:00 2001
+From 15391e9d34605e25f9e9ea8e9dd1b04152476108 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Fri, 28 Jun 2024 10:23:07 +0200
 Subject: [PATCH 24/26] net: mhi: fix wrong error checking in mhi_net_newlink
@@ -37,5 +37,5 @@ index 062e4abbd623..fb14b52f3ed6 100644
  
  	INIT_DELAYED_WORK(&mhi_netdev->rx_refill, mhi_net_rx_refill_work);
 -- 
-2.45.2
+2.46.0
 

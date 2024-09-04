@@ -1,4 +1,4 @@
-From e3c8c76bbfe08ba58252c5482b9c87f80424ec0d Mon Sep 17 00:00:00 2001
+From 4f166ff52d238c7e4ac4c6fdc044d1a3451be24b Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 6 Sep 2022 13:37:26 +0200
 Subject: [PATCH 06/26] drivers: bus: mhi: add FN980 v2 support
@@ -114,5 +114,5 @@ index 317c149abdba..d22d96310f58 100644
  	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0308, 0x1c5d, 0x2010),
  		.driver_data = (kernel_ulong_t) &mhi_telit_fn990_info },
 -- 
-2.45.2
+2.46.0
 

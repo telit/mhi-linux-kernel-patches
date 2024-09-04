@@ -1,4 +1,4 @@
-From 61f10ed670fd81e5b728db3e071bb3d39702f5d1 Mon Sep 17 00:00:00 2001
+From 4f500c0a6e95552eae60f6f65492a977436c01ef Mon Sep 17 00:00:00 2001
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 Date: Tue, 21 Nov 2023 14:15:22 +0100
 Subject: [PATCH 18/26] bus: mhi: host: pci_generic: Use QMI for Telit FN990
@@ -25,5 +25,5 @@ index edd0e0add949..bbec4ec16e51 100644
  
  static struct mhi_event_config mhi_telit_fn990_events[] = {
 -- 
-2.45.2
+2.46.0
 

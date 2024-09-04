@@ -1,4 +1,4 @@
-From a6d9e7018bc546f43a4322aec67d32762a2bdc24 Mon Sep 17 00:00:00 2001
+From b77289aa06792003b7e17ce28da6b5320da6564f Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 15:54:12 +0200
 Subject: [PATCH 01/26] wwan: add SAHARA device
@@ -50,5 +50,5 @@ index 5ce2acf444fb..fc8ecafd25fa 100644
  	/* Add new port types above this line */
  
 -- 
-2.45.2
+2.46.0
 

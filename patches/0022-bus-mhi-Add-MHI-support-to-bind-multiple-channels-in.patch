@@ -1,4 +1,4 @@
-From 45632d908b824f7f97c3a7c19f2bc80507a7cbe4 Mon Sep 17 00:00:00 2001
+From 8d767b27e4474bd7c9c5d2746d3b13cd187202d6 Mon Sep 17 00:00:00 2001
 From: Vivek Pernamitta <quic_vpernami@quicinc.com>
 Date: Tue, 23 Apr 2024 16:07:59 +0530
 Subject: [PATCH 22/26] bus: mhi: Add MHI support to bind multiple channels in
@@ -70,10 +70,10 @@ index cfec7811dfbb..c1fb5acd7015 100644
  
  	return 0;
 diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
-index 731543c7f3d8..f99f7a7a215c 100644
+index 0d81328f3b75..9910d7afec5b 100644
 --- a/drivers/bus/mhi/host/init.c
 +++ b/drivers/bus/mhi/host/init.c
-@@ -1226,6 +1226,7 @@ EXPORT_SYMBOL_GPL(mhi_unprepare_after_power_down);
+@@ -1225,6 +1225,7 @@ EXPORT_SYMBOL_GPL(mhi_unprepare_after_power_down);
  static void mhi_release_device(struct device *dev)
  {
  	struct mhi_device *mhi_dev = to_mhi_device(dev);
@@ -81,7 +81,7 @@ index 731543c7f3d8..f99f7a7a215c 100644
  
  	/*
  	 * We need to set the mhi_chan->mhi_dev to NULL here since the MHI
-@@ -1233,11 +1234,17 @@ static void mhi_release_device(struct device *dev)
+@@ -1232,11 +1233,17 @@ static void mhi_release_device(struct device *dev)
  	 * associated with it is NULL. This scenario will happen during the
  	 * controller suspend and resume.
  	 */
@@ -103,7 +103,7 @@ index 731543c7f3d8..f99f7a7a215c 100644
  
  	kfree(mhi_dev);
  }
-@@ -1277,9 +1284,9 @@ static int mhi_driver_probe(struct device *dev)
+@@ -1276,9 +1283,9 @@ static int mhi_driver_probe(struct device *dev)
  	struct device_driver *drv = dev->driver;
  	struct mhi_driver *mhi_drv = to_mhi_driver(drv);
  	struct mhi_event *mhi_event;
@@ -116,7 +116,7 @@ index 731543c7f3d8..f99f7a7a215c 100644
  
  	/* Bring device out of LPM */
  	ret = mhi_device_get_sync(mhi_dev);
-@@ -1288,7 +1295,12 @@ static int mhi_driver_probe(struct device *dev)
+@@ -1287,7 +1294,12 @@ static int mhi_driver_probe(struct device *dev)
  
  	ret = -EINVAL;
  
@@ -130,7 +130,7 @@ index 731543c7f3d8..f99f7a7a215c 100644
  		/*
  		 * If channel supports LPM notifications then status_cb should
  		 * be provided
-@@ -1302,9 +1314,12 @@ static int mhi_driver_probe(struct device *dev)
+@@ -1301,9 +1313,12 @@ static int mhi_driver_probe(struct device *dev)
  
  		ul_chan->xfer_cb = mhi_drv->ul_xfer_cb;
  	}
@@ -145,7 +145,7 @@ index 731543c7f3d8..f99f7a7a215c 100644
  		/*
  		 * If channel supports LPM notifications then status_cb should
  		 * be provided
-@@ -1352,19 +1367,21 @@ static int mhi_driver_remove(struct device *dev)
+@@ -1351,19 +1366,21 @@ static int mhi_driver_remove(struct device *dev)
  	struct mhi_driver *mhi_drv = to_mhi_driver(dev->driver);
  	struct mhi_controller *mhi_cntrl = mhi_dev->mhi_cntrl;
  	struct mhi_chan *mhi_chan;
@@ -175,7 +175,7 @@ index 731543c7f3d8..f99f7a7a215c 100644
  
  		if (!mhi_chan)
  			continue;
-@@ -1378,7 +1395,33 @@ static int mhi_driver_remove(struct device *dev)
+@@ -1377,7 +1394,33 @@ static int mhi_driver_remove(struct device *dev)
  		/* Set the channel state to disabled */
  		mutex_lock(&mhi_chan->mutex);
  		write_lock_irq(&mhi_chan->lock);
@@ -210,7 +210,7 @@ index 731543c7f3d8..f99f7a7a215c 100644
  		mhi_chan->ch_state = MHI_CH_STATE_SUSPENDED;
  		write_unlock_irq(&mhi_chan->lock);
  
-@@ -1391,17 +1434,33 @@ static int mhi_driver_remove(struct device *dev)
+@@ -1390,17 +1433,33 @@ static int mhi_driver_remove(struct device *dev)
  
  	mhi_drv->remove(mhi_dev);
  
@@ -249,7 +249,7 @@ index 731543c7f3d8..f99f7a7a215c 100644
  		    !mhi_chan->offload_ch)
  			mhi_deinit_chan_ctxt(mhi_cntrl, mhi_chan);
  
-@@ -1410,6 +1469,9 @@ static int mhi_driver_remove(struct device *dev)
+@@ -1409,6 +1468,9 @@ static int mhi_driver_remove(struct device *dev)
  		mutex_unlock(&mhi_chan->mutex);
  	}
  
@@ -260,10 +260,10 @@ index 731543c7f3d8..f99f7a7a215c 100644
  		mhi_device_put(mhi_dev);
  
 diff --git a/drivers/bus/mhi/host/internal.h b/drivers/bus/mhi/host/internal.h
-index 62d1b97c9eef..07412db2ea3d 100644
+index a9ecca7eb3a2..ca0b8898d330 100644
 --- a/drivers/bus/mhi/host/internal.h
 +++ b/drivers/bus/mhi/host/internal.h
-@@ -242,6 +242,10 @@ struct mhi_chan {
+@@ -239,6 +239,10 @@ struct mhi_chan {
  	bool offload_ch;
  	bool pre_alloc;
  	bool wake_capable;
@@ -275,10 +275,10 @@ index 62d1b97c9eef..07412db2ea3d 100644
  
  /* Default MHI timeout */
 diff --git a/drivers/bus/mhi/host/main.c b/drivers/bus/mhi/host/main.c
-index 0082fde93f19..b0d5292224e6 100644
+index 7757674fe0cd..29c6ba7f7169 100644
 --- a/drivers/bus/mhi/host/main.c
 +++ b/drivers/bus/mhi/host/main.c
-@@ -278,6 +278,7 @@ int mhi_destroy_device(struct device *dev, void *data)
+@@ -277,6 +277,7 @@ int mhi_destroy_device(struct device *dev, void *data)
  	struct mhi_device *mhi_dev;
  	struct mhi_controller *mhi_cntrl;
  	enum mhi_ee_type ee = MHI_EE_MAX;
@@ -286,7 +286,7 @@ index 0082fde93f19..b0d5292224e6 100644
  
  	if (dev->bus != &mhi_bus_type)
  		return 0;
-@@ -289,32 +290,41 @@ int mhi_destroy_device(struct device *dev, void *data)
+@@ -288,32 +289,41 @@ int mhi_destroy_device(struct device *dev, void *data)
  	if (mhi_dev->dev_type == MHI_DEVICE_CONTROLLER)
  		return 0;
  
@@ -346,7 +346,7 @@ index 0082fde93f19..b0d5292224e6 100644
  		if (ee != MHI_EE_MAX && !(dl_chan->ee_mask & BIT(ee)))
  			return 0;
  
-@@ -336,16 +346,28 @@ int mhi_destroy_device(struct device *dev, void *data)
+@@ -335,16 +345,28 @@ int mhi_destroy_device(struct device *dev, void *data)
  	return 0;
  }
  
@@ -379,7 +379,7 @@ index 0082fde93f19..b0d5292224e6 100644
  EXPORT_SYMBOL_GPL(mhi_get_free_desc_count);
  
  void mhi_notify(struct mhi_device *mhi_dev, enum mhi_callback cb_reason)
-@@ -365,30 +387,49 @@ EXPORT_SYMBOL_GPL(mhi_notify);
+@@ -364,30 +386,49 @@ EXPORT_SYMBOL_GPL(mhi_notify);
  /* Bind MHI channels to MHI devices */
  void mhi_create_devices(struct mhi_controller *mhi_cntrl)
  {
@@ -436,7 +436,7 @@ index 0082fde93f19..b0d5292224e6 100644
  			break;
  		default:
  			dev_err(dev, "Direction not supported\n");
-@@ -399,23 +440,31 @@ void mhi_create_devices(struct mhi_controller *mhi_cntrl)
+@@ -398,23 +439,31 @@ void mhi_create_devices(struct mhi_controller *mhi_cntrl)
  		get_device(&mhi_dev->dev);
  		mhi_chan->mhi_dev = mhi_dev;
  
@@ -479,7 +479,7 @@ index 0082fde93f19..b0d5292224e6 100644
  		/* Channel name is same for both UL and DL */
  		mhi_dev->name = mhi_chan->name;
  		dev_set_name(&mhi_dev->dev, "%s_%s",
-@@ -423,7 +472,7 @@ void mhi_create_devices(struct mhi_controller *mhi_cntrl)
+@@ -422,7 +471,7 @@ void mhi_create_devices(struct mhi_controller *mhi_cntrl)
  			     mhi_dev->name);
  
  		/* Init wakeup source if available */
@@ -488,7 +488,7 @@ index 0082fde93f19..b0d5292224e6 100644
  			device_init_wakeup(&mhi_dev->dev, true);
  
  		ret = device_add(&mhi_dev->dev);
-@@ -576,6 +625,27 @@ static void mhi_recycle_ev_ring_element(struct mhi_controller *mhi_cntrl,
+@@ -575,6 +624,27 @@ static void mhi_recycle_ev_ring_element(struct mhi_controller *mhi_cntrl,
  	smp_wmb();
  }
  
@@ -516,7 +516,7 @@ index 0082fde93f19..b0d5292224e6 100644
  static int parse_xfer_event(struct mhi_controller *mhi_cntrl,
  			    struct mhi_ring_element *event,
  			    struct mhi_chan *mhi_chan)
-@@ -632,6 +702,8 @@ static int parse_xfer_event(struct mhi_controller *mhi_cntrl,
+@@ -631,6 +701,8 @@ static int parse_xfer_event(struct mhi_controller *mhi_cntrl,
  
  		result.dir = mhi_chan->dir;
  
@@ -525,7 +525,7 @@ index 0082fde93f19..b0d5292224e6 100644
  		local_rp = tre_ring->rp;
  		while (local_rp != dev_rp) {
  			buf_info = buf_ring->rp;
-@@ -671,10 +743,11 @@ static int parse_xfer_event(struct mhi_controller *mhi_cntrl,
+@@ -668,10 +740,11 @@ static int parse_xfer_event(struct mhi_controller *mhi_cntrl,
  			 * from dropping the packet
  			 */
  			if (mhi_chan->pre_alloc) {
@@ -539,7 +539,7 @@ index 0082fde93f19..b0d5292224e6 100644
  					dev_err(dev,
  						"Error recycling buffer for chan:%d\n",
  						mhi_chan->chan);
-@@ -748,6 +821,8 @@ static int parse_rsc_event(struct mhi_controller *mhi_cntrl,
+@@ -743,6 +816,8 @@ static int parse_rsc_event(struct mhi_controller *mhi_cntrl,
  
  	read_lock_bh(&mhi_chan->lock);
  
@@ -548,7 +548,7 @@ index 0082fde93f19..b0d5292224e6 100644
  	if (mhi_chan->ch_state != MHI_CH_STATE_ENABLED)
  		goto end_process_rsc_event;
  
-@@ -1123,11 +1198,11 @@ static bool mhi_is_ring_full(struct mhi_controller *mhi_cntrl,
+@@ -1118,11 +1193,11 @@ static bool mhi_is_ring_full(struct mhi_controller *mhi_cntrl,
  }
  
  static int mhi_queue(struct mhi_device *mhi_dev, struct mhi_buf_info *buf_info,
@@ -563,7 +563,7 @@ index 0082fde93f19..b0d5292224e6 100644
  	struct mhi_ring *tre_ring = &mhi_chan->tre_ring;
  	unsigned long flags;
  	int ret;
-@@ -1168,11 +1243,11 @@ static int mhi_queue(struct mhi_device *mhi_dev, struct mhi_buf_info *buf_info,
+@@ -1166,11 +1241,11 @@ static int mhi_queue(struct mhi_device *mhi_dev, struct mhi_buf_info *buf_info,
  	return ret;
  }
  
@@ -579,7 +579,7 @@ index 0082fde93f19..b0d5292224e6 100644
  	struct mhi_buf_info buf_info = { };
  
  	buf_info.v_addr = skb->data;
-@@ -1182,15 +1257,24 @@ int mhi_queue_skb(struct mhi_device *mhi_dev, enum dma_data_direction dir,
+@@ -1180,15 +1255,24 @@ int mhi_queue_skb(struct mhi_device *mhi_dev, enum dma_data_direction dir,
  	if (unlikely(mhi_chan->pre_alloc))
  		return -EINVAL;
  
@@ -609,7 +609,7 @@ index 0082fde93f19..b0d5292224e6 100644
  	struct mhi_buf_info buf_info = { };
  
  	buf_info.p_addr = mhi_buf->dma_addr;
-@@ -1201,7 +1285,14 @@ int mhi_queue_dma(struct mhi_device *mhi_dev, enum dma_data_direction dir,
+@@ -1199,7 +1283,14 @@ int mhi_queue_dma(struct mhi_device *mhi_dev, enum dma_data_direction dir,
  	if (unlikely(mhi_chan->pre_alloc))
  		return -EINVAL;
  
@@ -625,7 +625,7 @@ index 0082fde93f19..b0d5292224e6 100644
  }
  EXPORT_SYMBOL_GPL(mhi_queue_dma);
  
-@@ -1259,8 +1350,8 @@ int mhi_gen_tre(struct mhi_controller *mhi_cntrl, struct mhi_chan *mhi_chan,
+@@ -1250,8 +1341,8 @@ int mhi_gen_tre(struct mhi_controller *mhi_cntrl, struct mhi_chan *mhi_chan,
  	return 0;
  }
  
@@ -636,7 +636,7 @@ index 0082fde93f19..b0d5292224e6 100644
  {
  	struct mhi_buf_info buf_info = { };
  
-@@ -1268,19 +1359,32 @@ int mhi_queue_buf(struct mhi_device *mhi_dev, enum dma_data_direction dir,
+@@ -1259,19 +1350,32 @@ int mhi_queue_buf(struct mhi_device *mhi_dev, enum dma_data_direction dir,
  	buf_info.cb_buf = buf;
  	buf_info.len = len;
  
@@ -673,7 +673,7 @@ index 0082fde93f19..b0d5292224e6 100644
  EXPORT_SYMBOL_GPL(mhi_queue_is_full);
  
  int mhi_send_cmd(struct mhi_controller *mhi_cntrl,
-@@ -1597,6 +1701,7 @@ static void mhi_reset_data_chan(struct mhi_controller *mhi_cntrl,
+@@ -1588,6 +1692,7 @@ static void mhi_reset_data_chan(struct mhi_controller *mhi_cntrl,
  	tre_ring = &mhi_chan->tre_ring;
  	result.transaction_status = -ENOTCONN;
  	result.bytes_xferd = 0;
@@ -681,7 +681,7 @@ index 0082fde93f19..b0d5292224e6 100644
  	while (tre_ring->rp != tre_ring->wp) {
  		struct mhi_buf_info *buf_info = buf_ring->rp;
  
-@@ -1644,31 +1749,47 @@ void mhi_reset_chan(struct mhi_controller *mhi_cntrl, struct mhi_chan *mhi_chan)
+@@ -1635,31 +1740,47 @@ void mhi_reset_chan(struct mhi_controller *mhi_cntrl, struct mhi_chan *mhi_chan)
  
  static int __mhi_prepare_for_transfer(struct mhi_device *mhi_dev, unsigned int flags)
  {
@@ -737,7 +737,7 @@ index 0082fde93f19..b0d5292224e6 100644
  	return ret;
  }
  
-@@ -1688,10 +1809,18 @@ void mhi_unprepare_from_transfer(struct mhi_device *mhi_dev)
+@@ -1679,10 +1800,18 @@ void mhi_unprepare_from_transfer(struct mhi_device *mhi_dev)
  {
  	struct mhi_controller *mhi_cntrl = mhi_dev->mhi_cntrl;
  	struct mhi_chan *mhi_chan;
@@ -759,7 +759,7 @@ index 0082fde93f19..b0d5292224e6 100644
  		if (!mhi_chan)
  			continue;
  
-@@ -1700,10 +1829,10 @@ void mhi_unprepare_from_transfer(struct mhi_device *mhi_dev)
+@@ -1691,10 +1820,10 @@ void mhi_unprepare_from_transfer(struct mhi_device *mhi_dev)
  }
  EXPORT_SYMBOL_GPL(mhi_unprepare_from_transfer);
  
@@ -772,7 +772,7 @@ index 0082fde93f19..b0d5292224e6 100644
  	struct mhi_event *mhi_event = &mhi_cntrl->mhi_event[mhi_chan->er_index];
  	int ret;
  
-@@ -1713,4 +1842,10 @@ int mhi_poll(struct mhi_device *mhi_dev, u32 budget)
+@@ -1704,4 +1833,10 @@ int mhi_poll(struct mhi_device *mhi_dev, u32 budget)
  
  	return ret;
  }
@@ -955,5 +955,5 @@ index c275862660cf..50d38c8cb206 100644
 +
  #endif /* _MHI_H_ */
 -- 
-2.45.2
+2.46.0
 

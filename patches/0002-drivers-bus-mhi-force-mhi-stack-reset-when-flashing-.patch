@@ -1,4 +1,4 @@
-From db2bd67a0961245a060cbb59848e89d40261a083 Mon Sep 17 00:00:00 2001
+From a33a1aa8fb054fad9b328d89649bffff3da3dfae Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Thu, 28 Jul 2022 16:07:54 +0200
 Subject: [PATCH 02/26] drivers: bus: mhi: force mhi stack reset when flashing
@@ -117,5 +117,5 @@ index fc8ecafd25fa..f30dc490a174 100644
   * struct wwan_netdev_priv - WWAN core network device private data
   * @link_id: WWAN device data link id
 -- 
-2.45.2
+2.46.0
 

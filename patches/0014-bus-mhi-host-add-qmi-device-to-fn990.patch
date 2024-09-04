@@ -1,4 +1,4 @@
-From 4cf1cbdbfad8111ea4d3aa8880ca4318f399e6b3 Mon Sep 17 00:00:00 2001
+From 3cc80f5909c47ab31982b44e2bc0d6c9577e9e3a Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Tue, 21 Feb 2023 08:59:46 +0100
 Subject: [PATCH 14/26] bus: mhi: host: add qmi device to fn990
@@ -22,5 +22,5 @@ index b50eeadb8a5e..2cb97f90aca4 100644
  	MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(19, "IP_CTRL", 8, 1),
  	MHI_CHANNEL_CONFIG_UL(32, "DUN", 32, 0),
 -- 
-2.45.2
+2.46.0
 

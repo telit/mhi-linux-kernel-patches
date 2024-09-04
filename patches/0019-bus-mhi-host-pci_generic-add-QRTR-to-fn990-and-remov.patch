@@ -1,4 +1,4 @@
-From 2e010b4d5bbf01f5bcbeb10673bb181a15789911 Mon Sep 17 00:00:00 2001
+From 184462bd7fe56c12075f54871a7aac35f0950938 Mon Sep 17 00:00:00 2001
 From: Daniele Palmas <dnlplm@gmail.com>
 Date: Wed, 7 Feb 2024 12:08:23 +0100
 Subject: [PATCH 19/26] bus: mhi: host: pci_generic: add QRTR to fn990 and
@@ -29,5 +29,5 @@ index bbec4ec16e51..cf42ebaa32c0 100644
  	MHI_CHANNEL_CONFIG_DL(33, "DUN", 32, 0),
  	MHI_CHANNEL_CONFIG_UL(92, "DUN2", 32, 1),
 -- 
-2.45.2
+2.46.0
 
