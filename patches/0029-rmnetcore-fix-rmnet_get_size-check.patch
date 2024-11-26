@@ -1,0 +1,27 @@
+From 5ac6378f5863bff80fdb6299ca1cdf0b53b3e049 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Mon, 4 Nov 2024 10:22:20 +0100
+Subject: [PATCH 29/31] rmnetcore: fix rmnet_get_size check
+
+---
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
+index 4cad4c131b8f..db8babac12ea 100644
+--- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
++++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
+@@ -484,6 +484,10 @@ static size_t rmnet_get_size(const struct net_device *dev)
+ 		nla_total_size(2) +
+ 		/* IFLA_RMNET_FLAGS */
+ 		nla_total_size(sizeof(struct ifla_rmnet_flags)) +
++		/* IFLA_RMNET_QUEUE_NUM */
++		nla_total_size(1) +
++		/* IFLA_RMNET_TYPE */
++		nla_total_size(1) +
+ 		/* IFLA_RMNET_QUEUE */
+ 		nla_total_size(sizeof(struct rmnet_queue_mapping));
+ }
+-- 
+2.43.0
+

@@ -1,0 +1,25 @@
+From d68ef414cdc78b423b3252500c86ef8ec34faf67 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Mon, 4 Nov 2024 10:28:12 +0100
+Subject: [PATCH 31/31] bus: mhi: fix tx wrong usage in mhi_release_device
+
+---
+ drivers/bus/mhi/host/init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
+index 1d28300e51ea..85531eb3280d 100644
+--- a/drivers/bus/mhi/host/init.c
++++ b/drivers/bus/mhi/host/init.c
+@@ -1242,7 +1242,7 @@ static void mhi_release_device(struct device *dev)
+ 	for (i=0; i < mhi_dev->num_tx_chan; i++)
+ 		mhi_dev->ul_chan[i]->mhi_dev = NULL;
+ 
+-	for (i=0; i < mhi_dev->num_tx_chan; i++)
++	for (i=0; i < mhi_dev->num_rx_chan; i++)
+ 		mhi_dev->dl_chan[i]->mhi_dev = NULL;
+ 
+ 	kfree(mhi_dev->ul_chan);
+-- 
+2.43.0
+
